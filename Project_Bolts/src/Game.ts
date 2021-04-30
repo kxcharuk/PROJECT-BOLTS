@@ -12,7 +12,7 @@ let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
 let assetManager:AssetManager;
 
-// --------------------------------------------------- event handlers
+// --------------------------------------------------- event manager
 function onGameEvent(e:createjs.Event):void{
     switch (e.type){
         case "gameStart":
@@ -27,7 +27,6 @@ function onGameEvent(e:createjs.Event):void{
             
         break;  
     }
-
 }
 
 // --------------------------------------------------- onReady + onTick event handlers
