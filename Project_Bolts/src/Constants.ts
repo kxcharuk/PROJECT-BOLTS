@@ -20,6 +20,18 @@ export const ASSET_MANIFEST = [
     },
     {
         type:"json",
+        src:"./lib/spritesheets/placeholder-assets.json",
+        id:"sprites",
+        data:0
+    },
+    {
+        type:"image",
+        src:"./lib/spritesheets/placeholder-assets.png",
+        id:"sprites",
+        data:0
+    },
+    {
+        type:"json",
         src:"./lib/spritesheets/glyphs.json",
         id:"glyphs",
         data:0

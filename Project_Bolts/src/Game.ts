@@ -8,6 +8,8 @@ import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST } from "./Constan
 import AssetManager from "./AssetManager";
 
 // game objects
+let background:createjs.Sprite;
+
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
 let assetManager:AssetManager;
@@ -34,6 +36,9 @@ function onReady(e:createjs.Event):void {
     console.log(">> adding sprites to game");
 
     // construct game object
+    background = assetManager.getSprite("placeholder-assets","background");
+    stage.addChild(background);
+
 
     // listen for game events
     stage.on("gameOver", onGameEvent);
