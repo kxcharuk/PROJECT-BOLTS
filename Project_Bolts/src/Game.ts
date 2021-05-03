@@ -6,13 +6,81 @@ import "createjs";
 // importing game constants
 import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST } from "./Constants";
 import AssetManager from "./AssetManager";
+import Player from "./Player";
 
 // game objects
 let background:createjs.Sprite;
+let player:Player;
 
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
 let assetManager:AssetManager;
+
+// key boolean
+let upKey:boolean = false;
+let downKey:boolean = false;
+let rightKey:boolean = false;
+let leftKey:boolean = false;
+
+
+// --------------------------------------------------- private methods
+function monitorKeys():void{
+    if(leftKey && upKey){
+        player.move(-135);
+    }
+    else if(leftKey && downKey){
+        player.move(135);
+    }
+    else if(rightKey && upKey){
+        player.move(-45);
+    }
+    else if(rightKey && downKey){
+        player.move(45);
+    }
+    else if(leftKey){
+        player.move(180);
+    }
+    else if(rightKey){
+        player.move(0);
+    }
+    else if(upKey){
+        player.move(-90);
+    }
+    else if(downKey){
+        player.move(90);
+    }
+}
+
+// --------------------------------------------------- event handlers
+function onKeyDown(e:KeyboardEvent):void{
+    if(e.key == "w" || e.key == "ArrowUp"){
+        upKey = true;
+    }
+    else if(e.key == "s" || e.key == "ArrowDown"){
+        downKey = true;
+    }
+    else if(e.key == "d" || e.key == "ArrowRight"){
+        rightKey = true;
+    }
+    else if(e.key == "a" || e.key == "ArrowLeft"){
+        leftKey = true;
+    }
+}
+
+function onKeyUp(e:KeyboardEvent):void{
+    if(e.key == "w" || e.key == "ArrowUp"){
+        upKey = false;
+    }
+    else if(e.key == "s" || e.key == "ArrowDown"){
+        downKey = false;
+    }
+    else if(e.key == "d" || e.key == "ArrowRight"){
+        rightKey = false;
+    }
+    else if(e.key == "a" || e.key == "ArrowLeft"){
+        leftKey = false;
+    }
+}
 
 // --------------------------------------------------- event manager
 function onGameEvent(e:createjs.Event):void{
@@ -39,11 +107,20 @@ function onReady(e:createjs.Event):void {
     background = assetManager.getSprite("placeholder-assets","background");
     stage.addChild(background);
 
+    player = new Player(stage, assetManager);
+    player.sprite.x = 240;
+    player.sprite.y = 240;
+    stage.addChild(player.sprite);
+
 
     // listen for game events
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
+
+    // set up keyboard listeners
+    document.onkeydown = onKeyDown;
+    document.onkeyup = onKeyUp;
 
     // startup the ticker
     createjs.Ticker.framerate = FRAME_RATE;
@@ -61,12 +138,6 @@ function onTick(e:createjs.Event):void {
     // update the stage!
     stage.update();
 }
-
-// --------------------------------------------------- private methods
-function monitorKeys():void{
-    
-}
-
 
 // --------------------------------------------------- main method
 function main():void {

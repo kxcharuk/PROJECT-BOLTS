@@ -5,12 +5,12 @@ export default class GameObject{
     // class constants
 
     // properties
-    private _sprite:createjs.Sprite;
-    private _isActive:boolean;
+    protected _sprite:createjs.Sprite;
+    protected _isActive:boolean;
 
     // local refs
-    private stage:createjs.StageGL;
-    private assetManager:AssetManager;
+    protected stage:createjs.StageGL;
+    protected assetManager:AssetManager;
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         // link local refs to handle
