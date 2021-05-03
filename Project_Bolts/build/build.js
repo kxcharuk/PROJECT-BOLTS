@@ -10030,6 +10030,9 @@ function onKeyUp(e) {
         leftKey = false;
     }
 }
+function onMouseMove(e) {
+    player.rotateTowards();
+}
 function onGameEvent(e) {
     switch (e.type) {
         case "gameStart":
@@ -10051,8 +10054,10 @@ function onReady(e) {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
+    stage.mouseMoveOutside = true;
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
+    document.onmousemove = onMouseMove;
     createjs.Ticker.framerate = Constants_1.FRAME_RATE;
     createjs.Ticker.on("tick", onTick);
     console.log(">> game ready");
@@ -10068,6 +10073,7 @@ function main() {
     canvas.width = Constants_1.STAGE_WIDTH;
     canvas.height = Constants_1.STAGE_HEIGHT;
     stage = new createjs.StageGL(canvas, { antialias: true });
+    stage.enableMouseOver(20);
     assetManager = new AssetManager_1.default(stage);
     stage.on("allAssetsLoaded", onReady, null, true);
     assetManager.loadAssets(Constants_1.ASSET_MANIFEST);
@@ -10145,6 +10151,12 @@ class Player extends GameObject_1.default {
         this.yDisplacement = Math.sin(Toolkit_1.toRadians(degree));
         this._sprite.x += this.xDisplacement * this._speed;
         this._sprite.y += this.yDisplacement * this._speed;
+    }
+    rotateTowards() {
+        let adj = this.stage.mouseX - this._sprite.x;
+        let opp = this.stage.mouseY - this._sprite.y;
+        let radians = Math.atan2(opp, adj);
+        this._sprite.rotation = Toolkit_1.toDegrees(radians);
     }
     killMe() {
         if (this._state != Player.STATE_ALIVE) {
@@ -10235,6 +10247,10 @@ function toRadians(degrees) {
     return (degrees * (Math.PI / 180));
 }
 exports.toRadians = toRadians;
+function toDegrees(radians) {
+    return (radians * (180 / Math.PI));
+}
+exports.toDegrees = toDegrees;
 
 
 /***/ }),

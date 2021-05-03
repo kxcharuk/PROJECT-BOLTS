@@ -82,6 +82,10 @@ function onKeyUp(e:KeyboardEvent):void{
     }
 }
 
+function onMouseMove(e:MouseEvent):void{
+    player.rotateTowards();
+}
+
 // --------------------------------------------------- event manager
 function onGameEvent(e:createjs.Event):void{
     switch (e.type){
@@ -95,7 +99,7 @@ function onGameEvent(e:createjs.Event):void{
 
         case "gameReset": 
             
-        break;  
+        break;
     }
 }
 
@@ -117,10 +121,12 @@ function onReady(e:createjs.Event):void {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
+    stage.mouseMoveOutside = true;
 
     // set up keyboard listeners
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
+    document.onmousemove = onMouseMove;
 
     // startup the ticker
     createjs.Ticker.framerate = FRAME_RATE;
@@ -151,7 +157,7 @@ function main():void {
 
     // create stage object
     stage = new createjs.StageGL(canvas, { antialias: true });
-
+    stage.enableMouseOver(20);
     // construct AssetManager object to load spritesheet and sound assets
     assetManager = new AssetManager(stage);
     stage.on("allAssetsLoaded", onReady, null, true);

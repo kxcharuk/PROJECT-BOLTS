@@ -1,6 +1,6 @@
 import AssetManager from "./AssetManager";
 import GameObject from "./GameObject";
-import { toRadians } from "./Toolkit";
+import { toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Player extends GameObject{
@@ -39,6 +39,14 @@ export default class Player extends GameObject{
         
         this._sprite.x += this.xDisplacement * this._speed;
         this._sprite.y += this.yDisplacement * this._speed;
+    }
+
+    public rotateTowards():void{
+        let adj:number = this.stage.mouseX - this._sprite.x; // works but need to make the x and y not central to the player sprite but the page instead (or maybe the canvas)
+        let opp:number = this.stage.mouseY - this._sprite.y;
+        let radians:number = Math.atan2(opp,adj);
+
+        this._sprite.rotation = toDegrees(radians);
     }
     // -------------------------------------------------------------------- private methods
     private killMe():void{
