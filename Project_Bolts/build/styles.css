@@ -2,10 +2,10 @@ body {
 	margin: 0px;
 	padding: 0px;
 	overflow: hidden;
-	background: #FFFFFF;
+	background: #2586e0cc;
 	font-family: verdana,arial,helvetica,sans-serif;
 	font-size: 12px;
-    color: #000000;
+    color: #ffffff;
     user-select: none;
     /* to prohibit double clicking in game selecting the entire canvas */
     -webkit-user-select: none; /* webkit (safari, chrome) browsers */

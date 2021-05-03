@@ -110,7 +110,7 @@ function onReady(e:createjs.Event):void {
     player = new Player(stage, assetManager);
     player.sprite.x = 240;
     player.sprite.y = 240;
-    stage.addChild(player.sprite);
+    player.addMe();
 
 
     // listen for game events

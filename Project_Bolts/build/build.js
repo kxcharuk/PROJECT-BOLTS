@@ -10047,7 +10047,7 @@ function onReady(e) {
     player = new Player_1.default(stage, assetManager);
     player.sprite.x = 240;
     player.sprite.y = 240;
-    stage.addChild(player.sprite);
+    player.addMe();
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
@@ -10136,6 +10136,7 @@ class Player extends GameObject_1.default {
         super(stage, assetManager);
         this._speed = 4;
         this._sprite = assetManager.getSprite("placeholder-assets", "player");
+        this.eventPlayerDied = new createjs.Event("playerdied", true, false);
     }
     update() {
     }
@@ -10144,6 +10145,15 @@ class Player extends GameObject_1.default {
         this.yDisplacement = Math.sin(Toolkit_1.toRadians(degree));
         this._sprite.x += this.xDisplacement * this._speed;
         this._sprite.y += this.yDisplacement * this._speed;
+    }
+    killMe() {
+        if (this._state != Player.STATE_ALIVE) {
+            return;
+        }
+        this._state = Player.STATE_DEAD;
+        this._isActive = false;
+        this.removeMe();
+        this._sprite.dispatchEvent(this.eventPlayerDied);
     }
 }
 exports.default = Player;
