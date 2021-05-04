@@ -10121,7 +10121,7 @@ class GameObject {
         this.stage.removeChild(this._sprite);
         this._isActive = false;
     }
-    moveMe(x, y) {
+    positionMe(x, y) {
         this._sprite.x = x;
         this._sprite.y = y;
     }
@@ -10171,7 +10171,7 @@ class Player extends GameObject_1.default {
         let adj = this.stage.mouseX - this._sprite.x;
         let opp = this.stage.mouseY - this._sprite.y;
         let radians = Math.atan2(opp, adj);
-        this._sprite.rotation = Toolkit_1.toDegrees(radians);
+        this._sprite.rotation = Toolkit_1.toDegrees(radians) + 90;
     }
     killMe() {
         if (this._state != Player.STATE_ALIVE) {
@@ -10247,19 +10247,16 @@ class Projectile extends GameObject_1.default {
         this.getDirection();
         super.addMe();
     }
-    positionMe(x, y) {
-        this._sprite.x = x;
-        this._sprite.y = y;
-    }
     rotate(degrees) {
         this._sprite.rotation = degrees;
+        this.playerRotation = degrees - 90;
     }
     move() {
         this._sprite.x += this.xDisplacement;
         this._sprite.y += this.yDisplacement;
     }
     getDirection() {
-        let radians = Toolkit_1.toRadians(this._sprite.rotation);
+        let radians = Toolkit_1.toRadians(this.playerRotation);
         this.xDisplacement = Math.cos(radians) * this._speed;
         this.yDisplacement = Math.sin(radians) * this._speed;
     }

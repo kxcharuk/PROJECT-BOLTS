@@ -24,7 +24,6 @@ export default class Player extends GameObject{
         super(stage,assetManager);
         this._speed = 4; // change to constant in Constants
         this._sprite = assetManager.getSprite("placeholder-assets", "player");
-
         this.eventPlayerDied = new createjs.Event("playerdied", true, false);
     }
 
@@ -46,7 +45,7 @@ export default class Player extends GameObject{
         let opp:number = this.stage.mouseY - this._sprite.y;
         let radians:number = Math.atan2(opp,adj);
 
-        this._sprite.rotation = toDegrees(radians);
+        this._sprite.rotation = toDegrees(radians) + 90;
     }
     // -------------------------------------------------------------------- private methods
     private killMe():void{

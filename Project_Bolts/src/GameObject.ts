@@ -38,7 +38,7 @@ export default class GameObject{
         this._isActive = false;
     }
 
-    public moveMe(x:number, y:number):void{
+    public positionMe(x:number, y:number):void{
         this._sprite.x = x;
         this._sprite.y = y;
     }
