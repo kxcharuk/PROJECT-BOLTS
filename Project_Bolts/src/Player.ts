@@ -45,7 +45,7 @@ export default class Player extends GameObject{
         let opp:number = this.stage.mouseY - this._sprite.y;
         let radians:number = Math.atan2(opp,adj);
 
-        this._sprite.rotation = toDegrees(radians) + 90;
+        this._sprite.rotation = toDegrees(radians);
     }
     // -------------------------------------------------------------------- private methods
     private killMe():void{

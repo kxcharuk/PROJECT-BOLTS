@@ -10,7 +10,6 @@ export default class Projectile extends GameObject{
 
     private xDisplacement:number;
     private yDisplacement:number;
-    private playerRotation:number;
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage, assetManager);
@@ -32,8 +31,6 @@ export default class Projectile extends GameObject{
 
     public rotate(degrees:number):void{
         this._sprite.rotation = degrees;
-        // debug
-        this.playerRotation = degrees - 90;
     }
 
     // ----------------------------------------------------------------------------- private methods
@@ -43,7 +40,7 @@ export default class Projectile extends GameObject{
     }
 
     private getDirection():void{
-        let radians:number = toRadians(this.playerRotation);
+        let radians:number = toRadians(this._sprite.rotation);
 
         this.xDisplacement = Math.cos(radians) * this._speed;
         this.yDisplacement = Math.sin(radians) * this._speed;
