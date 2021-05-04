@@ -7,10 +7,12 @@ import "createjs";
 import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST } from "./Constants";
 import AssetManager from "./AssetManager";
 import Player from "./Player";
+import PlayerProjectile from "./PlayerProjectile";
 
 // game objects
 let background:createjs.Sprite;
 let player:Player;
+let playerProj:PlayerProjectile;
 
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
@@ -88,9 +90,12 @@ function onMouseMove(e:MouseEvent):void{
 
 function onMouseDown(e:MouseEvent):void{
     console.log("click");
+    playerProj.positionMe(player.sprite.x, player.sprite.y);
+    playerProj.rotate(player.sprite.rotation);
+    playerProj.addMe();
 }
 
-// --------------------------------------------------- event manager
+// --------------------------------------------------- game event manager
 function onGameEvent(e:createjs.Event):void{
     switch (e.type){
         case "gameStart":
@@ -120,6 +125,8 @@ function onReady(e:createjs.Event):void {
     player.sprite.y = 240;
     player.addMe();
 
+    playerProj = new PlayerProjectile(stage, assetManager);
+
 
     // listen for game events
     stage.on("gameOver", onGameEvent);
@@ -145,6 +152,7 @@ function onTick(e:createjs.Event):void {
     
     // object updates
     monitorKeys();
+    playerProj.update();
     
     // update the stage!
     stage.update();

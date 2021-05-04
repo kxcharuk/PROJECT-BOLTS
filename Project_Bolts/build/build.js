@@ -9967,8 +9967,10 @@ __webpack_require__(/*! createjs */ "./node_modules/createjs/builds/1.0.0/create
 const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
 const AssetManager_1 = __webpack_require__(/*! ./AssetManager */ "./src/AssetManager.ts");
 const Player_1 = __webpack_require__(/*! ./Player */ "./src/Player.ts");
+const PlayerProjectile_1 = __webpack_require__(/*! ./PlayerProjectile */ "./src/PlayerProjectile.ts");
 let background;
 let player;
+let playerProj;
 let stage;
 let canvas;
 let assetManager;
@@ -10035,6 +10037,9 @@ function onMouseMove(e) {
 }
 function onMouseDown(e) {
     console.log("click");
+    playerProj.positionMe(player.sprite.x, player.sprite.y);
+    playerProj.rotate(player.sprite.rotation);
+    playerProj.addMe();
 }
 function onGameEvent(e) {
     switch (e.type) {
@@ -10054,6 +10059,7 @@ function onReady(e) {
     player.sprite.x = 240;
     player.sprite.y = 240;
     player.addMe();
+    playerProj = new PlayerProjectile_1.default(stage, assetManager);
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
@@ -10069,6 +10075,7 @@ function onReady(e) {
 function onTick(e) {
     document.getElementById("fps").innerHTML = String(createjs.Ticker.getMeasuredFPS());
     monitorKeys();
+    playerProj.update();
     stage.update();
 }
 function main() {
@@ -10181,6 +10188,86 @@ Player.STATE_ALIVE = 1;
 Player.STATE_TAKING_DAMAGE = 2;
 Player.STATE_DYING = 3;
 Player.STATE_DEAD = 4;
+
+
+/***/ }),
+
+/***/ "./src/PlayerProjectile.ts":
+/*!*********************************!*\
+  !*** ./src/PlayerProjectile.ts ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Projectile_1 = __webpack_require__(/*! ./Projectile */ "./src/Projectile.ts");
+class PlayerProjectile extends Projectile_1.default {
+    constructor(stage, assetManager) {
+        super(stage, assetManager);
+        this._sprite = assetManager.getSprite("placeholder-assets", "projectile");
+    }
+    update() {
+        super.update();
+        this.detectCollisions();
+    }
+    detectCollisions() {
+    }
+}
+exports.default = PlayerProjectile;
+
+
+/***/ }),
+
+/***/ "./src/Projectile.ts":
+/*!***************************!*\
+  !*** ./src/Projectile.ts ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const GameObject_1 = __webpack_require__(/*! ./GameObject */ "./src/GameObject.ts");
+const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
+class Projectile extends GameObject_1.default {
+    constructor(stage, assetManager) {
+        super(stage, assetManager);
+        this._speed = 8;
+    }
+    update() {
+        if (!this._isActive) {
+            return;
+        }
+        this.move();
+    }
+    addMe() {
+        this.getDirection();
+        super.addMe();
+    }
+    positionMe(x, y) {
+        this._sprite.x = x;
+        this._sprite.y = y;
+    }
+    rotate(degrees) {
+        this._sprite.rotation = degrees;
+    }
+    move() {
+        this._sprite.x += this.xDisplacement;
+        this._sprite.y += this.yDisplacement;
+    }
+    getDirection() {
+        let radians = Toolkit_1.toRadians(this._sprite.rotation);
+        this.xDisplacement = Math.cos(radians) * this._speed;
+        this.yDisplacement = Math.sin(radians) * this._speed;
+    }
+    get speed() {
+        return this._speed;
+    }
+}
+exports.default = Projectile;
 
 
 /***/ }),

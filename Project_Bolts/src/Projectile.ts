@@ -29,6 +29,11 @@ export default class Projectile extends GameObject{
         super.addMe();
     }
 
+    public positionMe(x:number, y:number):void{
+        this._sprite.x = x;
+        this._sprite.y = y;
+    }
+
     public rotate(degrees:number):void{
         this._sprite.rotation = degrees;
     }
