@@ -86,6 +86,10 @@ function onMouseMove(e:MouseEvent):void{
     player.rotateTowards();
 }
 
+function onMouseDown(e:MouseEvent):void{
+    console.log("click");
+}
+
 // --------------------------------------------------- event manager
 function onGameEvent(e:createjs.Event):void{
     switch (e.type){
@@ -127,6 +131,7 @@ function onReady(e:createjs.Event):void {
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
     document.onmousemove = onMouseMove;
+    document.onmousedown = onMouseDown;
 
     // startup the ticker
     createjs.Ticker.framerate = FRAME_RATE;

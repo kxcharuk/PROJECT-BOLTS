@@ -10033,6 +10033,9 @@ function onKeyUp(e) {
 function onMouseMove(e) {
     player.rotateTowards();
 }
+function onMouseDown(e) {
+    console.log("click");
+}
 function onGameEvent(e) {
     switch (e.type) {
         case "gameStart":
@@ -10058,6 +10061,7 @@ function onReady(e) {
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
     document.onmousemove = onMouseMove;
+    document.onmousedown = onMouseDown;
     createjs.Ticker.framerate = Constants_1.FRAME_RATE;
     createjs.Ticker.on("tick", onTick);
     console.log(">> game ready");
@@ -10109,6 +10113,10 @@ class GameObject {
         this._sprite.stop();
         this.stage.removeChild(this._sprite);
         this._isActive = false;
+    }
+    moveMe(x, y) {
+        this._sprite.x = x;
+        this._sprite.y = y;
     }
     get isActive() {
         return this._isActive;
