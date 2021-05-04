@@ -4,7 +4,7 @@
 // importing createjs framework
 import "createjs";
 // importing game constants
-import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST } from "./Constants";
+import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST, PLAYER_PROJECTILE_MAX } from "./Constants";
 import AssetManager from "./AssetManager";
 import Player from "./Player";
 import PlayerProjectile from "./PlayerProjectile";
@@ -12,7 +12,7 @@ import PlayerProjectile from "./PlayerProjectile";
 // game objects
 let background:createjs.Sprite;
 let player:Player;
-let playerProj:PlayerProjectile;
+let playerProjPool:PlayerProjectile[] = [];
 
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
@@ -89,10 +89,15 @@ function onMouseMove(e:MouseEvent):void{
 }
 
 function onMouseDown(e:MouseEvent):void{
+    if(!player.CanShoot) {return;}
     console.log("click");
-    playerProj.positionMe(player.sprite.x, player.sprite.y);
-    playerProj.rotate(player.sprite.rotation);
-    playerProj.addMe();
+    for(let projectile of playerProjPool){
+        if(projectile.isActive == false){
+            projectile.shoot(player.sprite.x, player.sprite.y, player.sprite.rotation);
+            player.CanShoot = false;
+            break;
+        }
+    }
 }
 
 // --------------------------------------------------- game event manager
@@ -125,7 +130,10 @@ function onReady(e:createjs.Event):void {
     player.sprite.y = 240;
     player.addMe();
 
-    playerProj = new PlayerProjectile(stage, assetManager);
+    for(let i:number = 0; i < PLAYER_PROJECTILE_MAX; i++){
+        playerProjPool.push(new PlayerProjectile(stage, assetManager));
+        console.log("projectile amount: " + i);
+    }
 
 
     // listen for game events
@@ -152,7 +160,12 @@ function onTick(e:createjs.Event):void {
     
     // object updates
     monitorKeys();
-    playerProj.update();
+    player.update();
+    for(let projectile of playerProjPool){
+        if(projectile.isActive){
+            projectile.update();
+        }
+    }
     
     // update the stage!
     stage.update();

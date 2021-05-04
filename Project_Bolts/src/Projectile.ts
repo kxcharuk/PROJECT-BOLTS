@@ -6,14 +6,14 @@ import { toRadians } from "./Toolkit";
 export default class Projectile extends GameObject{
 
     // properties
-    private _speed:number;
+    protected _speed:number;
 
     private xDisplacement:number;
     private yDisplacement:number;
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage, assetManager);
-
+        this._isActive = false;
         this._speed = 8; // remember to move to constants
     }
 
@@ -31,6 +31,12 @@ export default class Projectile extends GameObject{
 
     public rotate(degrees:number):void{
         this._sprite.rotation = degrees;
+    }
+
+    public shoot(x:number, y:number, degrees:number):void{
+        this.positionMe(x,y);
+        this.rotate(degrees);
+        this.addMe();
     }
 
     // ----------------------------------------------------------------------------- private methods

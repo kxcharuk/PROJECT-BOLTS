@@ -1,4 +1,5 @@
 import AssetManager from "./AssetManager";
+import { PLAYER_SHOT_DELAY, PLAYER_SPEED } from "./Constants";
 import GameObject from "./GameObject";
 import { toDegrees, toRadians } from "./Toolkit";
 
@@ -13,6 +14,9 @@ export default class Player extends GameObject{
     // properties
     private _speed:number;
     private _state:number;
+    private _canShoot:boolean;
+    private _shotDelay:number;
+    private _ticksExpired:number;
 
     private xDisplacement:number;
     private yDisplacement:number;
@@ -22,14 +26,20 @@ export default class Player extends GameObject{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage,assetManager);
-        this._speed = 4; // change to constant in Constants
+        this._speed = PLAYER_SPEED;
         this._sprite = assetManager.getSprite("placeholder-assets", "player");
+        this._canShoot = true;
+        this._shotDelay = PLAYER_SHOT_DELAY;
+        this._ticksExpired = 0;
         this.eventPlayerDied = new createjs.Event("playerdied", true, false);
     }
 
     // -------------------------------------------------------------------- public methods
     public update():void{
 
+        if(!this._canShoot){
+            this.checkShootDelay();
+        }
     }
 
     public move(degree:number):void{
@@ -56,6 +66,19 @@ export default class Player extends GameObject{
         this._sprite.dispatchEvent(this.eventPlayerDied);
     }
 
+    private checkShootDelay():void{
+        this._ticksExpired++;
+        if(this._ticksExpired >= this._shotDelay){
+            this._canShoot = true;
+            this._ticksExpired = 0;
+        }
+    }
 
     // -------------------------------------------------------------------- accessors
+    public get CanShoot():boolean{
+        return this._canShoot;
+    }
+    public set CanShoot(value:boolean){
+        this._canShoot = value;
+    }
 }

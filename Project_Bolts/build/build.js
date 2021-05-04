@@ -9935,6 +9935,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.STAGE_WIDTH = 480;
 exports.STAGE_HEIGHT = 480;
 exports.FRAME_RATE = 30;
+exports.PLAYER_SPEED = 5;
+exports.PLAYER_SHOT_DELAY = 30;
+exports.PLAYER_PROJECTILE_SPEED = 8;
+exports.PLAYER_PROJECTILE_MAX = 20;
 exports.ASSET_MANIFEST = [
     {
         type: "json",
@@ -9970,7 +9974,7 @@ const Player_1 = __webpack_require__(/*! ./Player */ "./src/Player.ts");
 const PlayerProjectile_1 = __webpack_require__(/*! ./PlayerProjectile */ "./src/PlayerProjectile.ts");
 let background;
 let player;
-let playerProj;
+let playerProjPool = [];
 let stage;
 let canvas;
 let assetManager;
@@ -10036,10 +10040,17 @@ function onMouseMove(e) {
     player.rotateTowards();
 }
 function onMouseDown(e) {
+    if (!player.CanShoot) {
+        return;
+    }
     console.log("click");
-    playerProj.positionMe(player.sprite.x, player.sprite.y);
-    playerProj.rotate(player.sprite.rotation);
-    playerProj.addMe();
+    for (let projectile of playerProjPool) {
+        if (projectile.isActive == false) {
+            projectile.shoot(player.sprite.x, player.sprite.y, player.sprite.rotation);
+            player.CanShoot = false;
+            break;
+        }
+    }
 }
 function onGameEvent(e) {
     switch (e.type) {
@@ -10059,7 +10070,10 @@ function onReady(e) {
     player.sprite.x = 240;
     player.sprite.y = 240;
     player.addMe();
-    playerProj = new PlayerProjectile_1.default(stage, assetManager);
+    for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
+        playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager));
+        console.log("projectile amount: " + i);
+    }
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
@@ -10075,7 +10089,12 @@ function onReady(e) {
 function onTick(e) {
     document.getElementById("fps").innerHTML = String(createjs.Ticker.getMeasuredFPS());
     monitorKeys();
-    playerProj.update();
+    player.update();
+    for (let projectile of playerProjPool) {
+        if (projectile.isActive) {
+            projectile.update();
+        }
+    }
     stage.update();
 }
 function main() {
@@ -10150,16 +10169,23 @@ exports.default = GameObject;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
 const GameObject_1 = __webpack_require__(/*! ./GameObject */ "./src/GameObject.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Player extends GameObject_1.default {
     constructor(stage, assetManager) {
         super(stage, assetManager);
-        this._speed = 4;
+        this._speed = Constants_1.PLAYER_SPEED;
         this._sprite = assetManager.getSprite("placeholder-assets", "player");
+        this._canShoot = true;
+        this._shotDelay = Constants_1.PLAYER_SHOT_DELAY;
+        this._ticksExpired = 0;
         this.eventPlayerDied = new createjs.Event("playerdied", true, false);
     }
     update() {
+        if (!this._canShoot) {
+            this.checkShootDelay();
+        }
     }
     move(degree) {
         this.xDisplacement = Math.cos(Toolkit_1.toRadians(degree));
@@ -10182,6 +10208,19 @@ class Player extends GameObject_1.default {
         this.removeMe();
         this._sprite.dispatchEvent(this.eventPlayerDied);
     }
+    checkShootDelay() {
+        this._ticksExpired++;
+        if (this._ticksExpired >= this._shotDelay) {
+            this._canShoot = true;
+            this._ticksExpired = 0;
+        }
+    }
+    get CanShoot() {
+        return this._canShoot;
+    }
+    set CanShoot(value) {
+        this._canShoot = value;
+    }
 }
 exports.default = Player;
 Player.STATE_ALIVE = 1;
@@ -10202,11 +10241,13 @@ Player.STATE_DEAD = 4;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
 const Projectile_1 = __webpack_require__(/*! ./Projectile */ "./src/Projectile.ts");
 class PlayerProjectile extends Projectile_1.default {
     constructor(stage, assetManager) {
         super(stage, assetManager);
         this._sprite = assetManager.getSprite("placeholder-assets", "projectile");
+        this._speed = Constants_1.PLAYER_PROJECTILE_SPEED;
     }
     update() {
         super.update();
@@ -10235,6 +10276,7 @@ const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Projectile extends GameObject_1.default {
     constructor(stage, assetManager) {
         super(stage, assetManager);
+        this._isActive = false;
         this._speed = 8;
     }
     update() {
@@ -10249,6 +10291,11 @@ class Projectile extends GameObject_1.default {
     }
     rotate(degrees) {
         this._sprite.rotation = degrees;
+    }
+    shoot(x, y, degrees) {
+        this.positionMe(x, y);
+        this.rotate(degrees);
+        this.addMe();
     }
     move() {
         this._sprite.x += this.xDisplacement;
