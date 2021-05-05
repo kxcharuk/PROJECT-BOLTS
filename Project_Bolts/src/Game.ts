@@ -8,11 +8,15 @@ import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST, PLAYER_PROJECTIL
 import AssetManager from "./AssetManager";
 import Player from "./Player";
 import PlayerProjectile from "./PlayerProjectile";
+import Tile from "./Tile";
+import Enemy from "./Enemy";
 
 // game objects
 let background:createjs.Sprite;
 let player:Player;
+let enemy:Enemy;
 let playerProjPool:PlayerProjectile[] = [];
+let tiles:Tile[] = [];
 
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
@@ -130,9 +134,54 @@ function onReady(e:createjs.Event):void {
     player.sprite.y = 240;
     player.addMe();
 
+    enemy = new Enemy(stage, assetManager);
+    enemy.looksAtPlayer = true;
+    enemy.positionMe(240, 200);
+    enemy.addMe();
+
     for(let i:number = 0; i < PLAYER_PROJECTILE_MAX; i++){
         playerProjPool.push(new PlayerProjectile(stage, assetManager));
-        console.log("projectile amount: " + i);
+    }
+
+    // temporary for first playable | will change when tiles functionality expands
+    for(let i:number = 0; i < 15; i++){
+        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_TOP));
+    }
+    for(let i:number = 0; i < 15; i++){
+        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_LEFT));
+    }
+    for(let i:number = 0; i < 15; i++){
+        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_RIGHT));
+    }
+    for(let i:number = 0; i < 15; i++){
+        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_BOTTOM));
+    }
+    console.log("tiles.length = " + tiles.length);
+    let iT:number = 16;
+    let iL:number = 16;
+    let iR:number = 16;
+    let iB:number = 16;
+    for(let tile of tiles){
+        if(tile.type == Tile.TYPE_WALL_TOP){
+            tile.positionMe(iT, 16);
+            tile.addMe();
+            iT += 32;
+        }
+        else if(tile.type == Tile.TYPE_WALL_LEFT){
+            tile.positionMe(16, iL);
+            tile.addMe();
+            iL += 32;
+        }
+        else if(tile.type == Tile.TYPE_WALL_RIGHT){
+            tile.positionMe(464, iR);
+            tile.addMe();
+            iR += 32;
+        }
+        else if(tile.type == Tile.TYPE_WALL_BOTTOM){
+            tile.positionMe(iB, 464);
+            tile.addMe();
+            iB += 32;
+        }
     }
 
 
@@ -161,6 +210,7 @@ function onTick(e:createjs.Event):void {
     // object updates
     monitorKeys();
     player.update();
+    enemy.update(tiles, player);
     for(let projectile of playerProjPool){
         if(projectile.isActive){
             projectile.update();
