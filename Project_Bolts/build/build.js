@@ -9939,6 +9939,8 @@ exports.PLAYER_SPEED = 5;
 exports.PLAYER_SHOT_DELAY = 30;
 exports.PLAYER_PROJECTILE_SPEED = 8;
 exports.PLAYER_PROJECTILE_MAX = 20;
+exports.ENEMY_SPEED = 4;
+exports.ENEMY_SHOT_DELAY = 20;
 exports.ASSET_MANIFEST = [
     {
         type: "json",
@@ -9972,9 +9974,11 @@ const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts")
 const AssetManager_1 = __webpack_require__(/*! ./AssetManager */ "./src/AssetManager.ts");
 const Player_1 = __webpack_require__(/*! ./Player */ "./src/Player.ts");
 const PlayerProjectile_1 = __webpack_require__(/*! ./PlayerProjectile */ "./src/PlayerProjectile.ts");
+const Tile_1 = __webpack_require__(/*! ./Tile */ "./src/Tile.ts");
 let background;
 let player;
 let playerProjPool = [];
+let tiles = [];
 let stage;
 let canvas;
 let assetManager;
@@ -10072,7 +10076,45 @@ function onReady(e) {
     player.addMe();
     for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
         playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager));
-        console.log("projectile amount: " + i);
+    }
+    for (let i = 0; i < 15; i++) {
+        tiles.push(new Tile_1.default(stage, assetManager, Tile_1.default.TYPE_WALL_TOP));
+    }
+    for (let i = 0; i < 15; i++) {
+        tiles.push(new Tile_1.default(stage, assetManager, Tile_1.default.TYPE_WALL_LEFT));
+    }
+    for (let i = 0; i < 15; i++) {
+        tiles.push(new Tile_1.default(stage, assetManager, Tile_1.default.TYPE_WALL_RIGHT));
+    }
+    for (let i = 0; i < 15; i++) {
+        tiles.push(new Tile_1.default(stage, assetManager, Tile_1.default.TYPE_WALL_BOTTOM));
+    }
+    console.log("tiles.length = " + tiles.length);
+    let iT = 16;
+    let iL = 16;
+    let iR = 16;
+    let iB = 16;
+    for (let tile of tiles) {
+        if (tile.type == Tile_1.default.TYPE_WALL_TOP) {
+            tile.positionMe(iT, 16);
+            tile.addMe();
+            iT += 32;
+        }
+        else if (tile.type == Tile_1.default.TYPE_WALL_LEFT) {
+            tile.positionMe(16, iL);
+            tile.addMe();
+            iL += 32;
+        }
+        else if (tile.type == Tile_1.default.TYPE_WALL_RIGHT) {
+            tile.positionMe(464, iR);
+            tile.addMe();
+            iR += 32;
+        }
+        else if (tile.type == Tile_1.default.TYPE_WALL_BOTTOM) {
+            tile.positionMe(iB, 464);
+            tile.addMe();
+            iB += 32;
+        }
     }
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
@@ -10127,8 +10169,6 @@ class GameObject {
     constructor(stage, assetManager) {
         this.stage = stage;
         this.assetManager = assetManager;
-    }
-    update() {
     }
     addMe() {
         this._sprite.play();
@@ -10224,9 +10264,8 @@ class Player extends GameObject_1.default {
 }
 exports.default = Player;
 Player.STATE_ALIVE = 1;
-Player.STATE_TAKING_DAMAGE = 2;
-Player.STATE_DYING = 3;
-Player.STATE_DEAD = 4;
+Player.STATE_DYING = 2;
+Player.STATE_DEAD = 3;
 
 
 /***/ }),
@@ -10311,6 +10350,36 @@ class Projectile extends GameObject_1.default {
     }
 }
 exports.default = Projectile;
+
+
+/***/ }),
+
+/***/ "./src/Tile.ts":
+/*!*********************!*\
+  !*** ./src/Tile.ts ***!
+  \*********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const GameObject_1 = __webpack_require__(/*! ./GameObject */ "./src/GameObject.ts");
+class Tile extends GameObject_1.default {
+    constructor(stage, assetManager, type) {
+        super(stage, assetManager);
+        this._sprite = assetManager.getSprite("placeholder-assets", "wall");
+        this._type = type;
+    }
+    get type() {
+        return this._type;
+    }
+}
+exports.default = Tile;
+Tile.TYPE_WALL_TOP = 1;
+Tile.TYPE_WALL_LEFT = 2;
+Tile.TYPE_WALL_RIGHT = 3;
+Tile.TYPE_WALL_BOTTOM = 4;
 
 
 /***/ }),
