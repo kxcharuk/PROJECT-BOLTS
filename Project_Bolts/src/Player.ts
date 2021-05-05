@@ -7,9 +7,8 @@ import { toDegrees, toRadians } from "./Toolkit";
 export default class Player extends GameObject{
     // class constants
     public static STATE_ALIVE:number = 1;
-    public static STATE_TAKING_DAMAGE:number = 2;
-    public static STATE_DYING:number = 3;
-    public static STATE_DEAD:number = 4;
+    public static STATE_DYING:number = 2;
+    public static STATE_DEAD:number = 3;
 
     // properties
     private _speed:number;

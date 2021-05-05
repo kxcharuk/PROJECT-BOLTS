@@ -10,6 +10,10 @@ export const PLAYER_SHOT_DELAY = 30;
 export const PLAYER_PROJECTILE_SPEED = 8;
 export const PLAYER_PROJECTILE_MAX = 20;
 
+// enemy const
+export const ENEMY_SPEED = 4;
+export const ENEMY_SHOT_DELAY = 20;
+
 // manifest for AssetManager
 export const ASSET_MANIFEST = [
     {

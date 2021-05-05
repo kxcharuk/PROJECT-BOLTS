@@ -22,9 +22,9 @@ export default class GameObject{
 
 
     // ----------------------------------------------------------------------------- public methods
-    public update():void{
+    // public update():void{
 
-    }
+    // }
 
     public addMe():void{
         this._sprite.play();
