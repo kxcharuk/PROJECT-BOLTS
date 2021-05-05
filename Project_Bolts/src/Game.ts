@@ -184,6 +184,7 @@ function main():void {
     // create stage object
     stage = new createjs.StageGL(canvas, { antialias: true });
     stage.enableMouseOver(20);
+    //stage.cursor = "none";
     // construct AssetManager object to load spritesheet and sound assets
     assetManager = new AssetManager(stage);
     stage.on("allAssetsLoaded", onReady, null, true);
