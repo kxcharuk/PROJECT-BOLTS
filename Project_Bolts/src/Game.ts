@@ -9,10 +9,12 @@ import AssetManager from "./AssetManager";
 import Player from "./Player";
 import PlayerProjectile from "./PlayerProjectile";
 import Tile from "./Tile";
+import Enemy from "./Enemy";
 
 // game objects
 let background:createjs.Sprite;
 let player:Player;
+let enemy:Enemy;
 let playerProjPool:PlayerProjectile[] = [];
 let tiles:Tile[] = [];
 
@@ -132,6 +134,11 @@ function onReady(e:createjs.Event):void {
     player.sprite.y = 240;
     player.addMe();
 
+    enemy = new Enemy(stage, assetManager);
+    enemy.looksAtPlayer = true;
+    enemy.positionMe(240, 200);
+    enemy.addMe();
+
     for(let i:number = 0; i < PLAYER_PROJECTILE_MAX; i++){
         playerProjPool.push(new PlayerProjectile(stage, assetManager));
     }
@@ -203,6 +210,7 @@ function onTick(e:createjs.Event):void {
     // object updates
     monitorKeys();
     player.update();
+    enemy.update(tiles, player);
     for(let projectile of playerProjPool){
         if(projectile.isActive){
             projectile.update();
