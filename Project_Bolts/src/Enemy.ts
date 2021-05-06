@@ -83,7 +83,6 @@ export default class Enemy extends GameObject{
                         }
                         // debug end
                         this.move();
-                        //this.move();
                     }
                 }
             }

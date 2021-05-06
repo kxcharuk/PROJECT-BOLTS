@@ -10175,7 +10175,7 @@ function onReady(e) {
     enemy.positionMe(240, 200);
     enemy.addMe();
     for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
-        playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager));
+        playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager, enemy));
     }
     for (let i = 0; i < 15; i++) {
         tiles.push(new Tile_1.default(stage, assetManager, Tile_1.default.TYPE_WALL_TOP));
@@ -10394,14 +10394,23 @@ Player.STATE_DEAD = 3;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
 const Projectile_1 = __webpack_require__(/*! ./Projectile */ "./src/Projectile.ts");
+const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class PlayerProjectile extends Projectile_1.default {
-    constructor(stage, assetManager) {
+    constructor(stage, assetManager, enemy) {
         super(stage, assetManager);
         this._sprite = assetManager.getSprite("placeholder-assets", "projectile");
         this._speed = Constants_1.PLAYER_PROJECTILE_SPEED;
+        this.enemy = enemy;
     }
     update(tiles) {
         super.update(tiles);
+        this.detectCollisions();
+    }
+    detectCollisions() {
+        if (Toolkit_1.radiusHit(this._sprite, 16, this.enemy.sprite, 16)) {
+            this.enemy.removeMe();
+            this.removeMe();
+        }
     }
 }
 exports.default = PlayerProjectile;

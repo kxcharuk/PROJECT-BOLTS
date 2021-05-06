@@ -139,7 +139,7 @@ function onReady(e:createjs.Event):void {
     enemy.addMe();
 
     for(let i:number = 0; i < PLAYER_PROJECTILE_MAX; i++){
-        playerProjPool.push(new PlayerProjectile(stage, assetManager));
+        playerProjPool.push(new PlayerProjectile(stage, assetManager, enemy));
     }
 
     // temporary for first playable | will change when tiles functionality expands
@@ -156,6 +156,7 @@ function onReady(e:createjs.Event):void {
         tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_BOTTOM));
     }
     console.log("tiles.length = " + tiles.length);
+    // placing tiles on stage (temp for first-playable)
     let iT:number = 16;
     let iL:number = 16;
     let iR:number = 16;
