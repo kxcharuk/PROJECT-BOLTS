@@ -1,6 +1,7 @@
 import AssetManager from "./AssetManager";
 import { PLAYER_PROJECTILE_SPEED } from "./Constants";
 import Projectile from "./Projectile";
+import Tile from "./Tile";
 import { radiusHit } from "./Toolkit";
 
 
@@ -14,14 +15,9 @@ export default class PlayerProjectile extends Projectile{
 
     // ----------------------------------------------------------------------------- public methods
 
-    public update(){
-        super.update();
-        this.detectCollisions();
+    public update(tiles:Tile[]){
+        super.update(tiles);
     }
 
     // ----------------------------------------------------------------------------- private methods
-
-    private detectCollisions():void{
-        
-    }
 }

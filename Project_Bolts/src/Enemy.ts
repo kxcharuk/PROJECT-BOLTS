@@ -85,7 +85,6 @@ export default class Enemy extends GameObject{
                         this.move();
                         //this.move();
                     }
-                    console.log("Movement angle = " + this._movementAngle);
                 }
             }
         }
@@ -115,5 +114,4 @@ export default class Enemy extends GameObject{
     public set looksAtPlayer(value:boolean){
         this._looksAtPlayer = value;
     }
-
 }

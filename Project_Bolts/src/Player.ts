@@ -1,7 +1,8 @@
 import AssetManager from "./AssetManager";
 import { PLAYER_SHOT_DELAY, PLAYER_SPEED } from "./Constants";
 import GameObject from "./GameObject";
-import { toDegrees, toRadians } from "./Toolkit";
+import Tile from "./Tile";
+import { boxHit, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Player extends GameObject{
@@ -34,11 +35,11 @@ export default class Player extends GameObject{
     }
 
     // -------------------------------------------------------------------- public methods
-    public update():void{
-
+    public update(tiles:Tile[]):void{
         if(!this._canShoot){
             this.checkShootDelay();
         }
+        this.detectCollisions(tiles);
     }
 
     public move(degree:number):void{
@@ -57,6 +58,18 @@ export default class Player extends GameObject{
         this._sprite.rotation = toDegrees(radians);
     }
     // -------------------------------------------------------------------- private methods
+    private detectCollisions(tiles:Tile[]):void{
+        for(let tile of tiles){
+            if(tile.isActive){
+                if(boxHit(this._sprite, tile.sprite)){
+                    // halting the sprite if trying to pass through a wall
+                    this._sprite.x -= this.xDisplacement * this._speed;
+                    this._sprite.y -= this.yDisplacement * this._speed;
+                }
+            }
+        }
+    }
+
     private killMe():void{
         if(this._state != Player.STATE_ALIVE) { return; }
         this._state = Player.STATE_DEAD; // this needs to be changed to STATE_DYING and using animationend to change to STATE_DEAD
@@ -77,6 +90,7 @@ export default class Player extends GameObject{
     public get CanShoot():boolean{
         return this._canShoot;
     }
+
     public set CanShoot(value:boolean){
         this._canShoot = value;
     }

@@ -28,7 +28,6 @@ let downKey:boolean = false;
 let rightKey:boolean = false;
 let leftKey:boolean = false;
 
-
 // --------------------------------------------------- private methods
 function monitorKeys():void{
     if(leftKey && upKey){
@@ -209,11 +208,11 @@ function onTick(e:createjs.Event):void {
     
     // object updates
     monitorKeys();
-    player.update();
+    player.update(tiles);
     enemy.update(tiles, player);
     for(let projectile of playerProjPool){
         if(projectile.isActive){
-            projectile.update();
+            projectile.update(tiles);
         }
     }
     

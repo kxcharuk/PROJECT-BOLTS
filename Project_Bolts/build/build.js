@@ -10028,7 +10028,6 @@ class Enemy extends GameObject_1.default {
                         }
                         this.move();
                     }
-                    console.log("Movement angle = " + this._movementAngle);
                 }
             }
         }
@@ -10232,11 +10231,11 @@ function onReady(e) {
 function onTick(e) {
     document.getElementById("fps").innerHTML = String(createjs.Ticker.getMeasuredFPS());
     monitorKeys();
-    player.update();
+    player.update(tiles);
     enemy.update(tiles, player);
     for (let projectile of playerProjPool) {
         if (projectile.isActive) {
-            projectile.update();
+            projectile.update(tiles);
         }
     }
     stage.update();
@@ -10324,10 +10323,11 @@ class Player extends GameObject_1.default {
         this._ticksExpired = 0;
         this.eventPlayerDied = new createjs.Event("playerdied", true, false);
     }
-    update() {
+    update(tiles) {
         if (!this._canShoot) {
             this.checkShootDelay();
         }
+        this.detectCollisions(tiles);
     }
     move(degree) {
         this.xDisplacement = Math.cos(Toolkit_1.toRadians(degree));
@@ -10340,6 +10340,16 @@ class Player extends GameObject_1.default {
         let opp = this.stage.mouseY - this._sprite.y;
         let radians = Math.atan2(opp, adj);
         this._sprite.rotation = Toolkit_1.toDegrees(radians);
+    }
+    detectCollisions(tiles) {
+        for (let tile of tiles) {
+            if (tile.isActive) {
+                if (Toolkit_1.boxHit(this._sprite, tile.sprite)) {
+                    this._sprite.x -= this.xDisplacement * this._speed;
+                    this._sprite.y -= this.yDisplacement * this._speed;
+                }
+            }
+        }
     }
     killMe() {
         if (this._state != Player.STATE_ALIVE) {
@@ -10390,11 +10400,8 @@ class PlayerProjectile extends Projectile_1.default {
         this._sprite = assetManager.getSprite("placeholder-assets", "projectile");
         this._speed = Constants_1.PLAYER_PROJECTILE_SPEED;
     }
-    update() {
-        super.update();
-        this.detectCollisions();
-    }
-    detectCollisions() {
+    update(tiles) {
+        super.update(tiles);
     }
 }
 exports.default = PlayerProjectile;
@@ -10420,11 +10427,12 @@ class Projectile extends GameObject_1.default {
         this._isActive = false;
         this._speed = 8;
     }
-    update() {
+    update(tiles) {
         if (!this._isActive) {
             return;
         }
         this.move();
+        this.detectCollisions(tiles);
     }
     addMe() {
         this.getDirection();
@@ -10446,6 +10454,16 @@ class Projectile extends GameObject_1.default {
         let radians = Toolkit_1.toRadians(this._sprite.rotation);
         this.xDisplacement = Math.cos(radians) * this._speed;
         this.yDisplacement = Math.sin(radians) * this._speed;
+    }
+    detectCollisions(tiles) {
+        for (let tile of tiles) {
+            if (tile.isActive) {
+                if (Toolkit_1.radiusHit(this._sprite, 12, tile.sprite, 12)) {
+                    this.removeMe();
+                    console.log("removing me");
+                }
+            }
+        }
     }
     get speed() {
         return this._speed;
