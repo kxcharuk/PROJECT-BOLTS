@@ -23,7 +23,7 @@ export default class Projectile extends GameObject{
     public update(tiles:Tile[]):void{
         if(!this._isActive) {return;}
         this.move();
-        this.detectCollisions(tiles);
+        //this.detectCollisions(tiles);
     }
 
     public addMe():void{
@@ -55,6 +55,7 @@ export default class Projectile extends GameObject{
     }
 
     protected detectCollisions(tiles:Tile[]):void{
+        console.log("calling detect coll");
         for(let tile of tiles){
             if(tile.isActive){
                 if(radiusHit(this._sprite, 12, tile.sprite, 12)){

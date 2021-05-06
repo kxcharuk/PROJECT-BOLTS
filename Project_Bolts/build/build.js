@@ -10341,6 +10341,15 @@ class Player extends GameObject_1.default {
         let radians = Math.atan2(opp, adj);
         this._sprite.rotation = Toolkit_1.toDegrees(radians);
     }
+    killMe() {
+        if (this._state != Player.STATE_ALIVE) {
+            return;
+        }
+        this._state = Player.STATE_DEAD;
+        this._isActive = false;
+        this.removeMe();
+        this._sprite.dispatchEvent(this.eventPlayerDied);
+    }
     detectCollisions(tiles) {
         for (let tile of tiles) {
             if (tile.isActive) {
@@ -10350,15 +10359,6 @@ class Player extends GameObject_1.default {
                 }
             }
         }
-    }
-    killMe() {
-        if (this._state != Player.STATE_ALIVE) {
-            return;
-        }
-        this._state = Player.STATE_DEAD;
-        this._isActive = false;
-        this.removeMe();
-        this._sprite.dispatchEvent(this.eventPlayerDied);
     }
     checkShootDelay() {
         this._ticksExpired++;
@@ -10404,10 +10404,14 @@ class PlayerProjectile extends Projectile_1.default {
     }
     update(tiles) {
         super.update(tiles);
-        this.detectCollisions();
+        this.detectCollisions(tiles);
     }
-    detectCollisions() {
+    detectCollisions(tiles) {
+        super.detectCollisions(tiles);
         if (Toolkit_1.radiusHit(this._sprite, 16, this.enemy.sprite, 16)) {
+            if (!this.enemy.isActive) {
+                return;
+            }
             this.enemy.removeMe();
             this.removeMe();
         }
@@ -10465,6 +10469,7 @@ class Projectile extends GameObject_1.default {
         this.yDisplacement = Math.sin(radians) * this._speed;
     }
     detectCollisions(tiles) {
+        console.log("calling detect coll");
         for (let tile of tiles) {
             if (tile.isActive) {
                 if (Toolkit_1.radiusHit(this._sprite, 12, tile.sprite, 12)) {

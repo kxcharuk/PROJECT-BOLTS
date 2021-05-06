@@ -53,10 +53,21 @@ export default class Player extends GameObject{
     public rotateTowards():void{
         let adj:number = this.stage.mouseX - this._sprite.x; // works but need to make the x and y not central to the player sprite but the page instead (or maybe the canvas)
         let opp:number = this.stage.mouseY - this._sprite.y;
+        // let adj:number = this.stage.mouseX - 240;
+        // let opp:number = this.stage.mouseY - 240;
         let radians:number = Math.atan2(opp,adj);
 
         this._sprite.rotation = toDegrees(radians);
     }
+
+    public killMe():void{
+        if(this._state != Player.STATE_ALIVE) { return; }
+        this._state = Player.STATE_DEAD; // this needs to be changed to STATE_DYING and using animationend to change to STATE_DEAD
+        this._isActive = false;
+        this.removeMe();
+        this._sprite.dispatchEvent(this.eventPlayerDied);
+    }
+
     // -------------------------------------------------------------------- private methods
     private detectCollisions(tiles:Tile[]):void{
         for(let tile of tiles){
@@ -70,13 +81,6 @@ export default class Player extends GameObject{
         }
     }
 
-    private killMe():void{
-        if(this._state != Player.STATE_ALIVE) { return; }
-        this._state = Player.STATE_DEAD; // this needs to be changed to STATE_DYING and using animationend to change to STATE_DEAD
-        this._isActive = false;
-        this.removeMe();
-        this._sprite.dispatchEvent(this.eventPlayerDied);
-    }
 
     private checkShootDelay():void{
         this._ticksExpired++;

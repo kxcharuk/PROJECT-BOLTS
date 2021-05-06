@@ -22,12 +22,14 @@ export default class PlayerProjectile extends Projectile{
 
     public update(tiles:Tile[]):void{
         super.update(tiles);
-        this.detectCollisions();
+        this.detectCollisions(tiles);
     }
     // ----------------------------------------------------------------------------- private methods
-    protected detectCollisions():void{
+    protected detectCollisions(tiles:Tile[]):void{
+        super.detectCollisions(tiles);
         if(radiusHit(this._sprite, 16, this.enemy.sprite, 16)){
-            this.enemy.killMe();
+            if(!this.enemy.isActive) {return;}
+            this.enemy.removeMe(); // to be changed to enemy.killMe();
             this.removeMe();
         }
     }
