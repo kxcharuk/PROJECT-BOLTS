@@ -1,0 +1,29 @@
+{
+
+"images": [
+    "placeholder-assets.png"
+],
+
+"framerate": 30,
+"frames": [
+    [1, 1, 480, 480, 0, 0, 0],
+    [1, 483, 32, 32, 0, 16, 16],
+    [35, 483, 32, 32, 0, 16, 16],
+    [69, 483, 32, 32, 0, 16, 16],
+    [103, 483, 32, 15, 0, 16, 8]
+],
+
+"animations": {
+    "background": { "frames": [0] },
+    "enemy": { "frames": [1] },
+    "player": { "frames": [2] },
+    "wall": { "frames": [3] },
+    "projectile": { "frames": [4] }
+},
+
+"texturepacker": [
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:bdac8ef694a19bb2b2fa871625a2cb2b:1024ff2d094f793c11eb12445f4b13bd:3becb9ee0e624370f9f95a682b061579$",
+        "Created with TexturePacker (https://www.codeandweb.com/texturepacker) for EaselJS"
+]
+
+}

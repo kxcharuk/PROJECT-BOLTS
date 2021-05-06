@@ -1,6 +1,7 @@
 import AssetManager from "./AssetManager";
 import GameObject from "./GameObject";
-import { toRadians } from "./Toolkit";
+import Tile from "./Tile";
+import { boxHit, radiusHit, toRadians } from "./Toolkit";
 
 
 export default class Projectile extends GameObject{
@@ -19,9 +20,10 @@ export default class Projectile extends GameObject{
 
     // ----------------------------------------------------------------------------- public methods
 
-    public update():void{
+    public update(tiles:Tile[]):void{
         if(!this._isActive) {return;}
         this.move();
+        //this.detectCollisions(tiles);
     }
 
     public addMe():void{
@@ -50,6 +52,18 @@ export default class Projectile extends GameObject{
 
         this.xDisplacement = Math.cos(radians) * this._speed;
         this.yDisplacement = Math.sin(radians) * this._speed;
+    }
+
+    protected detectCollisions(tiles:Tile[]):void{
+        console.log("calling detect coll");
+        for(let tile of tiles){
+            if(tile.isActive){
+                if(radiusHit(this._sprite, 12, tile.sprite, 12)){
+                    this.removeMe();
+                    console.log("removing me");
+                }
+            }
+        }
     }
 
 

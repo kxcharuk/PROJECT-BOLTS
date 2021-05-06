@@ -10028,7 +10028,6 @@ class Enemy extends GameObject_1.default {
                         }
                         this.move();
                     }
-                    console.log("Movement angle = " + this._movementAngle);
                 }
             }
         }
@@ -10176,7 +10175,7 @@ function onReady(e) {
     enemy.positionMe(240, 200);
     enemy.addMe();
     for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
-        playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager));
+        playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager, enemy));
     }
     for (let i = 0; i < 15; i++) {
         tiles.push(new Tile_1.default(stage, assetManager, Tile_1.default.TYPE_WALL_TOP));
@@ -10232,11 +10231,11 @@ function onReady(e) {
 function onTick(e) {
     document.getElementById("fps").innerHTML = String(createjs.Ticker.getMeasuredFPS());
     monitorKeys();
-    player.update();
+    player.update(tiles);
     enemy.update(tiles, player);
     for (let projectile of playerProjPool) {
         if (projectile.isActive) {
-            projectile.update();
+            projectile.update(tiles);
         }
     }
     stage.update();
@@ -10324,10 +10323,11 @@ class Player extends GameObject_1.default {
         this._ticksExpired = 0;
         this.eventPlayerDied = new createjs.Event("playerdied", true, false);
     }
-    update() {
+    update(tiles) {
         if (!this._canShoot) {
             this.checkShootDelay();
         }
+        this.detectCollisions(tiles);
     }
     move(degree) {
         this.xDisplacement = Math.cos(Toolkit_1.toRadians(degree));
@@ -10349,6 +10349,16 @@ class Player extends GameObject_1.default {
         this._isActive = false;
         this.removeMe();
         this._sprite.dispatchEvent(this.eventPlayerDied);
+    }
+    detectCollisions(tiles) {
+        for (let tile of tiles) {
+            if (tile.isActive) {
+                if (Toolkit_1.boxHit(this._sprite, tile.sprite)) {
+                    this._sprite.x -= this.xDisplacement * this._speed;
+                    this._sprite.y -= this.yDisplacement * this._speed;
+                }
+            }
+        }
     }
     checkShootDelay() {
         this._ticksExpired++;
@@ -10384,17 +10394,27 @@ Player.STATE_DEAD = 3;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
 const Projectile_1 = __webpack_require__(/*! ./Projectile */ "./src/Projectile.ts");
+const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class PlayerProjectile extends Projectile_1.default {
-    constructor(stage, assetManager) {
+    constructor(stage, assetManager, enemy) {
         super(stage, assetManager);
         this._sprite = assetManager.getSprite("placeholder-assets", "projectile");
         this._speed = Constants_1.PLAYER_PROJECTILE_SPEED;
+        this.enemy = enemy;
     }
-    update() {
-        super.update();
-        this.detectCollisions();
+    update(tiles) {
+        super.update(tiles);
+        this.detectCollisions(tiles);
     }
-    detectCollisions() {
+    detectCollisions(tiles) {
+        super.detectCollisions(tiles);
+        if (Toolkit_1.radiusHit(this._sprite, 16, this.enemy.sprite, 16)) {
+            if (!this.enemy.isActive) {
+                return;
+            }
+            this.enemy.removeMe();
+            this.removeMe();
+        }
     }
 }
 exports.default = PlayerProjectile;
@@ -10420,11 +10440,12 @@ class Projectile extends GameObject_1.default {
         this._isActive = false;
         this._speed = 8;
     }
-    update() {
+    update(tiles) {
         if (!this._isActive) {
             return;
         }
         this.move();
+        this.detectCollisions(tiles);
     }
     addMe() {
         this.getDirection();
@@ -10446,6 +10467,17 @@ class Projectile extends GameObject_1.default {
         let radians = Toolkit_1.toRadians(this._sprite.rotation);
         this.xDisplacement = Math.cos(radians) * this._speed;
         this.yDisplacement = Math.sin(radians) * this._speed;
+    }
+    detectCollisions(tiles) {
+        console.log("calling detect coll");
+        for (let tile of tiles) {
+            if (tile.isActive) {
+                if (Toolkit_1.radiusHit(this._sprite, 12, tile.sprite, 12)) {
+                    this.removeMe();
+                    console.log("removing me");
+                }
+            }
+        }
     }
     get speed() {
         return this._speed;
