@@ -10,6 +10,7 @@ import Player from "./Player";
 import PlayerProjectile from "./PlayerProjectile";
 import Tile from "./Tile";
 import Enemy from "./Enemy";
+import LevelManager from "./LevelManager";
 
 // game objects
 let background:createjs.Sprite;
@@ -17,6 +18,7 @@ let player:Player;
 let enemy:Enemy;
 let playerProjPool:PlayerProjectile[] = [];
 let tiles:Tile[] = [];
+let levelManager:LevelManager;
 
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
@@ -157,7 +159,7 @@ function onReady(e:createjs.Event):void {
     }
     console.log("tiles.length = " + tiles.length);
     // placing tiles on stage (temp for first-playable)
-    let iT:number = 16;
+    /*let iT:number = 16;
     let iL:number = 16;
     let iR:number = 16;
     let iB:number = 16;
@@ -182,8 +184,11 @@ function onReady(e:createjs.Event):void {
             tile.addMe();
             iB += 32;
         }
-    }
+    }*/
 
+
+    levelManager = new LevelManager(stage, tiles);
+    levelManager.loadLevel();
 
     // listen for game events
     stage.on("gameOver", onGameEvent);

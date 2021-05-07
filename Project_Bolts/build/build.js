@@ -10070,11 +10070,13 @@ const Player_1 = __webpack_require__(/*! ./Player */ "./src/Player.ts");
 const PlayerProjectile_1 = __webpack_require__(/*! ./PlayerProjectile */ "./src/PlayerProjectile.ts");
 const Tile_1 = __webpack_require__(/*! ./Tile */ "./src/Tile.ts");
 const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
+const LevelManager_1 = __webpack_require__(/*! ./LevelManager */ "./src/LevelManager.ts");
 let background;
 let player;
 let enemy;
 let playerProjPool = [];
 let tiles = [];
+let levelManager;
 let stage;
 let canvas;
 let assetManager;
@@ -10190,32 +10192,8 @@ function onReady(e) {
         tiles.push(new Tile_1.default(stage, assetManager, Tile_1.default.TYPE_WALL_BOTTOM));
     }
     console.log("tiles.length = " + tiles.length);
-    let iT = 16;
-    let iL = 16;
-    let iR = 16;
-    let iB = 16;
-    for (let tile of tiles) {
-        if (tile.type == Tile_1.default.TYPE_WALL_TOP) {
-            tile.positionMe(iT, 16);
-            tile.addMe();
-            iT += 32;
-        }
-        else if (tile.type == Tile_1.default.TYPE_WALL_LEFT) {
-            tile.positionMe(16, iL);
-            tile.addMe();
-            iL += 32;
-        }
-        else if (tile.type == Tile_1.default.TYPE_WALL_RIGHT) {
-            tile.positionMe(464, iR);
-            tile.addMe();
-            iR += 32;
-        }
-        else if (tile.type == Tile_1.default.TYPE_WALL_BOTTOM) {
-            tile.positionMe(iB, 464);
-            tile.addMe();
-            iB += 32;
-        }
-    }
+    levelManager = new LevelManager_1.default(stage, tiles);
+    levelManager.loadLevel();
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
@@ -10296,6 +10274,67 @@ class GameObject {
     }
 }
 exports.default = GameObject;
+
+
+/***/ }),
+
+/***/ "./src/LevelManager.ts":
+/*!*****************************!*\
+  !*** ./src/LevelManager.ts ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class LevelManager {
+    constructor(stage, tiles) {
+        this.stage = stage;
+        this.tiles = tiles;
+        this.level = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ];
+    }
+    loadLevel() {
+        let offset = 16;
+        let increment = 32;
+        for (let i = 0; i < 15; i++) {
+            console.log("i = " + i);
+            let x = 16;
+            let y = (i * increment) + offset;
+            for (let number of this.level[i]) {
+                if (number == 1) {
+                    for (let tile of this.tiles) {
+                        if (!tile.isActive) {
+                            tile.positionMe(x, y);
+                            tile.addMe();
+                            break;
+                        }
+                    }
+                }
+                x += increment;
+                console.log("x,y = " + x + "," + y);
+            }
+            x = 16;
+        }
+    }
+}
+exports.default = LevelManager;
 
 
 /***/ }),
@@ -10445,7 +10484,6 @@ class Projectile extends GameObject_1.default {
             return;
         }
         this.move();
-        this.detectCollisions(tiles);
     }
     addMe() {
         this.getDirection();
