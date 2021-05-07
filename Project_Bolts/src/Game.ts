@@ -142,7 +142,7 @@ function onReady(e:createjs.Event):void {
         playerProjPool.push(new PlayerProjectile(stage, assetManager, enemy));
     }
 
-    // temporary for first playable | will change when tiles functionality expands
+    // temporary for first playable | will change when tiles functionality expands (and level manager added)
     for(let i:number = 0; i < 15; i++){
         tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_TOP));
     }
@@ -189,7 +189,6 @@ function onReady(e:createjs.Event):void {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
-    stage.mouseMoveOutside = true;
 
     // set up keyboard listeners
     document.onkeydown = onKeyDown;
@@ -233,7 +232,9 @@ function main():void {
 
     // create stage object
     stage = new createjs.StageGL(canvas, { antialias: true });
-    stage.enableMouseOver(20);
+    stage.mouseMoveOutside = true;
+    stage.enableMouseOver(20); // make constant
+
     //stage.cursor = "none";
     // construct AssetManager object to load spritesheet and sound assets
     assetManager = new AssetManager(stage);
