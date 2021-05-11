@@ -27,6 +27,8 @@ export default class Player extends GameObject{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage,assetManager);
+        //this._state = Player.STATE_IDLE;
+        this._state = Player.STATE_ALIVE;
         this._speed = PLAYER_SPEED;
         this._sprite = assetManager.getSprite("placeholder-assets", "bracket");
         this._canShoot = true;
@@ -37,6 +39,7 @@ export default class Player extends GameObject{
 
     // -------------------------------------------------------------------- public methods
     public update(tiles:Tile[]):void{
+        if(this._state != Player.STATE_ALIVE) {return;}
         if(!this._canShoot){
             this.checkShootDelay();
         }
@@ -53,10 +56,9 @@ export default class Player extends GameObject{
     }
 
     public rotateTowards():void{
-        let adj:number = this.stage.mouseX - this._sprite.x; // works but need to make the x and y not central to the player sprite but the page instead (or maybe the canvas)
+        let adj:number = this.stage.mouseX - this._sprite.x;
         let opp:number = this.stage.mouseY - this._sprite.y;
-        // let adj:number = this.stage.mouseX - 240;
-        // let opp:number = this.stage.mouseY - 240;
+
         let radians:number = Math.atan2(opp,adj);
 
         this._sprite.rotation = toDegrees(radians);

@@ -1,5 +1,7 @@
 import { STAGE_HEIGHT, STAGE_WIDTH } from "./Constants";
 import Tile from "./Tile";
+import Tile_EnemySpawn from "./Tile-EnemySpawn";
+import { randomMe } from "./Toolkit";
 
 
 export default class LevelManager{
@@ -35,17 +37,53 @@ export default class LevelManager{
     public loadLevel():void{
         let offset:number = 16;
         let increment:number = 32;
-        
+        // loop throw array and add tiles to stage
         // change cap in loop to a constant
         for(let i:number = 0; i < 15; i++){
             console.log("i = " + i);
             let x:number = 16;
             let y:number = (i * increment) + offset;
             for(let number of this.level[i]){
-                if(number == 1){
+                if(number == Tile.ID_WALL){
                     // place a wall tile at i
                     for(let tile of this.tiles){
-                        if(!tile.isActive){
+                        if(tile.id == Tile.ID_WALL && !tile.isActive){
+                            tile.positionMe(x , y);
+                            tile.addMe();
+                            break;
+                        }
+                    }
+                }
+                else if(number == Tile.ID_OBSTACLE){
+                    for(let tile of this.tiles){
+                        if(tile.id == Tile.ID_OBSTACLE && !tile.isActive){
+                            tile.positionMe(x , y);
+                            tile.addMe();
+                            break;
+                        }
+                    }
+                }
+                else if(number == Tile.ID_PLAYER_SPAWN){
+                    for(let tile of this.tiles){
+                        if(tile.id == Tile.ID_PLAYER_SPAWN && !tile.isActive){
+                            tile.positionMe(x , y);
+                            tile.addMe();
+                            break;
+                        }
+                    }
+                }
+                else if(number == Tile.ID_ENEMY_SPAWN){
+                    for(let tile of this.tiles){
+                        if(tile.id == Tile.ID_ENEMY_SPAWN && !tile.isActive){
+                            tile.positionMe(x , y);
+                            tile.addMe();
+                            break;
+                        }
+                    }
+                }
+                else if(number == Tile.ID_ITEM_SPAWN){
+                    for(let tile of this.tiles){
+                        if(tile.id == Tile.ID_ITEM_SPAWN && !tile.isActive){
                             tile.positionMe(x , y);
                             tile.addMe();
                             break;
@@ -59,6 +97,20 @@ export default class LevelManager{
         }
     }
 
+    public randomizeLevel():void{
+        this.setBorder();
+        
+    }
+
     // ----------------------------------------------------- private methods
 
+    private setBorder():void{
+        for(let y = 0; y < 15; y++){
+            for(let x = 0; x < 15; x++){
+                if(y == 0 || y == 14 || x == 0 || x == 14){
+                    this.level[y][x] = Tile.ID_WALL;
+                }
+            }
+        }
+    }
 }

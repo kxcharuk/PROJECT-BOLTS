@@ -15,7 +15,6 @@ export default class Tile extends GameObject{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage, assetManager);
-        this._sprite = assetManager.getSprite("placeholder-assets", "wall");
     }
 
     // -------------------------------------------------------------- public methods
@@ -23,5 +22,9 @@ export default class Tile extends GameObject{
     // -------------------------------------------------------------- accessors
     public get id():number{
         return this._id;
+    }
+    
+    public get class(){
+        return this;
     }
 }

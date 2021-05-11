@@ -11,6 +11,10 @@ import PlayerProjectile from "./PlayerProjectile";
 import Tile from "./Tile";
 import Enemy from "./Enemy";
 import LevelManager from "./LevelManager";
+import Tile_Wall from "./Tile-Wall";
+import Tile_EnemySpawn from "./Tile-EnemySpawn";
+import Tile_Obstacle from "./Tile-Obstacle";
+import Tile_PlayerSpawn from "./Tile-PlayerSpawn";
 
 // game objects
 let background:createjs.Sprite;
@@ -90,7 +94,7 @@ function onKeyUp(e:KeyboardEvent):void{
 }
 
 function onMouseMove(e:MouseEvent):void{
-    //player.rotateTowards();
+    player.rotateTowards();
 }
 
 function onMouseDown(e:MouseEvent):void{
@@ -119,6 +123,14 @@ function onGameEvent(e:createjs.Event):void{
         case "gameReset": 
             
         break;
+
+        case "roundOver":
+
+        break;
+
+        case "roundReset":
+
+        break;
     }
 }
 
@@ -145,49 +157,20 @@ function onReady(e:createjs.Event):void {
     }
 
     // temporary for first playable | will change when tiles functionality expands
-    for(let i:number = 0; i < 15; i++){
-        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_TOP));
+    for(let i:number = 0; i < 60; i++){
+        tiles.push(new Tile_Wall(stage, assetManager));
     }
-    for(let i:number = 0; i < 15; i++){
-        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_LEFT));
+    for(let i:number = 0; i < 20; i++){
+        tiles.push(new Tile_Obstacle(stage, assetManager));
     }
-    for(let i:number = 0; i < 15; i++){
-        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_RIGHT));
+    for(let i:number = 0; i < 20; i++){
+        tiles.push(new Tile_EnemySpawn(stage, assetManager));
     }
-    for(let i:number = 0; i < 15; i++){
-        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_BOTTOM));
-    }
+    tiles.push(new Tile_PlayerSpawn(stage,assetManager));
     console.log("tiles.length = " + tiles.length);
-    // placing tiles on stage (temp for first-playable)
-    /*let iT:number = 16;
-    let iL:number = 16;
-    let iR:number = 16;
-    let iB:number = 16;
-    for(let tile of tiles){
-        if(tile.type == Tile.TYPE_WALL_TOP){
-            tile.positionMe(iT, 16);
-            tile.addMe();
-            iT += 32;
-        }
-        else if(tile.type == Tile.TYPE_WALL_LEFT){
-            tile.positionMe(16, iL);
-            tile.addMe();
-            iL += 32;
-        }
-        else if(tile.type == Tile.TYPE_WALL_RIGHT){
-            tile.positionMe(464, iR);
-            tile.addMe();
-            iR += 32;
-        }
-        else if(tile.type == Tile.TYPE_WALL_BOTTOM){
-            tile.positionMe(iB, 464);
-            tile.addMe();
-            iB += 32;
-        }
-    }*/
-
 
     levelManager = new LevelManager(stage, tiles);
+    levelManager.randomizeLevel();
     levelManager.loadLevel();
 
     // listen for game events

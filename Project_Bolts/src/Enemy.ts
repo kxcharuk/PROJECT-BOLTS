@@ -14,12 +14,17 @@ export default class Enemy extends GameObject{
     public static STATE_DYING:number = 2;
     public static STATE_DEAD:number = 3;
 
+    public static ID_LINEAR:number = 0;
+    public static ID_ANGLE:number = 1;
+    public static ID_SPINNER:number = 3;
+
     // properties
     protected _speed:number;
     protected _state:number;
     protected _movementAngle:number; // may need to store the angle at which we are moving so we can easily change it
     protected _looksAtPlayer:boolean;
     protected _movesPerp:boolean;
+    protected _id:number;
     
 
     protected xDisplacement:number;
@@ -28,7 +33,7 @@ export default class Enemy extends GameObject{
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage, assetManager);
         this._speed = ENEMY_SPEED;
-        this._state = Enemy.STATE_ALIVE;
+        //this._state = Enemy.STATE_ALIVE;
         this._isActive = false;
         this._movementAngle = 0;
         if(this._movementAngle % 90 == 0){this._movesPerp = true;}
@@ -38,6 +43,7 @@ export default class Enemy extends GameObject{
 
     // ---------------------------------------------------------------- public methods
     public update(tiles:Tile[], player:Player):void{
+        // if(this._state != Enemy.STATE_ALIVE) {return;}
         this.move();
         this.detectCollisions(tiles);
         if(this._looksAtPlayer){
@@ -113,5 +119,9 @@ export default class Enemy extends GameObject{
 
     public set looksAtPlayer(value:boolean){
         this._looksAtPlayer = value;
+    }
+
+    public get id():number{
+        return this._id;
     }
 }
