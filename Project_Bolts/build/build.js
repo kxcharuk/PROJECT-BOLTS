@@ -9978,14 +9978,14 @@ class Enemy extends GameObject_1.default {
         this._speed = Constants_1.ENEMY_SPEED;
         this._state = Enemy.STATE_ALIVE;
         this._isActive = false;
-        this._movementAngle = 45;
+        this._movementAngle = 0;
         if (this._movementAngle % 90 == 0) {
             this._movesPerp = true;
         }
         else {
             this._movesPerp = false;
         }
-        this._sprite = assetManager.getSprite("placeholder-assets", "enemy");
+        this._sprite = assetManager.getSprite("placeholder-assets", "enemy2");
     }
     update(tiles, player) {
         this.move();
@@ -10139,7 +10139,6 @@ function onKeyUp(e) {
     }
 }
 function onMouseMove(e) {
-    player.rotateTowards();
 }
 function onMouseDown(e) {
     if (!player.CanShoot) {
@@ -10166,14 +10165,12 @@ function onGameEvent(e) {
 }
 function onReady(e) {
     console.log(">> adding sprites to game");
-    background = assetManager.getSprite("placeholder-assets", "background");
-    stage.addChild(background);
     player = new Player_1.default(stage, assetManager);
     player.sprite.x = 240;
     player.sprite.y = 240;
     player.addMe();
     enemy = new Enemy_1.default(stage, assetManager);
-    enemy.looksAtPlayer = true;
+    enemy.looksAtPlayer = false;
     enemy.positionMe(240, 200);
     enemy.addMe();
     for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
@@ -10356,7 +10353,7 @@ class Player extends GameObject_1.default {
     constructor(stage, assetManager) {
         super(stage, assetManager);
         this._speed = Constants_1.PLAYER_SPEED;
-        this._sprite = assetManager.getSprite("placeholder-assets", "player");
+        this._sprite = assetManager.getSprite("placeholder-assets", "bracket");
         this._canShoot = true;
         this._shotDelay = Constants_1.PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
@@ -10366,6 +10363,7 @@ class Player extends GameObject_1.default {
         if (!this._canShoot) {
             this.checkShootDelay();
         }
+        this.rotateTowards();
         this.detectCollisions(tiles);
     }
     move(degree) {

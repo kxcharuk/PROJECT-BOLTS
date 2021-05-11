@@ -7,6 +7,7 @@ import { boxHit, toDegrees, toRadians } from "./Toolkit";
 
 export default class Player extends GameObject{
     // class constants
+    public static STATE_IDLE:number = 0;
     public static STATE_ALIVE:number = 1;
     public static STATE_DYING:number = 2;
     public static STATE_DEAD:number = 3;
@@ -27,7 +28,7 @@ export default class Player extends GameObject{
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage,assetManager);
         this._speed = PLAYER_SPEED;
-        this._sprite = assetManager.getSprite("placeholder-assets", "player");
+        this._sprite = assetManager.getSprite("placeholder-assets", "bracket");
         this._canShoot = true;
         this._shotDelay = PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
@@ -39,6 +40,7 @@ export default class Player extends GameObject{
         if(!this._canShoot){
             this.checkShootDelay();
         }
+        this.rotateTowards();
         this.detectCollisions(tiles);
     }
 

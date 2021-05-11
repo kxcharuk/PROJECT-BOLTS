@@ -9,9 +9,10 @@ import { boxHit, toDegrees, toRadians } from "./Toolkit";
 export default class Enemy extends GameObject{
 
     // class const
-    public static STATE_ALIVE = 1;
-    public static STATE_DYING = 2;
-    public static STATE_DEAD = 3;
+    public static STATE_IDLE:number = 0;
+    public static STATE_ALIVE:number = 1;
+    public static STATE_DYING:number = 2;
+    public static STATE_DEAD:number = 3;
 
     // properties
     protected _speed:number;
@@ -29,10 +30,10 @@ export default class Enemy extends GameObject{
         this._speed = ENEMY_SPEED;
         this._state = Enemy.STATE_ALIVE;
         this._isActive = false;
-        this._movementAngle = 45;
+        this._movementAngle = 0;
         if(this._movementAngle % 90 == 0){this._movesPerp = true;}
         else {this._movesPerp = false;}
-        this._sprite = assetManager.getSprite("placeholder-assets", "enemy");
+        this._sprite = assetManager.getSprite("placeholder-assets", "enemy2");
     }
 
     // ---------------------------------------------------------------- public methods

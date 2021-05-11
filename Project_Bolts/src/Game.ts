@@ -90,7 +90,7 @@ function onKeyUp(e:KeyboardEvent):void{
 }
 
 function onMouseMove(e:MouseEvent):void{
-    player.rotateTowards();
+    //player.rotateTowards();
 }
 
 function onMouseDown(e:MouseEvent):void{
@@ -127,8 +127,8 @@ function onReady(e:createjs.Event):void {
     console.log(">> adding sprites to game");
 
     // construct game object
-    background = assetManager.getSprite("placeholder-assets","background");
-    stage.addChild(background);
+    //background = assetManager.getSprite("placeholder-assets","background");
+    //stage.addChild(background);
 
     player = new Player(stage, assetManager);
     player.sprite.x = 240;
@@ -136,7 +136,7 @@ function onReady(e:createjs.Event):void {
     player.addMe();
 
     enemy = new Enemy(stage, assetManager);
-    enemy.looksAtPlayer = true;
+    enemy.looksAtPlayer = false;
     enemy.positionMe(240, 200);
     enemy.addMe();
 
