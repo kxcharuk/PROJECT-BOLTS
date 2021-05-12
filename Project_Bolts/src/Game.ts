@@ -117,6 +117,10 @@ function onGameEvent(e:createjs.Event):void{
         case "gameReset": 
             
         break;
+
+        case "timerExpired":
+
+        break;
     }
 }
 
