@@ -7,34 +7,36 @@
 "framerate": 30,
 "frames": [
     [1, 1, 480, 480, 0, 0, 0],
-    [483, 1, 26, 32, 0, 13, 16],
-    [483, 35, 21, 32, 0, 10.5, 16],
-    [483, 69, 20, 28, 0, 10, 14],
-    [483, 99, 9, 26, 0, 4.5, 13],
-    [1, 483, 32, 32, 0, 16, 16],
-    [35, 483, 32, 32, 0, 16, 16],
-    [69, 483, 32, 32, 0, 16, 16],
-    [103, 483, 32, 15, 0, 16, 8],
-    [137, 483, 30, 30, 0, 15, 15],
-    [103, 500, 30, 26, 0, 15, 13]
+    [483, 1, 20, 20, 0, -6, -6],
+    [483, 23, 17, 32, 0, -7, 0],
+    [1, 483, 32, 32, 0, 0, 0],
+    [35, 483, 32, 32, 0, 0, 0],
+    [69, 483, 32, 32, 0, 0, 0],
+    [103, 483, 32, 32, 0, 0, 0],
+    [137, 483, 32, 32, 0, 0, 0],
+    [171, 483, 32, 32, 0, 0, 0],
+    [205, 483, 32, 32, 0, 0, 0],
+    [239, 483, 32, 32, 0, 0, 0],
+    [273, 483, 32, 15, 0, 0, -8]
 ],
 
 "animations": {
     "background": { "frames": [0] },
-    "bracket": { "frames": [1] },
-    "character": { "frames": [2] },
-    "enemy2": { "frames": [3] },
-    "weapon": { "frames": [4] },
+    "enemy1-projectile": { "frames": [1] },
+    "item": { "frames": [2] },
+    "Item-Spawn": { "frames": [3] },
+    "enemy-spawn": { "frames": [4] },
     "enemy": { "frames": [5] },
-    "player": { "frames": [6] },
-    "wall": { "frames": [7] },
-    "projectile": { "frames": [8] },
-    "enemy3": { "frames": [9] },
-    "enemy1": { "frames": [10] }
+    "floor-tile": { "frames": [6] },
+    "obstacle": { "frames": [7] },
+    "player-spawn": { "frames": [8] },
+    "player": { "frames": [9] },
+    "wall": { "frames": [10] },
+    "projectile": { "frames": [11] }
 },
 
 "texturepacker": [
-        "SmartUpdateHash: $TexturePacker:SmartUpdate:5f0df482fb69a7d63229543c54262559:f98305bd15831e0d4169a2b22be9e9e8:3becb9ee0e624370f9f95a682b061579$",
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:7f5b95f57297506518593ba5844220fc:221dbf79834e7c9a0b453e106541d74b:3becb9ee0e624370f9f95a682b061579$",
         "Created with TexturePacker (https://www.codeandweb.com/texturepacker) for EaselJS"
 ]
 

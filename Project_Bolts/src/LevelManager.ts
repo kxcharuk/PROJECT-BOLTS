@@ -99,14 +99,18 @@ export default class LevelManager{
 
     public randomizeLevel():void{
         this.setBorder();
-        
+        for(let y:number = 1; y < 14; y++){
+            for(let x:number = 0; x < 14; x++){
+                // let random:number = randomMe();
+            }
+        }
     }
 
     // ----------------------------------------------------- private methods
 
     private setBorder():void{
-        for(let y = 0; y < 15; y++){
-            for(let x = 0; x < 15; x++){
+        for(let y:number = 0; y < 15; y++){
+            for(let x:number = 0; x < 15; x++){
                 if(y == 0 || y == 14 || x == 0 || x == 14){
                     this.level[y][x] = Tile.ID_WALL;
                 }
