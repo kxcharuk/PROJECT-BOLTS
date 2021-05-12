@@ -14,6 +14,7 @@ export default class Tile_EnemySpawn extends Tile{
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage, assetManager);
         this._id = Tile.ID_ENEMY_SPAWN;
+        this._sprite = assetManager.getSprite("placeholder-assets", "enemy-spawn");
     }
 
     //-------------------------------------------------------------------- public methods

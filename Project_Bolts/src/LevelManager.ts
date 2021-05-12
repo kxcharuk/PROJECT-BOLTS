@@ -99,9 +99,35 @@ export default class LevelManager{
 
     public randomizeLevel():void{
         this.setBorder();
+        // debug start
+        let numberOfPlayerSpawns:number = 1;
+        // debug end
+
         for(let y:number = 1; y < 14; y++){
-            for(let x:number = 0; x < 14; x++){
-                // let random:number = randomMe();
+            for(let x:number = 1; x < 14; x++){
+                let random:number = randomMe(0,100);
+                if(random >= 0 && random <= 65){
+                    this.level[y][x] = Tile.ID_FLOOR;
+                }
+                else if(random > 65 && random < 75){
+                    this.level[y][x] = Tile.ID_OBSTACLE;
+                }
+                else if(random > 75 && random < 85){
+                    this.level[y][x] = Tile.ID_ENEMY_SPAWN;
+                }
+                else if(random > 85 && random < 95){
+                    if(numberOfPlayerSpawns > 0){
+                        this.level[y][x] = Tile.ID_PLAYER_SPAWN;
+                        numberOfPlayerSpawns--;
+                    }
+                    else{
+                        this.level[y][x] = Tile.ID_FLOOR;
+                    }
+                }
+                else{
+                    this.level[y][x] = Tile.ID_ITEM_SPAWN;
+                }
+                this.level[y][x] = random;
             }
         }
     }

@@ -7,6 +7,7 @@ export default class Tile_ItemSpawn extends Tile{
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage, assetManager);
         this._id = Tile.ID_ITEM_SPAWN;
+        this._sprite = assetManager.getSprite("placeholder-assets", "Item-Spawn");
     }
 
     //-------------------------------------------------------------------- public methods

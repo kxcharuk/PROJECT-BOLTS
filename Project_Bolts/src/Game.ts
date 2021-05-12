@@ -144,7 +144,7 @@ function onReady(e:createjs.Event):void {
 
     player = new Player(stage, assetManager);
     player.sprite.x = 240;
-    player.sprite.y = 240;
+    player.sprite.y = 340;
     player.addMe();
 
     enemy = new Enemy(stage, assetManager);
