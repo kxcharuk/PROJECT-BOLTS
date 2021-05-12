@@ -57,10 +57,12 @@ export default class Projectile extends GameObject{
     protected detectCollisions(tiles:Tile[]):void{
         console.log("calling detect coll");
         for(let tile of tiles){
-            if(tile.isActive){
-                if(radiusHit(this._sprite, 12, tile.sprite, 12)){
-                    this.removeMe();
-                    console.log("removing me");
+            if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
+                if(tile.isActive){
+                    if(radiusHit(this._sprite, 12, tile.sprite, 12)){
+                        this.removeMe();
+                        console.log("removing me");
+                    }
                 }
             }
         }

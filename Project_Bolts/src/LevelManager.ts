@@ -90,6 +90,15 @@ export default class LevelManager{
                         }
                     }
                 }
+                else{
+                    for(let tile of this.tiles){
+                        if(tile.id == Tile.ID_FLOOR && !tile.isActive){
+                            tile.positionMe(x , y);
+                            tile.addMe();
+                            break;
+                        }
+                    }
+                }
                 x += increment;
                 console.log("x,y = " + x + "," + y);
             }

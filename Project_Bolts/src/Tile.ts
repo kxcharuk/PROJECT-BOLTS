@@ -1,5 +1,6 @@
 import AssetManager from "./AssetManager";
 import GameObject from "./GameObject";
+import Player from "./Player";
 
 
 export default class Tile extends GameObject{
@@ -13,18 +14,21 @@ export default class Tile extends GameObject{
 
     protected _id:number;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager){
+    protected player:Player;
+
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, player:Player){
         super(stage, assetManager);
+        this.player = player;
     }
 
     // -------------------------------------------------------------- public methods
+    public addMe():void{
+        super.addMe();
+        this.stage.addChildAt(this._sprite, this.stage.getChildIndex(this.player.sprite));
+    }
     // -------------------------------------------------------------- private methods
     // -------------------------------------------------------------- accessors
     public get id():number{
         return this._id;
-    }
-    
-    public get class(){
-        return this;
     }
 }

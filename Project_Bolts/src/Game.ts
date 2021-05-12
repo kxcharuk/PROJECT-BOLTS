@@ -15,6 +15,8 @@ import Tile_Wall from "./Tile-Wall";
 import Tile_EnemySpawn from "./Tile-EnemySpawn";
 import Tile_Obstacle from "./Tile-Obstacle";
 import Tile_PlayerSpawn from "./Tile-PlayerSpawn";
+import Tile_Floor from "./Tile-Floor";
+import Tile_ItemSpawn from "./Tile-ItemSpawn";
 
 // game objects
 let background:createjs.Sprite;
@@ -156,17 +158,23 @@ function onReady(e:createjs.Event):void {
         playerProjPool.push(new PlayerProjectile(stage, assetManager, enemy));
     }
 
-    // temporary for first playable | will change when tiles functionality expands
+    // temporary for first playable | will change when tiles functionality expands -> mayb want to move this to level manager
     for(let i:number = 0; i < 60; i++){
-        tiles.push(new Tile_Wall(stage, assetManager));
+        tiles.push(new Tile_Wall(stage, assetManager, player));
     }
     for(let i:number = 0; i < 20; i++){
-        tiles.push(new Tile_Obstacle(stage, assetManager));
+        tiles.push(new Tile_Obstacle(stage, assetManager, player));
     }
     for(let i:number = 0; i < 20; i++){
-        tiles.push(new Tile_EnemySpawn(stage, assetManager));
+        tiles.push(new Tile_EnemySpawn(stage, assetManager, player));
     }
-    tiles.push(new Tile_PlayerSpawn(stage,assetManager));
+    for(let i:number = 0; i < 20; i++){
+        tiles.push(new Tile_ItemSpawn(stage, assetManager, player));
+    }
+    for(let i:number = 0; i < 169; i++){
+        tiles.push(new Tile_Floor(stage, assetManager, player));
+    }
+    tiles.push(new Tile_PlayerSpawn(stage,assetManager, player));
     console.log("tiles.length = " + tiles.length);
 
     levelManager = new LevelManager(stage, tiles);

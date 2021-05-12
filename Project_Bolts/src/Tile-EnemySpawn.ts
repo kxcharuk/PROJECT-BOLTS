@@ -1,5 +1,6 @@
 import AssetManager from "./AssetManager";
 import Enemy from "./Enemy";
+import Player from "./Player";
 import Tile from "./Tile";
 import { randomMe } from "./Toolkit";
 
@@ -11,8 +12,8 @@ export default class Tile_EnemySpawn extends Tile{
     // need an enemy pool
     private enemies:Enemy[];
     
-    constructor(stage:createjs.StageGL, assetManager:AssetManager){
-        super(stage, assetManager);
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, player:Player){
+        super(stage, assetManager, player);
         this._id = Tile.ID_ENEMY_SPAWN;
         this._sprite = assetManager.getSprite("placeholder-assets", "enemy-spawn");
     }

@@ -59,7 +59,7 @@ export default class Enemy extends GameObject{
 
     // ---------------------------------------------------------------- private methods
     private move():void{
-        if(this._state != Enemy.STATE_ALIVE) {return;}
+        //if(this._state != Enemy.STATE_ALIVE) {return;}
 
         this.xDisplacement = Math.cos(toRadians(this._movementAngle)) * this._speed;
         this.yDisplacement = Math.sin(toRadians(this._movementAngle)) * this._speed;
@@ -71,28 +71,31 @@ export default class Enemy extends GameObject{
     private detectCollisions(tiles:Tile[]):void{
         // collision with tiles
         for(let tile of tiles){
-            if(tile.isActive){
-                if(boxHit(this._sprite, tile.sprite)){
-                    if(this._movesPerp){
-                        this._movementAngle += 180;
-                        // debug start
-                        if(this._movementAngle >= 360){
-                            this._movementAngle -= 360;
+            if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
+                if(tile.isActive){
+                    if(boxHit(this._sprite, tile.sprite)){
+                        if(this._movesPerp){
+                            this._movementAngle += 180;
+                            // debug start
+                            if(this._movementAngle >= 360){
+                                this._movementAngle -= 360;
+                            }
+                            // debug end
+                            this.move();
                         }
-                        // debug end
-                        this.move();
-                    }
-                    else{
-                        this._movementAngle += 90;
-                        //debug start
-                        if(this._movementAngle >= 360){
-                            this._movementAngle -= 360;
+                        else{
+                            this._movementAngle += 90;
+                            //debug start
+                            if(this._movementAngle >= 360){
+                                this._movementAngle -= 360;
+                            }
+                            // debug end
+                            this.move();
                         }
-                        // debug end
-                        this.move();
                     }
                 }
             }
+
         }
         /* we could make detecting collisions more optimal by sectioning the stage coordinates into
         quadrants and only run collision checks for objects in the same quadrant as you.

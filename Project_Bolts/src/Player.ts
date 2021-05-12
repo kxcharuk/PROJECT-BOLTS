@@ -75,11 +75,14 @@ export default class Player extends GameObject{
     // -------------------------------------------------------------------- private methods
     private detectCollisions(tiles:Tile[]):void{
         for(let tile of tiles){
-            if(tile.isActive){
-                if(boxHit(this._sprite, tile.sprite)){
-                    // halting the sprite if trying to pass through a wall
-                    this._sprite.x -= this.xDisplacement * this._speed;
-                    this._sprite.y -= this.yDisplacement * this._speed;
+            if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
+                if(tile.isActive){
+                    if(boxHit(this._sprite, tile.sprite)){
+                        // halting the sprite if trying to pass through a wall
+                        this._sprite.x -= this.xDisplacement * this._speed;
+                        this._sprite.y -= this.yDisplacement * this._speed;
+                        // maybe should move this into the tile script as now they have access to the player
+                    }
                 }
             }
         }
