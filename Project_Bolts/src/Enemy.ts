@@ -3,7 +3,7 @@ import { ENEMY_SPEED } from "./Constants";
 import GameObject from "./GameObject";
 import Player from "./Player";
 import Tile from "./Tile";
-import { boxHit, toDegrees, toRadians } from "./Toolkit";
+import { boxHit, radiusHit, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Enemy extends GameObject{
@@ -22,7 +22,7 @@ export default class Enemy extends GameObject{
     protected _speed:number;
     protected _state:number;
     protected _movementAngle:number; // may need to store the angle at which we are moving so we can easily change it
-    protected _looksAtPlayer:boolean;
+    protected _looksAtPlayer:boolean; // may move this to a sub class
     protected _movesPerp:boolean;
     protected _id:number;
     
@@ -73,7 +73,8 @@ export default class Enemy extends GameObject{
         for(let tile of tiles){
             if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
                 if(tile.isActive){
-                    if(boxHit(this._sprite, tile.sprite)){
+                    if(radiusHit(this._sprite, 13,tile.sprite, 13)){
+                        // using radius is easier but doesnt have the clean edge detect for the square tiles
                         if(this._movesPerp){
                             this._movementAngle += 180;
                             // debug start

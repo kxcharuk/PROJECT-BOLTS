@@ -30,7 +30,7 @@ export default class LevelManager{
             [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
             [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-        ]
+        ];
     }
 
     // ----------------------------------------------------- public methods
@@ -118,25 +118,28 @@ export default class LevelManager{
                 if(random >= 0 && random <= 65){
                     this.level[y][x] = Tile.ID_FLOOR;
                 }
-                else if(random > 65 && random < 75){
+                else if(random > 65 && random <= 75){
                     this.level[y][x] = Tile.ID_OBSTACLE;
                 }
-                else if(random > 75 && random < 85){
+                else if(random > 75 && random <= 85){
                     this.level[y][x] = Tile.ID_ENEMY_SPAWN;
                 }
-                else if(random > 85 && random < 95){
+                else if(random > 85 && random <= 95){
                     if(numberOfPlayerSpawns > 0){
                         this.level[y][x] = Tile.ID_PLAYER_SPAWN;
+                        console.log("player spawn");
                         numberOfPlayerSpawns--;
                     }
                     else{
                         this.level[y][x] = Tile.ID_FLOOR;
                     }
                 }
-                else{
+                else if(random > 95){
                     this.level[y][x] = Tile.ID_ITEM_SPAWN;
                 }
-                this.level[y][x] = random;
+                else{
+                    this.level[y][x] = Tile.ID_FLOOR;
+                }
             }
         }
     }

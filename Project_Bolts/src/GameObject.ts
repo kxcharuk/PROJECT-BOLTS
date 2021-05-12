@@ -16,13 +16,14 @@ export default class GameObject{
         // hooking up local refs
         this.stage = stage;
         this.assetManager = assetManager;
+        this._isActive = false;
     }
 
 
     // ----------------------------------------------------------------------------- public methods
 
     public addMe():void{
-        this._sprite.play();
+        //this._sprite.play();
         this.stage.addChild(this._sprite);
         this._isActive = true;
     }

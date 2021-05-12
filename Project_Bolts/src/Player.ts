@@ -88,7 +88,6 @@ export default class Player extends GameObject{
         }
     }
 
-
     private checkShootDelay():void{
         this._ticksExpired++;
         if(this._ticksExpired >= this._shotDelay){

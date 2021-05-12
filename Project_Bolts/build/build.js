@@ -10011,7 +10011,7 @@ class Enemy extends GameObject_1.default {
         for (let tile of tiles) {
             if (tile.id == Tile_1.default.ID_WALL || tile.id == Tile_1.default.ID_OBSTACLE) {
                 if (tile.isActive) {
-                    if (Toolkit_1.boxHit(this._sprite, tile.sprite)) {
+                    if (Toolkit_1.radiusHit(this._sprite, 13, tile.sprite, 13)) {
                         if (this._movesPerp) {
                             this._movementAngle += 180;
                             if (this._movementAngle >= 360) {
@@ -10192,19 +10192,19 @@ function onReady(e) {
     for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
         playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager, enemy));
     }
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 56; i++) {
         tiles.push(new Tile_Wall_1.default(stage, assetManager, player));
     }
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 25; i++) {
         tiles.push(new Tile_Obstacle_1.default(stage, assetManager, player));
     }
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 25; i++) {
         tiles.push(new Tile_EnemySpawn_1.default(stage, assetManager, player));
     }
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 25; i++) {
         tiles.push(new Tile_ItemSpawn_1.default(stage, assetManager, player));
     }
-    for (let i = 0; i < 169; i++) {
+    for (let i = 0; i < 200; i++) {
         tiles.push(new Tile_Floor_1.default(stage, assetManager, player));
     }
     tiles.push(new Tile_PlayerSpawn_1.default(stage, assetManager, player));
@@ -10266,9 +10266,9 @@ class GameObject {
     constructor(stage, assetManager) {
         this.stage = stage;
         this.assetManager = assetManager;
+        this._isActive = false;
     }
     addMe() {
-        this._sprite.play();
         this.stage.addChild(this._sprite);
         this._isActive = true;
     }
@@ -10407,25 +10407,28 @@ class LevelManager {
                 if (random >= 0 && random <= 65) {
                     this.level[y][x] = Tile_1.default.ID_FLOOR;
                 }
-                else if (random > 65 && random < 75) {
+                else if (random > 65 && random <= 75) {
                     this.level[y][x] = Tile_1.default.ID_OBSTACLE;
                 }
-                else if (random > 75 && random < 85) {
+                else if (random > 75 && random <= 85) {
                     this.level[y][x] = Tile_1.default.ID_ENEMY_SPAWN;
                 }
-                else if (random > 85 && random < 95) {
+                else if (random > 85 && random <= 95) {
                     if (numberOfPlayerSpawns > 0) {
                         this.level[y][x] = Tile_1.default.ID_PLAYER_SPAWN;
+                        console.log("player spawn");
                         numberOfPlayerSpawns--;
                     }
                     else {
                         this.level[y][x] = Tile_1.default.ID_FLOOR;
                     }
                 }
-                else {
+                else if (random > 95) {
                     this.level[y][x] = Tile_1.default.ID_ITEM_SPAWN;
                 }
-                this.level[y][x] = random;
+                else {
+                    this.level[y][x] = Tile_1.default.ID_FLOOR;
+                }
             }
         }
     }
@@ -10811,6 +10814,7 @@ class Tile extends GameObject_1.default {
     constructor(stage, assetManager, player) {
         super(stage, assetManager);
         this.player = player;
+        this._id = Tile.ID_FLOOR;
     }
     addMe() {
         super.addMe();
@@ -10821,8 +10825,8 @@ class Tile extends GameObject_1.default {
     }
 }
 exports.default = Tile;
-Tile.ID_WALL = 0;
-Tile.ID_FLOOR = 1;
+Tile.ID_FLOOR = 0;
+Tile.ID_WALL = 1;
 Tile.ID_OBSTACLE = 2;
 Tile.ID_PLAYER_SPAWN = 3;
 Tile.ID_ENEMY_SPAWN = 4;

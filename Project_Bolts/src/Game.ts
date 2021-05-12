@@ -159,25 +159,26 @@ function onReady(e:createjs.Event):void {
     }
 
     // temporary for first playable | will change when tiles functionality expands -> mayb want to move this to level manager
-    for(let i:number = 0; i < 60; i++){
+    for(let i:number = 0; i < 56; i++){
         tiles.push(new Tile_Wall(stage, assetManager, player));
     }
-    for(let i:number = 0; i < 20; i++){
+    for(let i:number = 0; i < 25; i++){
         tiles.push(new Tile_Obstacle(stage, assetManager, player));
     }
-    for(let i:number = 0; i < 20; i++){
+    for(let i:number = 0; i < 25; i++){
         tiles.push(new Tile_EnemySpawn(stage, assetManager, player));
     }
-    for(let i:number = 0; i < 20; i++){
+    for(let i:number = 0; i < 25; i++){
         tiles.push(new Tile_ItemSpawn(stage, assetManager, player));
     }
-    for(let i:number = 0; i < 169; i++){
+    for(let i:number = 0; i < 200; i++){
         tiles.push(new Tile_Floor(stage, assetManager, player));
     }
     tiles.push(new Tile_PlayerSpawn(stage,assetManager, player));
     console.log("tiles.length = " + tiles.length);
 
     levelManager = new LevelManager(stage, tiles);
+    //levelManager.loadLevel();
     levelManager.randomizeLevel();
     levelManager.loadLevel();
 
