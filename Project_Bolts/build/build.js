@@ -10507,7 +10507,7 @@ class Player extends GameObject_1.default {
         for (let tile of tiles) {
             if (tile.id == Tile_1.default.ID_WALL || tile.id == Tile_1.default.ID_OBSTACLE) {
                 if (tile.isActive) {
-                    if (Toolkit_1.boxHit(this._sprite, tile.sprite)) {
+                    if (Toolkit_1.radiusHit(this._sprite, 13, tile.sprite, 13)) {
                         this._sprite.x -= this.xDisplacement * this._speed;
                         this._sprite.y -= this.yDisplacement * this._speed;
                     }
@@ -10767,8 +10767,12 @@ class Tile_PlayerSpawn extends Tile_1.default {
         this._id = Tile_1.default.ID_PLAYER_SPAWN;
         this._sprite = assetManager.getSprite("placeholder-assets", "player-spawn");
     }
-    movePlayerHere(player) {
-        player.positionMe(this._sprite.x, this._sprite.y);
+    movePlayerHere() {
+        this.player.positionMe(this._sprite.x, this._sprite.y);
+    }
+    addMe() {
+        super.addMe();
+        this.movePlayerHere();
     }
 }
 exports.default = Tile_PlayerSpawn;

@@ -2,7 +2,7 @@ import AssetManager from "./AssetManager";
 import { PLAYER_SHOT_DELAY, PLAYER_SPEED } from "./Constants";
 import GameObject from "./GameObject";
 import Tile from "./Tile";
-import { boxHit, toDegrees, toRadians } from "./Toolkit";
+import { boxHit, radiusHit, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Player extends GameObject{
@@ -77,11 +77,15 @@ export default class Player extends GameObject{
         for(let tile of tiles){
             if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
                 if(tile.isActive){
-                    if(boxHit(this._sprite, tile.sprite)){
+                    if(radiusHit(this._sprite, 13, tile.sprite, 13)){
                         // halting the sprite if trying to pass through a wall
                         this._sprite.x -= this.xDisplacement * this._speed;
                         this._sprite.y -= this.yDisplacement * this._speed;
                         // maybe should move this into the tile script as now they have access to the player
+                        // also need to make this collision better/more seamless, very clunky right now
+                        // idea could be to take in the angle(and possibly the location) of the collision...
+                        // and adjust the players movement trajectory based on that to create a sliding motion
+                        // when colliding/riding along the walls (as of now it stops you dead in your tracks)
                     }
                 }
             }
