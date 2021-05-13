@@ -13,10 +13,10 @@ export default class EnemyProjectile extends Projectile{
 
     private eventPlayerKilled:createjs.Event;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager, player:Player){
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, player:Player, eventPlayerKilled:createjs.Event){
         super(stage, assetManager);
         this.player = player;
-        this.eventPlayerKilled = new createjs.Event("playerDeath", true, false);
+        this.eventPlayerKilled = eventPlayerKilled;
     }
 
     // --------------------------------------------------------------------- public methods

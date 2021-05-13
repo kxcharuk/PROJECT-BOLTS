@@ -3,7 +3,7 @@ import { ENEMY_SPEED } from "./Constants";
 import GameObject from "./GameObject";
 import Player from "./Player";
 import Tile from "./Tile";
-import { boxHit, toDegrees, toRadians } from "./Toolkit";
+import { boxHit, radiusHit, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Enemy extends GameObject{
@@ -20,11 +20,12 @@ export default class Enemy extends GameObject{
     protected _looksAtPlayer:boolean;
     protected _movesPerp:boolean;
     
+    protected eventPlayerKilled:createjs.Event;
 
     protected xDisplacement:number;
     protected yDisplacement:number;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager){
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event){
         super(stage, assetManager);
         this._speed = ENEMY_SPEED;
         this._state = Enemy.STATE_ALIVE;
@@ -33,12 +34,14 @@ export default class Enemy extends GameObject{
         if(this._movementAngle % 90 == 0){this._movesPerp = true;}
         else {this._movesPerp = false;}
         this._sprite = assetManager.getSprite("placeholder-assets", "enemy");
+
+        this.eventPlayerKilled = eventPlayerKilled;
     }
 
     // ---------------------------------------------------------------- public methods
     public update(tiles:Tile[], player:Player):void{
         this.move();
-        this.detectCollisions(tiles);
+        this.detectCollisions(tiles, player);
         if(this._looksAtPlayer){
             this.lookAtPlayer(player);
         }
@@ -61,7 +64,7 @@ export default class Enemy extends GameObject{
         this._sprite.y += this.yDisplacement;
     }
 
-    private detectCollisions(tiles:Tile[]):void{
+    private detectCollisions(tiles:Tile[], player:Player):void{
         // collision with tiles
         for(let tile of tiles){
             if(tile.isActive){
@@ -86,6 +89,9 @@ export default class Enemy extends GameObject{
                     }
                 }
             }
+        }
+        if(radiusHit(this._sprite, 12, player.sprite, 12)){
+            this.stage.dispatchEvent(this.eventPlayerKilled);
         }
         /* we could make detecting collisions more optimal by sectioning the stage coordinates into
         quadrants and only run collision checks for objects in the same quadrant as you.

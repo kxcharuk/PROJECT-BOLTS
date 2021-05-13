@@ -18,6 +18,8 @@ let enemy:Enemy;
 let playerProjPool:PlayerProjectile[] = [];
 let tiles:Tile[] = [];
 
+let eventPlayerKilled:createjs.Event;
+
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
 let assetManager:AssetManager;
@@ -132,12 +134,14 @@ function onReady(e:createjs.Event):void {
     background = assetManager.getSprite("placeholder-assets","background");
     stage.addChild(background);
 
+    eventPlayerKilled = new createjs.Event("playerDeath", true, false);
+
     player = new Player(stage, assetManager);
     player.sprite.x = 240;
     player.sprite.y = 240;
     player.addMe();
 
-    enemy = new Enemy(stage, assetManager);
+    enemy = new Enemy(stage, assetManager, eventPlayerKilled);
     enemy.looksAtPlayer = true;
     enemy.positionMe(240, 200);
     enemy.addMe();
