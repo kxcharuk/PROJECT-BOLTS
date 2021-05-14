@@ -46,17 +46,21 @@ export default class Timer{
         }, 1000);
     }
 
+    
     public stopTimer():void{
         window.clearInterval(this.timer);
     }
-
+    
+    public addTime(amount:number):void{
+        this._seconds += amount;
+    }
+    
     public positionText(x:number, y:number, scale:number):void{
         this.txtSeconds.x = x;
         this.txtSeconds.y = y;
         this.txtSeconds.scaleX = scale;
         this.txtSeconds.scaleY = scale;
     }
-
     // -------------------------------------------------------------------------- accessors
     
 }

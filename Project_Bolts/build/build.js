@@ -10190,6 +10190,7 @@ class Enemy extends GameObject_1.default {
         this._isActive = false;
         this.enemyProjPool = enemyProjPool;
         this.eventPlayerKilled = eventPlayerKilled;
+        this.eventEnemyKilled = new createjs.Event("enemyKilled", true, false);
         this._shotDelay = Toolkit_1.randomMe(750, 2500);
     }
     update(tiles, player) {
@@ -10205,6 +10206,7 @@ class Enemy extends GameObject_1.default {
         this._state = Enemy.STATE_DEAD;
         this.stopMe();
         this.removeMe();
+        this.stage.dispatchEvent(this.eventEnemyKilled);
     }
     startMe() {
         this._state = Enemy.STATE_ALIVE;
@@ -10240,6 +10242,7 @@ class Enemy extends GameObject_1.default {
             }
         }
         if (Toolkit_1.radiusHit(this._sprite, 12, player.sprite, 12)) {
+            this.killMe();
             this.stage.dispatchEvent(this.eventPlayerKilled);
         }
     }
@@ -10363,14 +10366,16 @@ const Enemy_Sentinel_1 = __webpack_require__(/*! ./Enemy-Sentinel */ "./src/Enem
 const Enemy_Turret_1 = __webpack_require__(/*! ./Enemy-Turret */ "./src/Enemy-Turret.ts");
 const Enemy_Laser_1 = __webpack_require__(/*! ./Enemy-Laser */ "./src/Enemy-Laser.ts");
 const Timer_1 = __webpack_require__(/*! ./Timer */ "./src/Timer.ts");
+const Item_1 = __webpack_require__(/*! ./Item */ "./src/Item.ts");
 let roundStartTimer;
 let roundTimer;
 let player;
+let levelManager;
 let enemies = [];
 let playerProjPool = [];
 let enemyProjPool = [];
 let tiles = [];
-let levelManager;
+let items = [];
 let stage;
 let canvas;
 let assetManager;
@@ -10380,7 +10385,7 @@ let eventRoundTimerExpired;
 let eventRoundReset;
 let eventRoundOver;
 let playerLives;
-let roundInProgress;
+let score;
 let enemiesInLevel;
 let upKey = false;
 let downKey = false;
@@ -10412,14 +10417,6 @@ function monitorKeys() {
         player.move(90);
     }
 }
-function monitorEnemiesLeft() {
-    if (!roundInProgress) {
-        return;
-    }
-    if (enemiesInLevel <= 0) {
-        stage.dispatchEvent(eventRoundOver);
-    }
-}
 function reset() {
     levelManager.clearLevel();
     player.stopMe();
@@ -10440,6 +10437,12 @@ function reset() {
             projectile.removeMe();
         }
     }
+    for (let item of items) {
+        if (item.isActive) {
+            item.removeMe();
+        }
+    }
+    enemiesInLevel = 0;
 }
 function onKeyDown(e) {
     if (e.key == "w" || e.key == "ArrowUp") {
@@ -10516,7 +10519,6 @@ function onGameEvent(e) {
             roundStartTimer.startTimer(5);
             break;
         case "timerExpired":
-            roundTimer.stopTimer();
             player.stopMe();
             for (let enemy of enemies) {
                 enemy.stopMe();
@@ -10546,6 +10548,16 @@ function onGameEvent(e) {
             }
             console.log("player killed!!");
             break;
+        case "enemyKilled":
+            score++;
+            enemiesInLevel--;
+            if (enemiesInLevel <= 0) {
+                stage.dispatchEvent(eventRoundOver);
+            }
+            break;
+        case "timePickUp":
+            roundTimer.addTime(10);
+            break;
     }
 }
 function onReady(e) {
@@ -10560,6 +10572,8 @@ function onReady(e) {
     player.sprite.y = 340;
     player.addMe();
     playerLives = 100;
+    score = 0;
+    enemiesInLevel = 0;
     roundStartTimer = new Timer_1.default(stage, assetManager, eventRoundStart);
     roundStartTimer.positionText(215, 215, 3);
     roundTimer = new Timer_1.default(stage, assetManager, eventRoundTimerExpired);
@@ -10581,6 +10595,9 @@ function onReady(e) {
     for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
         playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager, enemies));
     }
+    for (let i = 0; i < 20; i++) {
+        items.push(new Item_1.default(stage, assetManager));
+    }
     for (let i = 0; i < 56; i++) {
         tiles.push(new Tile_Wall_1.default(stage, assetManager, player));
     }
@@ -10591,7 +10608,7 @@ function onReady(e) {
         tiles.push(new Tile_EnemySpawn_1.default(stage, assetManager, player, enemies));
     }
     for (let i = 0; i < 25; i++) {
-        tiles.push(new Tile_ItemSpawn_1.default(stage, assetManager, player));
+        tiles.push(new Tile_ItemSpawn_1.default(stage, assetManager, player, items));
     }
     for (let i = 0; i < 200; i++) {
         tiles.push(new Tile_Floor_1.default(stage, assetManager, player));
@@ -10609,6 +10626,8 @@ function onReady(e) {
     stage.on("roundReset", onGameEvent);
     stage.on("playerKilled", onGameEvent);
     stage.on("timerExpired", onGameEvent);
+    stage.on("enemyKilled", onGameEvent);
+    stage.on("timePickUp", onGameEvent);
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
     document.onmousedown = onMouseDown;
@@ -10634,6 +10653,11 @@ function onTick(e) {
     for (let projectile of enemyProjPool) {
         if (projectile.isActive) {
             projectile.update(tiles);
+        }
+    }
+    for (let item of items) {
+        if (item.isActive) {
+            item.update(player);
         }
     }
     stage.update();
@@ -10695,6 +10719,43 @@ class GameObject {
     }
 }
 exports.default = GameObject;
+
+
+/***/ }),
+
+/***/ "./src/Item.ts":
+/*!*********************!*\
+  !*** ./src/Item.ts ***!
+  \*********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const GameObject_1 = __webpack_require__(/*! ./GameObject */ "./src/GameObject.ts");
+const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
+class Item extends GameObject_1.default {
+    constructor(stage, assetManager) {
+        super(stage, assetManager);
+        this.eventTimePickUp = new createjs.Event("timePickUp", true, false);
+        this._sprite = assetManager.getSprite("placeholder-assets", "item");
+    }
+    update(player) {
+        this.detectCollisions(player);
+    }
+    addMe() {
+        super.addMe();
+        this.stage.addChildAt(this._sprite, 2);
+    }
+    detectCollisions(player) {
+        if (Toolkit_1.radiusHit(this._sprite, 10, player.sprite, 13)) {
+            this.removeMe();
+            this.stage.dispatchEvent(this.eventTimePickUp);
+        }
+    }
+}
+exports.default = Item;
 
 
 /***/ }),
@@ -11144,12 +11205,24 @@ exports.default = Tile_Floor;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Tile_1 = __webpack_require__(/*! ./Tile */ "./src/Tile.ts");
 class Tile_ItemSpawn extends Tile_1.default {
-    constructor(stage, assetManager, player) {
+    constructor(stage, assetManager, player, items) {
         super(stage, assetManager, player);
         this._id = Tile_1.default.ID_ITEM_SPAWN;
         this._sprite = assetManager.getSprite("placeholder-assets", "Item-Spawn");
+        this.items = items;
     }
-    getNewItem() {
+    addMe() {
+        super.addMe();
+        this.getItem();
+    }
+    getItem() {
+        for (let item of this.items) {
+            if (!item.isActive) {
+                item.positionMe(this._sprite.x, this._sprite.y);
+                item.addMe();
+                break;
+            }
+        }
     }
 }
 exports.default = Tile_ItemSpawn;
@@ -11307,6 +11380,9 @@ class Timer {
     }
     stopTimer() {
         window.clearInterval(this.timer);
+    }
+    addTime(amount) {
+        this._seconds += amount;
     }
     positionText(x, y, scale) {
         this.txtSeconds.x = x;

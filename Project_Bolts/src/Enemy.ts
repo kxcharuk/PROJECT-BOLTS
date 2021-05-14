@@ -32,6 +32,7 @@ export default class Enemy extends GameObject{
     protected xDisplacement:number;
     protected yDisplacement:number;
     protected eventPlayerKilled:createjs.Event;
+    protected eventEnemyKilled:createjs.Event;
 
     protected enemyProjPool:EnemyProjectile[];
 
@@ -43,6 +44,7 @@ export default class Enemy extends GameObject{
         this._isActive = false;
         this.enemyProjPool = enemyProjPool;
         this.eventPlayerKilled = eventPlayerKilled;
+        this.eventEnemyKilled = new createjs.Event("enemyKilled", true, false);
 
         this._shotDelay = randomMe(750, 2500);
     }
@@ -58,6 +60,7 @@ export default class Enemy extends GameObject{
         this._state = Enemy.STATE_DEAD; // change to DYING and create onanimationend event listener => handler
         this.stopMe();
         this.removeMe();
+        this.stage.dispatchEvent(this.eventEnemyKilled);
     }
 
     public startMe():void{
@@ -102,6 +105,7 @@ export default class Enemy extends GameObject{
             }
         }
         if(radiusHit(this._sprite, 12, player.sprite, 12)){
+            this.killMe();
             this.stage.dispatchEvent(this.eventPlayerKilled);
         }
         /* we could make detecting collisions more optimal by sectioning the stage coordinates into

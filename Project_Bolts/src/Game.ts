@@ -23,21 +23,24 @@ import Enemy_Turret from "./Enemy-Turret";
 import Enemy_Laser from "./Enemy-Laser";
 import Timer from "./Timer";
 import GameObject from "./GameObject";
+import Item from "./Item";
 
 // game objects
 let roundStartTimer:Timer;
 let roundTimer:Timer;
 let player:Player;
+let levelManager:LevelManager;
+// obj pools
 let enemies:Enemy[] = [];
 let playerProjPool:PlayerProjectile[] = [];
 let enemyProjPool:EnemyProjectile[] = [];
 let tiles:Tile[] = [];
-let levelManager:LevelManager;
+let items:Item[] = [];
 
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
 let assetManager:AssetManager;
-
+// event obj
 let eventPlayerKilled:createjs.Event;
 let eventRoundStart:createjs.Event;
 let eventRoundTimerExpired:createjs.Event;
@@ -45,7 +48,7 @@ let eventRoundReset:createjs.Event;
 let eventRoundOver:createjs.Event;
 
 let playerLives:number;
-let roundInProgress:boolean;
+let score:number;
 let enemiesInLevel:number;
 
 // key boolean
@@ -82,14 +85,6 @@ function monitorKeys():void{
     }
 }
 
-function monitorEnemiesLeft():void{
-    if(!roundInProgress){ return;}
-    if(enemiesInLevel <= 0){
-        // dispatch round over event
-        stage.dispatchEvent(eventRoundOver);
-    }
-}
-
 function reset():void{
     levelManager.clearLevel();
     player.stopMe();
@@ -110,6 +105,12 @@ function reset():void{
             projectile.removeMe();
         }
     }
+    for(let item of items){
+        if(item.isActive){
+            item.removeMe();
+        }
+    }
+    enemiesInLevel = 0;
 }
 // --------------------------------------------------- event handlers
 function onKeyDown(e:KeyboardEvent):void{
@@ -201,7 +202,7 @@ function onGameEvent(e:createjs.Event):void{
         break;
 
         case "timerExpired":
-            roundTimer.stopTimer();
+            //roundTimer.stopTimer();
             player.stopMe();
             for(let enemy of enemies){
                 enemy.stopMe();
@@ -232,6 +233,20 @@ function onGameEvent(e:createjs.Event):void{
             }
             console.log("player killed!!");
         break;
+
+        case "enemyKilled":
+            // increase store, decrease enemies on stage
+            score++; // alter to be a more meaningful increment
+            enemiesInLevel--;
+            if(enemiesInLevel <= 0){
+                // dispatch round over event
+                stage.dispatchEvent(eventRoundOver);
+            }
+        break;
+
+        case "timePickUp":
+            roundTimer.addTime(10);
+        break;
     }
 }
 
@@ -255,6 +270,8 @@ function onReady(e:createjs.Event):void {
     player.addMe();
 
     playerLives = 100;
+    score = 0;
+    enemiesInLevel = 0;
 
     roundStartTimer = new Timer(stage, assetManager, eventRoundStart);
     roundStartTimer.positionText(215,215, 3);
@@ -267,6 +284,7 @@ function onReady(e:createjs.Event):void {
         enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled, EnemyProjectile.TYPE_TURRET));
     }
 
+    
     // contruct enemy object pool
     for(let i:number = 0; i < 5; i++){
         enemies.push(new Enemy_Sentinel(stage, assetManager, eventPlayerKilled, enemyProjPool));
@@ -282,6 +300,10 @@ function onReady(e:createjs.Event):void {
         playerProjPool.push(new PlayerProjectile(stage, assetManager, enemies));
     }
 
+    for(let i:number = 0; i < 20; i++){
+        items.push(new Item(stage, assetManager));
+    }
+
     // contructing tiles
     for(let i:number = 0; i < 56; i++){
         tiles.push(new Tile_Wall(stage, assetManager, player));
@@ -293,7 +315,7 @@ function onReady(e:createjs.Event):void {
         tiles.push(new Tile_EnemySpawn(stage, assetManager, player, enemies));
     }
     for(let i:number = 0; i < 25; i++){
-        tiles.push(new Tile_ItemSpawn(stage, assetManager, player));
+        tiles.push(new Tile_ItemSpawn(stage, assetManager, player, items));
     }
     for(let i:number = 0; i < 200; i++){
         tiles.push(new Tile_Floor(stage, assetManager, player));
@@ -313,6 +335,8 @@ function onReady(e:createjs.Event):void {
     stage.on("roundReset", onGameEvent);
     stage.on("playerKilled", onGameEvent);
     stage.on("timerExpired", onGameEvent);
+    stage.on("enemyKilled", onGameEvent);
+    stage.on("timePickUp", onGameEvent);
 
     // set up keyboard listeners
     document.onkeydown = onKeyDown;
@@ -347,6 +371,11 @@ function onTick(e:createjs.Event):void {
     for(let projectile of enemyProjPool){
         if(projectile.isActive){
             projectile.update(tiles);
+        }
+    }
+    for(let item of items){
+        if(item.isActive){
+            item.update(player);
         }
     }
     
