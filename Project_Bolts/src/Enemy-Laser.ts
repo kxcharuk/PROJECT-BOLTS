@@ -37,7 +37,7 @@ export default class Enemy_Laser extends Enemy{
 
     // ---------------------------------------------------------------------------------------- private methods
     protected shoot():void{
-        //if(this._state != Enemy.STATE_ALIVE){return;}
+        if(this._state != Enemy.STATE_ALIVE){return;}
         let count:number = 0;
         for(let projectile of this.enemyProjPool){
             if(count > 1) {break;}

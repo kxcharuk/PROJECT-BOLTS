@@ -24,16 +24,18 @@ export default class Enemy_Turret extends Enemy{
 
     // ----------------------------------------------------------------------------------- public methods
     public update():void{
+        if(this._state != Enemy.STATE_ALIVE) {return;}
         this.spin();
         this.detectCollisions();
     }
+
     // ----------------------------------------------------------------------------------- private methods
     private spin():void{
         this._sprite.rotation += this._speed;
     }
     
     protected shoot():void{
-        //if(this._state != Enemy.STATE_ALIVE){return;}
+        if(this._state != Enemy.STATE_ALIVE){return;}
         let count:number = 0;
         for(let projectile of this.enemyProjPool){
             if(count > 3) { break;}

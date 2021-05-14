@@ -10017,6 +10017,9 @@ class Enemy_Laser extends Enemy_1.default {
         this.detectCollisions(tiles, player, 180);
     }
     shoot() {
+        if (this._state != Enemy_1.default.STATE_ALIVE) {
+            return;
+        }
         let count = 0;
         for (let projectile of this.enemyProjPool) {
             if (count > 1) {
@@ -10109,6 +10112,9 @@ class Enemy_Turret extends Enemy_1.default {
         this.player = player;
     }
     update() {
+        if (this._state != Enemy_1.default.STATE_ALIVE) {
+            return;
+        }
         this.spin();
         this.detectCollisions();
     }
@@ -10116,6 +10122,9 @@ class Enemy_Turret extends Enemy_1.default {
         this._sprite.rotation += this._speed;
     }
     shoot() {
+        if (this._state != Enemy_1.default.STATE_ALIVE) {
+            return;
+        }
         let count = 0;
         for (let projectile of this.enemyProjPool) {
             if (count > 3) {
@@ -10166,12 +10175,16 @@ const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Enemy extends GameObject_1.default {
     constructor(stage, assetManager, eventPlayerKilled, enemyProjPool) {
         super(stage, assetManager);
+        this._state = Enemy.STATE_IDLE;
         this._speed = Constants_1.ENEMY_SPEED;
         this._isActive = false;
         this.enemyProjPool = enemyProjPool;
         this.eventPlayerKilled = eventPlayerKilled;
     }
     update(tiles, player) {
+        if (this._state != Enemy.STATE_ALIVE) {
+            return;
+        }
         this.move();
     }
     killMe() {
@@ -10180,6 +10193,12 @@ class Enemy extends GameObject_1.default {
         }
         this._state = Enemy.STATE_DEAD;
         this.removeMe();
+    }
+    startMe() {
+        this._state = Enemy.STATE_ALIVE;
+    }
+    stopMe() {
+        this._state = Enemy.STATE_IDLE;
     }
     move() {
         this.xDisplacement = Math.cos(Toolkit_1.toRadians(this._movementAngle)) * this._speed;
@@ -10206,6 +10225,9 @@ class Enemy extends GameObject_1.default {
         }
     }
     shoot() {
+        if (this._state != Enemy.STATE_ALIVE) {
+            return;
+        }
         for (let projectile of this.enemyProjPool) {
             if (!projectile.isActive) {
                 projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
@@ -10377,9 +10399,6 @@ function onKeyUp(e) {
         leftKey = false;
     }
 }
-function onMouseMove(e) {
-    player.rotateTowards();
-}
 function onMouseDown(e) {
     if (!player.CanShoot) {
         return;
@@ -10402,23 +10421,41 @@ function onGameEvent(e) {
         case "gameReset":
             break;
         case "roundStart":
+            roundTimer.startTimer(10);
+            for (let enemy of enemies) {
+                if (enemy.isActive) {
+                    player.startMe();
+                    enemy.startMe();
+                }
+            }
+            console.log("start round!!");
             break;
         case "roundOver":
             break;
         case "roundReset":
             break;
         case "timerExpired":
+            player.stopMe();
+            for (let enemy of enemies) {
+                if (enemy.isActive) {
+                    player.stopMe();
+                    enemy.stopMe();
+                }
+            }
+            console.log("timer expired!!");
             break;
         case "playerKilled":
+            player.killMe();
+            console.log("player killed!!");
             break;
     }
 }
 function onReady(e) {
     console.log(">> adding sprites to game");
-    eventPlayerKilled = new createjs.Event("playerDeath", true, false);
+    eventPlayerKilled = new createjs.Event("playerKilled", true, false);
     eventRoundStart = new createjs.Event("roundStart", true, false);
     eventRoundTimerExpired = new createjs.Event("timerExpired", true, false);
-    player = new Player_1.default(stage, assetManager);
+    player = new Player_1.default(stage, assetManager, eventPlayerKilled);
     player.sprite.x = 240;
     player.sprite.y = 340;
     player.addMe();
@@ -10462,10 +10499,13 @@ function onReady(e) {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
+    stage.on("playerKilled", onGameEvent);
+    stage.on("roundStart", onGameEvent);
+    stage.on("timerExpired", onGameEvent);
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
-    document.onmousemove = onMouseMove;
     document.onmousedown = onMouseDown;
+    roundStartTimer.startTimer(5);
     createjs.Ticker.framerate = Constants_1.FRAME_RATE;
     createjs.Ticker.on("tick", onTick);
     console.log(">> game ready");
@@ -10660,13 +10700,13 @@ class LevelManager {
         for (let y = 1; y < 14; y++) {
             for (let x = 1; x < 14; x++) {
                 let random = Toolkit_1.randomMe(0, 100);
-                if (random >= 0 && random <= 65) {
+                if (random >= 0 && random <= 70) {
                     this.level[y][x] = Tile_1.default.ID_FLOOR;
                 }
-                else if (random > 65 && random <= 75) {
+                else if (random > 70 && random <= 80) {
                     this.level[y][x] = Tile_1.default.ID_OBSTACLE;
                 }
-                else if (random > 75 && random <= 85) {
+                else if (random > 80 && random <= 85) {
                     this.level[y][x] = Tile_1.default.ID_ENEMY_SPAWN;
                 }
                 else if (random > 85 && random <= 95) {
@@ -10718,15 +10758,16 @@ const GameObject_1 = __webpack_require__(/*! ./GameObject */ "./src/GameObject.t
 const Tile_1 = __webpack_require__(/*! ./Tile */ "./src/Tile.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Player extends GameObject_1.default {
-    constructor(stage, assetManager) {
+    constructor(stage, assetManager, eventPlayerKilled) {
         super(stage, assetManager);
-        this._state = Player.STATE_ALIVE;
+        this._state = Player.STATE_IDLE;
+        this._state = Player.STATE_IDLE;
         this._speed = Constants_1.PLAYER_SPEED;
         this._sprite = assetManager.getSprite("character-sprites", "bracket");
-        this._canShoot = true;
+        this._canShoot = false;
         this._shotDelay = Constants_1.PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
-        this.eventPlayerDied = new createjs.Event("playerdied", true, false);
+        this.eventPlayerDied = eventPlayerKilled;
     }
     update(tiles) {
         if (this._state != Player.STATE_ALIVE) {
@@ -10739,6 +10780,9 @@ class Player extends GameObject_1.default {
         this.detectCollisions(tiles);
     }
     move(degree) {
+        if (this._state != Player.STATE_ALIVE) {
+            return;
+        }
         this.xDisplacement = Math.cos(Toolkit_1.toRadians(degree));
         this.yDisplacement = Math.sin(Toolkit_1.toRadians(degree));
         this._sprite.x += this.xDisplacement * this._speed;
@@ -10757,7 +10801,13 @@ class Player extends GameObject_1.default {
         this._state = Player.STATE_DEAD;
         this._isActive = false;
         this.removeMe();
-        this._sprite.dispatchEvent(this.eventPlayerDied);
+    }
+    startMe() {
+        this._state = Player.STATE_ALIVE;
+        this._canShoot = true;
+    }
+    stopMe() {
+        this._state = Player.STATE_IDLE;
     }
     detectCollisions(tiles) {
         for (let tile of tiles) {
@@ -11127,8 +11177,8 @@ class Timer {
         this.timer = window.setInterval(() => {
             this._seconds--;
             if (this._seconds <= 0) {
-                window.clearInterval(this.timer);
                 this.stage.dispatchEvent(this.eventTimeExpired);
+                window.clearInterval(this.timer);
             }
         }, 1000);
     }

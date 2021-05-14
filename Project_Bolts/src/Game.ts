@@ -22,6 +22,7 @@ import Enemy_Sentinel from "./Enemy-Sentinel";
 import Enemy_Turret from "./Enemy-Turret";
 import Enemy_Laser from "./Enemy-Laser";
 import Timer from "./Timer";
+import GameObject from "./GameObject";
 
 // game objects
 let roundStartTimer:Timer;
@@ -106,10 +107,6 @@ function onKeyUp(e:KeyboardEvent):void{
     }
 }
 
-function onMouseMove(e:MouseEvent):void{
-    player.rotateTowards();
-}
-
 function onMouseDown(e:MouseEvent):void{
     if(!player.CanShoot) {return;}
     console.log("click");
@@ -138,7 +135,14 @@ function onGameEvent(e:createjs.Event):void{
         break;
 
         case "roundStart":
-
+            roundTimer.startTimer(10);
+            for(let enemy of enemies){
+                if(enemy.isActive){
+                    player.startMe();
+                    enemy.startMe();
+                }
+            }
+            console.log("start round!!");
         break;
 
         case "roundOver":
@@ -150,11 +154,19 @@ function onGameEvent(e:createjs.Event):void{
         break;
 
         case "timerExpired":
-
+            player.stopMe();
+            for(let enemy of enemies){
+                if(enemy.isActive){
+                    player.stopMe();
+                    enemy.stopMe();
+                }
+            }
+            console.log("timer expired!!");
         break;
 
         case "playerKilled":
-
+            player.killMe();
+            console.log("player killed!!");
         break;
     }
 }
@@ -167,11 +179,11 @@ function onReady(e:createjs.Event):void {
     //background = assetManager.getSprite("placeholder-assets","background");
     //stage.addChild(background);
 
-    eventPlayerKilled = new createjs.Event("playerDeath", true, false);
+    eventPlayerKilled = new createjs.Event("playerKilled", true, false);
     eventRoundStart = new createjs.Event("roundStart", true, false);
     eventRoundTimerExpired = new createjs.Event("timerExpired", true, false);
 
-    player = new Player(stage, assetManager);
+    player = new Player(stage, assetManager, eventPlayerKilled);
     player.sprite.x = 240;
     player.sprite.y = 340;
     player.addMe();
@@ -224,15 +236,17 @@ function onReady(e:createjs.Event):void {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
+    stage.on("playerKilled", onGameEvent);
+    stage.on("roundStart", onGameEvent);
+    stage.on("timerExpired", onGameEvent);
 
     // set up keyboard listeners
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
-    document.onmousemove = onMouseMove;
     document.onmousedown = onMouseDown;
 
     // start round start timer
-
+    roundStartTimer.startTimer(5);
     // startup the ticker
     createjs.Ticker.framerate = FRAME_RATE;
     createjs.Ticker.on("tick", onTick);        

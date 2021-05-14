@@ -31,8 +31,8 @@ export default class Timer{
             this._seconds--;
             // update timer txt here
             if(this._seconds <= 0){
-                window.clearInterval(this.timer);
                 this.stage.dispatchEvent(this.eventTimeExpired);
+                window.clearInterval(this.timer);
             }
         }, 1000);
     }

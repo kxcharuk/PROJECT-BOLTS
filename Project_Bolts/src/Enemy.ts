@@ -36,6 +36,7 @@ export default class Enemy extends GameObject{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, enemyProjPool:EnemyProjectile[]){
         super(stage, assetManager);
+        this._state = Enemy.STATE_IDLE;
         this._speed = ENEMY_SPEED;
         //this._state = Enemy.STATE_ALIVE;
         this._isActive = false;
@@ -45,7 +46,7 @@ export default class Enemy extends GameObject{
 
     // ---------------------------------------------------------------- public methods
     public update(tiles:Tile[], player:Player):void{
-        // if(this._state != Enemy.STATE_ALIVE) {return;}
+        if(this._state != Enemy.STATE_ALIVE) {return;}
         this.move();
     }
 
@@ -53,6 +54,14 @@ export default class Enemy extends GameObject{
         if(this._state != Enemy.STATE_ALIVE) {return;}
         this._state = Enemy.STATE_DEAD; // change to DYING and create onanimationend event listener => handler
         this.removeMe();
+    }
+
+    public startMe():void{
+        this._state = Enemy.STATE_ALIVE;
+    }
+
+    public stopMe():void{
+        this._state = Enemy.STATE_IDLE;
     }
 
     // ---------------------------------------------------------------- private methods
@@ -98,7 +107,7 @@ export default class Enemy extends GameObject{
     }
 
     protected shoot():void{
-        //if(this._state != Enemy.STATE_ALIVE){return;}
+        if(this._state != Enemy.STATE_ALIVE){return;}
         for(let projectile of this.enemyProjPool){
             if(!projectile.isActive){
                 projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
