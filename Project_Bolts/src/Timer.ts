@@ -34,7 +34,6 @@ export default class Timer{
                 window.clearInterval(this.timer);
                 this.stage.dispatchEvent(this.eventTimeExpired);
             }
-
         }, 1000);
     }
 }
