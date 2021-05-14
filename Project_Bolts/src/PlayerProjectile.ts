@@ -9,13 +9,13 @@ import { radiusHit } from "./Toolkit";
 export default class PlayerProjectile extends Projectile{
 
     // cached refs
-    private enemy:Enemy;
+    private enemies:Enemy[];
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager, enemy:Enemy){
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, enemies:Enemy[]){
         super(stage, assetManager);
-        this._sprite = assetManager.getSprite("placeholder-assets", "projectile");
+        this._sprite = assetManager.getSprite("projectile-sprites", "rocket/active");
         this._speed = PLAYER_PROJECTILE_SPEED;
-        this.enemy = enemy; // to be enemy pool
+        this.enemies = enemies; // to be enemy pool
     }
 
     // ----------------------------------------------------------------------------- public methods
@@ -27,10 +27,12 @@ export default class PlayerProjectile extends Projectile{
     // ----------------------------------------------------------------------------- private methods
     protected detectCollisions(tiles:Tile[]):void{
         super.detectCollisions(tiles);
-        if(radiusHit(this._sprite, 16, this.enemy.sprite, 16)){
-            if(!this.enemy.isActive) {return;}
-            this.enemy.removeMe(); // to be changed to enemy.killMe();
-            this.removeMe();
+        for(let enemy of this.enemies){
+            if(radiusHit(this._sprite, 16, enemy.sprite, 16)){
+                if(!enemy.isActive) {return;}
+                enemy.removeMe(); // to be changed to enemy.killMe();
+                this.removeMe();
+            }
         }
     }
 }

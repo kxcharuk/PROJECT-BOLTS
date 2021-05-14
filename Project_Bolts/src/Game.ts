@@ -22,7 +22,7 @@ import EnemyProjectile from "./EnemyProjectile";
 // game objects
 let background:createjs.Sprite;
 let player:Player;
-let enemy:Enemy;
+let enemies:Enemy[] = [];
 let playerProjPool:PlayerProjectile[] = [];
 let enemyProjPool:EnemyProjectile[] = [];
 let tiles:Tile[] = [];
@@ -166,13 +166,13 @@ function onReady(e:createjs.Event):void {
         enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled));
     }
 
-    enemy = new Enemy(stage, assetManager, eventPlayerKilled, enemyProjPool);
-    enemy.looksAtPlayer = true;
-    enemy.positionMe(240, 200);
-    enemy.addMe();
+    // enemy = new Enemy(stage, assetManager, eventPlayerKilled, enemyProjPool);
+    // enemy.positionMe(240, 200);
+    // enemy.addMe();
+    // contruct enemy object pool
 
     for(let i:number = 0; i < PLAYER_PROJECTILE_MAX; i++){
-        playerProjPool.push(new PlayerProjectile(stage, assetManager, enemy));
+        playerProjPool.push(new PlayerProjectile(stage, assetManager, enemies));
     }
 
     // temporary for first playable | will change when tiles functionality expands -> mayb want to move this to level manager
@@ -222,7 +222,11 @@ function onTick(e:createjs.Event):void {
     // object updates
     monitorKeys();
     player.update(tiles);
-    enemy.update(tiles, player);
+    for(let enemy of enemies){
+        if(enemy.isActive){
+            enemy.update(tiles, player);
+        }
+    }
     for(let projectile of playerProjPool){
         if(projectile.isActive){
             projectile.update(tiles);

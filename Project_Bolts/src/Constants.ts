@@ -27,5 +27,29 @@ export const ASSET_MANIFEST = [
         src:"./lib/spritesheets/placeholder-assets.png",
         id:"placeholder-assets",
         data:0
+    },
+    {
+        type:"json",
+        src:"./lib/spritesheets/projectile-sprites.json",
+        id:"projectile-sprites",
+        data:0
+    },
+    {
+        type:"image",
+        src:"./lib/spritesheets/projectile-sprites.png",
+        id:"projectile-sprites",
+        data:0
+    },
+    {
+        type:"json",
+        src:"./lib/spritesheets/character-sprites.json",
+        id:"character-sprites",
+        data:0
+    },
+    {
+        type:"image",
+        src:"./lib/spritesheets/character-sprites.png",
+        id:"character-sprites",
+        data:0
     }
 ];
