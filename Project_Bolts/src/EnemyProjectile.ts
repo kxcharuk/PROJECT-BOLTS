@@ -15,6 +15,8 @@ export default class EnemyProjectile extends Projectile{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, player:Player, eventPlayerKilled:createjs.Event){
         super(stage, assetManager);
+        // this._sprite = assetManager.getSprite("placeholder-assets","")
+
         this.player = player;
         this.eventPlayerKilled = eventPlayerKilled;
     }

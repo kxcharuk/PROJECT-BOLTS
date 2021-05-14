@@ -15,7 +15,7 @@ export default class PlayerProjectile extends Projectile{
         super(stage, assetManager);
         this._sprite = assetManager.getSprite("placeholder-assets", "projectile");
         this._speed = PLAYER_PROJECTILE_SPEED;
-        this.enemy = enemy;
+        this.enemy = enemy; // to be enemy pool
     }
 
     // ----------------------------------------------------------------------------- public methods

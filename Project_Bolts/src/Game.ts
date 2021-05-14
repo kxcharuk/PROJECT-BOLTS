@@ -10,12 +10,14 @@ import Player from "./Player";
 import PlayerProjectile from "./PlayerProjectile";
 import Tile from "./Tile";
 import Enemy from "./Enemy";
+import EnemyProjectile from "./EnemyProjectile";
 
 // game objects
 let background:createjs.Sprite;
 let player:Player;
 let enemy:Enemy;
 let playerProjPool:PlayerProjectile[] = [];
+let enemyProjPool:EnemyProjectile[] = [];
 let tiles:Tile[] = [];
 
 let eventPlayerKilled:createjs.Event;
@@ -123,6 +125,10 @@ function onGameEvent(e:createjs.Event):void{
         case "timerExpired":
 
         break;
+
+        case "playerKilled":
+
+        break;
     }
 }
 
@@ -141,7 +147,11 @@ function onReady(e:createjs.Event):void {
     player.sprite.y = 240;
     player.addMe();
 
-    enemy = new Enemy(stage, assetManager, eventPlayerKilled);
+    for(let i:number = 0; i < 200; i++){
+        enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled));
+    }
+
+    enemy = new Enemy(stage, assetManager, eventPlayerKilled, enemyProjPool);
     enemy.looksAtPlayer = true;
     enemy.positionMe(240, 200);
     enemy.addMe();
@@ -191,7 +201,6 @@ function onReady(e:createjs.Event):void {
             iB += 32;
         }
     }
-
 
     // listen for game events
     stage.on("gameOver", onGameEvent);

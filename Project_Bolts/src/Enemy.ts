@@ -1,14 +1,17 @@
 import AssetManager from "./AssetManager";
 import { ENEMY_SPEED } from "./Constants";
+import EnemyProjectile from "./EnemyProjectile";
 import GameObject from "./GameObject";
 import Player from "./Player";
 import Tile from "./Tile";
+import Timer from "./Timer";
 import { boxHit, radiusHit, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Enemy extends GameObject{
 
     // class const
+    public static STATE_IDLE = 0;
     public static STATE_ALIVE = 1;
     public static STATE_DYING = 2;
     public static STATE_DEAD = 3;
@@ -17,15 +20,17 @@ export default class Enemy extends GameObject{
     protected _speed:number;
     protected _state:number;
     protected _movementAngle:number; // may need to store the angle at which we are moving so we can easily change it
-    protected _looksAtPlayer:boolean;
-    protected _movesPerp:boolean;
+    protected _looksAtPlayer:boolean; // could be removed if/when sub-classes are added
+    protected _movesPerp:boolean; // ""
     
-    protected eventPlayerKilled:createjs.Event;
-
+    protected timer:number;
     protected xDisplacement:number;
     protected yDisplacement:number;
+    protected eventPlayerKilled:createjs.Event;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event){
+    protected enemyProjPool:EnemyProjectile[];
+
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, enemyProjPool:EnemyProjectile[]){
         super(stage, assetManager);
         this._speed = ENEMY_SPEED;
         this._state = Enemy.STATE_ALIVE;
@@ -35,6 +40,10 @@ export default class Enemy extends GameObject{
         else {this._movesPerp = false;}
         this._sprite = assetManager.getSprite("placeholder-assets", "enemy");
 
+        this.enemyProjPool = enemyProjPool;
+        this.timer = window.setInterval(()=>{
+            this.shoot();
+        }, 1000);
         this.eventPlayerKilled = eventPlayerKilled;
     }
 
@@ -101,6 +110,16 @@ export default class Enemy extends GameObject{
         after projectiles of both types are added there will be a lot of collision checks per frame...
         */
         // collision with player projectiles?
+    }
+
+    private shoot():void{
+        if(this._state != Enemy.STATE_ALIVE){return;}
+        for(let projectile of this.enemyProjPool){
+            if(!projectile.isActive){
+                projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
+                break;
+            }
+        }
     }
 
     private lookAtPlayer(player:Player):void{
