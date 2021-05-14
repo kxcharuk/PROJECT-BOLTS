@@ -4,7 +4,7 @@ export const STAGE_HEIGHT:number = 480;
 export const FRAME_RATE:number = 30;
 // player const
 export const PLAYER_SPEED = 5;
-export const PLAYER_SHOT_DELAY = 30;
+export const PLAYER_SHOT_DELAY = 15;
 
 // player projectile const
 export const PLAYER_PROJECTILE_SPEED = 8;

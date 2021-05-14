@@ -15,9 +15,9 @@ export default class Enemy extends GameObject{
     public static STATE_DYING:number = 2;
     public static STATE_DEAD:number = 3;
 
-    public static ID_LINEAR:number = 0;
-    public static ID_ANGLE:number = 1;
-    public static ID_SPINNER:number = 3;
+    public static ID_LASER:number = 0;
+    public static ID_SENTINEL:number = 1;
+    public static ID_TURRET:number = 2;
 
 
     // properties
@@ -98,7 +98,7 @@ export default class Enemy extends GameObject{
     }
 
     protected shoot():void{
-        if(this._state != Enemy.STATE_ALIVE){return;}
+        //if(this._state != Enemy.STATE_ALIVE){return;}
         for(let projectile of this.enemyProjPool){
             if(!projectile.isActive){
                 projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);

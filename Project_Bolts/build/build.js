@@ -9936,7 +9936,7 @@ exports.STAGE_WIDTH = 480;
 exports.STAGE_HEIGHT = 480;
 exports.FRAME_RATE = 30;
 exports.PLAYER_SPEED = 5;
-exports.PLAYER_SHOT_DELAY = 30;
+exports.PLAYER_SHOT_DELAY = 15;
 exports.PLAYER_PROJECTILE_SPEED = 8;
 exports.PLAYER_PROJECTILE_MAX = 20;
 exports.ENEMY_SPEED = 4;
@@ -9953,8 +9953,198 @@ exports.ASSET_MANIFEST = [
         src: "./lib/spritesheets/placeholder-assets.png",
         id: "placeholder-assets",
         data: 0
+    },
+    {
+        type: "json",
+        src: "./lib/spritesheets/projectile-sprites.json",
+        id: "projectile-sprites",
+        data: 0
+    },
+    {
+        type: "image",
+        src: "./lib/spritesheets/projectile-sprites.png",
+        id: "projectile-sprites",
+        data: 0
+    },
+    {
+        type: "json",
+        src: "./lib/spritesheets/character-sprites.json",
+        id: "character-sprites",
+        data: 0
+    },
+    {
+        type: "image",
+        src: "./lib/spritesheets/character-sprites.png",
+        id: "character-sprites",
+        data: 0
     }
 ];
+
+
+/***/ }),
+
+/***/ "./src/Enemy-Laser.ts":
+/*!****************************!*\
+  !*** ./src/Enemy-Laser.ts ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
+const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
+class Enemy_Laser extends Enemy_1.default {
+    constructor(stage, assetManager, eventPlayerKilled, projectilePool) {
+        super(stage, assetManager, eventPlayerKilled, projectilePool);
+        this._sprite = assetManager.getSprite("character-sprites", "enemy2");
+        this._id = Enemy_1.default.ID_LASER;
+        let random = Toolkit_1.randomMe(0, 1);
+        if (random == 1) {
+            this._movementAngle = 0;
+        }
+        else {
+            this._movementAngle = 90;
+        }
+        this._shotDelay = Toolkit_1.randomMe(500, 2500);
+        this.timer = window.setInterval(() => {
+            this.shoot();
+        }, this._shotDelay);
+    }
+    update(tiles, player) {
+        super.update(tiles, player);
+        this.detectCollisions(tiles, player, 180);
+    }
+    shoot() {
+        let count = 0;
+        for (let projectile of this.enemyProjPool) {
+            if (count > 1) {
+                break;
+            }
+            if (!projectile.isActive) {
+                if (count == 0) {
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 90);
+                }
+                else if (count == 1) {
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 270);
+                }
+                count++;
+            }
+        }
+    }
+}
+exports.default = Enemy_Laser;
+
+
+/***/ }),
+
+/***/ "./src/Enemy-Sentinel.ts":
+/*!*******************************!*\
+  !*** ./src/Enemy-Sentinel.ts ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
+const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
+class Enemy_Sentinel extends Enemy_1.default {
+    constructor(stage, assetManager, eventPlayerKilled, projectilePool) {
+        super(stage, assetManager, eventPlayerKilled, projectilePool);
+        let random = Toolkit_1.randomMe(0, 3);
+        if (random == 0) {
+            this._movementAngle = 45;
+        }
+        else if (random == 1) {
+            this._movementAngle = 135;
+        }
+        else if (random == 2) {
+            this._movementAngle = 225;
+        }
+        else {
+            this._movementAngle = 315;
+        }
+        this._sprite = assetManager.getSprite("character-sprites", "enemy1");
+        this._id = Enemy_1.default.ID_SENTINEL;
+        this._shotDelay = Toolkit_1.randomMe(500, 2000);
+        this.timer = window.setInterval(() => {
+            this.shoot();
+        }, this._shotDelay);
+    }
+    update(tiles, player) {
+        super.update(tiles, player);
+        this.detectCollisions(tiles, player, 90);
+        this.lookAtPlayer(player);
+    }
+}
+exports.default = Enemy_Sentinel;
+
+
+/***/ }),
+
+/***/ "./src/Enemy-Turret.ts":
+/*!*****************************!*\
+  !*** ./src/Enemy-Turret.ts ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
+const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
+class Enemy_Turret extends Enemy_1.default {
+    constructor(stage, assetManager, eventPlayerKilled, projectilePool, player) {
+        super(stage, assetManager, eventPlayerKilled, projectilePool);
+        this._sprite = assetManager.getSprite("character-sprites", "enemy3");
+        this._id = Enemy_1.default.ID_TURRET;
+        this._shotDelay = Toolkit_1.randomMe(500, 2000);
+        this.timer = window.setInterval(() => {
+            this.shoot();
+        }, this._shotDelay);
+        this.player = player;
+    }
+    update() {
+        this.spin();
+        this.detectCollisions();
+    }
+    spin() {
+        this._sprite.rotation += this._speed;
+    }
+    shoot() {
+        let count = 0;
+        for (let projectile of this.enemyProjPool) {
+            if (count > 3) {
+                break;
+            }
+            if (!projectile.isActive) {
+                if (count == 0) {
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
+                }
+                else if (count == 1) {
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 90);
+                }
+                else if (count == 2) {
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 180);
+                }
+                else if (count == 3) {
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 270);
+                }
+                count++;
+            }
+        }
+    }
+    detectCollisions() {
+        if (Toolkit_1.radiusHit(this._sprite, 15, this.player.sprite, 13)) {
+            this.stage.dispatchEvent(this.eventPlayerKilled);
+        }
+    }
+}
+exports.default = Enemy_Turret;
 
 
 /***/ }),
@@ -9978,26 +10168,11 @@ class Enemy extends GameObject_1.default {
         super(stage, assetManager);
         this._speed = Constants_1.ENEMY_SPEED;
         this._isActive = false;
-        this._movementAngle = 0;
-        if (this._movementAngle % 90 == 0) {
-            this._movesPerp = true;
-        }
-        else {
-            this._movesPerp = false;
-        }
-        this._sprite = assetManager.getSprite("placeholder-assets", "enemy2");
         this.enemyProjPool = enemyProjPool;
-        this.timer = window.setInterval(() => {
-            this.shoot();
-        }, 1000);
         this.eventPlayerKilled = eventPlayerKilled;
     }
     update(tiles, player) {
         this.move();
-        this.detectCollisions(tiles, player);
-        if (this._looksAtPlayer) {
-            this.lookAtPlayer(player);
-        }
     }
     killMe() {
         if (this._state != Enemy.STATE_ALIVE) {
@@ -10012,25 +10187,16 @@ class Enemy extends GameObject_1.default {
         this._sprite.x += this.xDisplacement;
         this._sprite.y += this.yDisplacement;
     }
-    detectCollisions(tiles, player) {
+    detectCollisions(tiles, player, bounceAngle) {
         for (let tile of tiles) {
             if (tile.id == Tile_1.default.ID_WALL || tile.id == Tile_1.default.ID_OBSTACLE) {
                 if (tile.isActive) {
                     if (Toolkit_1.radiusHit(this._sprite, 13, tile.sprite, 13)) {
-                        if (this._movesPerp) {
-                            this._movementAngle += 180;
-                            if (this._movementAngle >= 360) {
-                                this._movementAngle -= 360;
-                            }
-                            this.move();
+                        this._movementAngle += bounceAngle;
+                        if (this._movementAngle >= 360) {
+                            this._movementAngle -= 360;
                         }
-                        else {
-                            this._movementAngle += 90;
-                            if (this._movementAngle >= 360) {
-                                this._movementAngle -= 360;
-                            }
-                            this.move();
-                        }
+                        this.move();
                     }
                 }
             }
@@ -10040,9 +10206,6 @@ class Enemy extends GameObject_1.default {
         }
     }
     shoot() {
-        if (this._state != Enemy.STATE_ALIVE) {
-            return;
-        }
         for (let projectile of this.enemyProjPool) {
             if (!projectile.isActive) {
                 projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
@@ -10056,12 +10219,6 @@ class Enemy extends GameObject_1.default {
         let radians = Math.atan2(opp, adj);
         this._sprite.rotation = Toolkit_1.toDegrees(radians);
     }
-    get looksAtPlayer() {
-        return this._looksAtPlayer;
-    }
-    set looksAtPlayer(value) {
-        this._looksAtPlayer = value;
-    }
     get id() {
         return this._id;
     }
@@ -10071,9 +10228,9 @@ Enemy.STATE_IDLE = 0;
 Enemy.STATE_ALIVE = 1;
 Enemy.STATE_DYING = 2;
 Enemy.STATE_DEAD = 3;
-Enemy.ID_LINEAR = 0;
-Enemy.ID_ANGLE = 1;
-Enemy.ID_SPINNER = 3;
+Enemy.ID_LASER = 0;
+Enemy.ID_SENTINEL = 1;
+Enemy.ID_TURRET = 2;
 
 
 /***/ }),
@@ -10093,12 +10250,18 @@ const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class EnemyProjectile extends Projectile_1.default {
     constructor(stage, assetManager, player, eventPlayerKilled) {
         super(stage, assetManager);
+        this._sprite = assetManager.getSprite("projectile-sprites", "bullet/active");
+        this._speed = 2;
         this.player = player;
         this.eventPlayerKilled = eventPlayerKilled;
     }
     update(tiles) {
         super.update(tiles);
         this.detectCollisions(tiles);
+    }
+    addMe() {
+        super.addMe();
+        this.stage.addChildAt(this._sprite, this.stage.getChildIndex(this.player.sprite));
     }
     detectCollisions(tiles) {
         super.detectCollisions(tiles);
@@ -10130,7 +10293,6 @@ const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts")
 const AssetManager_1 = __webpack_require__(/*! ./AssetManager */ "./src/AssetManager.ts");
 const Player_1 = __webpack_require__(/*! ./Player */ "./src/Player.ts");
 const PlayerProjectile_1 = __webpack_require__(/*! ./PlayerProjectile */ "./src/PlayerProjectile.ts");
-const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
 const LevelManager_1 = __webpack_require__(/*! ./LevelManager */ "./src/LevelManager.ts");
 const Tile_Wall_1 = __webpack_require__(/*! ./Tile-Wall */ "./src/Tile-Wall.ts");
 const Tile_EnemySpawn_1 = __webpack_require__(/*! ./Tile-EnemySpawn */ "./src/Tile-EnemySpawn.ts");
@@ -10139,14 +10301,21 @@ const Tile_PlayerSpawn_1 = __webpack_require__(/*! ./Tile-PlayerSpawn */ "./src/
 const Tile_Floor_1 = __webpack_require__(/*! ./Tile-Floor */ "./src/Tile-Floor.ts");
 const Tile_ItemSpawn_1 = __webpack_require__(/*! ./Tile-ItemSpawn */ "./src/Tile-ItemSpawn.ts");
 const EnemyProjectile_1 = __webpack_require__(/*! ./EnemyProjectile */ "./src/EnemyProjectile.ts");
-let background;
+const Enemy_Sentinel_1 = __webpack_require__(/*! ./Enemy-Sentinel */ "./src/Enemy-Sentinel.ts");
+const Enemy_Turret_1 = __webpack_require__(/*! ./Enemy-Turret */ "./src/Enemy-Turret.ts");
+const Enemy_Laser_1 = __webpack_require__(/*! ./Enemy-Laser */ "./src/Enemy-Laser.ts");
+const Timer_1 = __webpack_require__(/*! ./Timer */ "./src/Timer.ts");
+let roundStartTimer;
+let roundTimer;
 let player;
-let enemy;
+let enemies = [];
 let playerProjPool = [];
 let enemyProjPool = [];
 let tiles = [];
 let levelManager;
 let eventPlayerKilled;
+let eventRoundStart;
+let eventRoundTimerExpired;
 let stage;
 let canvas;
 let assetManager;
@@ -10232,9 +10401,12 @@ function onGameEvent(e) {
             break;
         case "gameReset":
             break;
+        case "roundStart":
+            break;
         case "roundOver":
             break;
         case "roundReset":
+            break;
         case "timerExpired":
             break;
         case "playerKilled":
@@ -10244,19 +10416,28 @@ function onGameEvent(e) {
 function onReady(e) {
     console.log(">> adding sprites to game");
     eventPlayerKilled = new createjs.Event("playerDeath", true, false);
+    eventRoundStart = new createjs.Event("roundStart", true, false);
+    eventRoundTimerExpired = new createjs.Event("timerExpired", true, false);
     player = new Player_1.default(stage, assetManager);
     player.sprite.x = 240;
     player.sprite.y = 340;
     player.addMe();
+    roundStartTimer = new Timer_1.default(stage, assetManager, eventRoundStart);
+    roundTimer = new Timer_1.default(stage, assetManager, eventRoundTimerExpired);
     for (let i = 0; i < 200; i++) {
         enemyProjPool.push(new EnemyProjectile_1.default(stage, assetManager, player, eventPlayerKilled));
     }
-    enemy = new Enemy_1.default(stage, assetManager, eventPlayerKilled, enemyProjPool);
-    enemy.looksAtPlayer = true;
-    enemy.positionMe(240, 200);
-    enemy.addMe();
+    for (let i = 0; i < 5; i++) {
+        enemies.push(new Enemy_Sentinel_1.default(stage, assetManager, eventPlayerKilled, enemyProjPool));
+    }
+    for (let i = 0; i < 5; i++) {
+        enemies.push(new Enemy_Laser_1.default(stage, assetManager, eventPlayerKilled, enemyProjPool));
+    }
+    for (let i = 0; i < 5; i++) {
+        enemies.push(new Enemy_Turret_1.default(stage, assetManager, eventPlayerKilled, enemyProjPool, player));
+    }
     for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
-        playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager, enemy));
+        playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager, enemies));
     }
     for (let i = 0; i < 56; i++) {
         tiles.push(new Tile_Wall_1.default(stage, assetManager, player));
@@ -10265,7 +10446,7 @@ function onReady(e) {
         tiles.push(new Tile_Obstacle_1.default(stage, assetManager, player));
     }
     for (let i = 0; i < 25; i++) {
-        tiles.push(new Tile_EnemySpawn_1.default(stage, assetManager, player));
+        tiles.push(new Tile_EnemySpawn_1.default(stage, assetManager, player, enemies));
     }
     for (let i = 0; i < 25; i++) {
         tiles.push(new Tile_ItemSpawn_1.default(stage, assetManager, player));
@@ -10293,8 +10474,17 @@ function onTick(e) {
     document.getElementById("fps").innerHTML = String(createjs.Ticker.getMeasuredFPS());
     monitorKeys();
     player.update(tiles);
-    enemy.update(tiles, player);
     for (let projectile of playerProjPool) {
+        if (projectile.isActive) {
+            projectile.update(tiles);
+        }
+    }
+    for (let enemy of enemies) {
+        if (enemy.isActive) {
+            enemy.update(tiles, player);
+        }
+    }
+    for (let projectile of enemyProjPool) {
         if (projectile.isActive) {
             projectile.update(tiles);
         }
@@ -10532,7 +10722,7 @@ class Player extends GameObject_1.default {
         super(stage, assetManager);
         this._state = Player.STATE_ALIVE;
         this._speed = Constants_1.PLAYER_SPEED;
-        this._sprite = assetManager.getSprite("placeholder-assets", "bracket");
+        this._sprite = assetManager.getSprite("character-sprites", "bracket");
         this._canShoot = true;
         this._shotDelay = Constants_1.PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
@@ -10618,11 +10808,11 @@ const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts")
 const Projectile_1 = __webpack_require__(/*! ./Projectile */ "./src/Projectile.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class PlayerProjectile extends Projectile_1.default {
-    constructor(stage, assetManager, enemy) {
+    constructor(stage, assetManager, enemies) {
         super(stage, assetManager);
-        this._sprite = assetManager.getSprite("placeholder-assets", "projectile");
+        this._sprite = assetManager.getSprite("projectile-sprites", "rocket/active");
         this._speed = Constants_1.PLAYER_PROJECTILE_SPEED;
-        this.enemy = enemy;
+        this.enemies = enemies;
     }
     update(tiles) {
         super.update(tiles);
@@ -10630,12 +10820,14 @@ class PlayerProjectile extends Projectile_1.default {
     }
     detectCollisions(tiles) {
         super.detectCollisions(tiles);
-        if (Toolkit_1.radiusHit(this._sprite, 16, this.enemy.sprite, 16)) {
-            if (!this.enemy.isActive) {
-                return;
+        for (let enemy of this.enemies) {
+            if (Toolkit_1.radiusHit(this._sprite, 16, enemy.sprite, 16)) {
+                if (!enemy.isActive) {
+                    return;
+                }
+                enemy.removeMe();
+                this.removeMe();
             }
-            this.enemy.removeMe();
-            this.removeMe();
         }
     }
 }
@@ -10725,17 +10917,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Tile_1 = __webpack_require__(/*! ./Tile */ "./src/Tile.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Tile_EnemySpawn extends Tile_1.default {
-    constructor(stage, assetManager, player) {
+    constructor(stage, assetManager, player, enemyPool) {
         super(stage, assetManager, player);
         this._id = Tile_1.default.ID_ENEMY_SPAWN;
         this._sprite = assetManager.getSprite("placeholder-assets", "enemy-spawn");
+        this.enemies = enemyPool;
+    }
+    addMe() {
+        super.addMe();
+        this.getNewEnemy();
     }
     getNewEnemy() {
-        this._enemyID = Toolkit_1.randomMe(0, 3);
+        this._enemyID = Toolkit_1.randomMe(0, 2);
         for (let enemy of this.enemies) {
-            if (enemy.id == this._enemyID) {
-                enemy.positionMe(this._sprite.x, this._sprite.y);
-                break;
+            if (!enemy.isActive) {
+                if (enemy.id == this._enemyID) {
+                    enemy.positionMe(this._sprite.x, this._sprite.y);
+                    enemy.addMe();
+                    break;
+                }
             }
         }
     }
@@ -10901,6 +11101,39 @@ Tile.ID_OBSTACLE = 2;
 Tile.ID_PLAYER_SPAWN = 3;
 Tile.ID_ENEMY_SPAWN = 4;
 Tile.ID_ITEM_SPAWN = 5;
+
+
+/***/ }),
+
+/***/ "./src/Timer.ts":
+/*!**********************!*\
+  !*** ./src/Timer.ts ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class Timer {
+    constructor(stage, assetManager, event) {
+        this.stage = stage;
+        this.assetManager = assetManager;
+        this._seconds = 0;
+        this.eventTimeExpired = event;
+    }
+    startTimer(duration) {
+        this._seconds = duration;
+        this.timer = window.setInterval(() => {
+            this._seconds--;
+            if (this._seconds <= 0) {
+                window.clearInterval(this.timer);
+                this.stage.dispatchEvent(this.eventTimeExpired);
+            }
+        }, 1000);
+    }
+}
+exports.default = Timer;
 
 
 /***/ }),

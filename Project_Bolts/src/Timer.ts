@@ -11,13 +11,13 @@ export default class Timer{
     private stage:createjs.StageGL;
     private assetManager:AssetManager;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager){
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, event:createjs.Event){
         this.stage = stage;
         this.assetManager = assetManager;
         
         this._seconds = 0;
 
-        this.eventTimeExpired = new createjs.Event("timerExpired", true, false);
+        this.eventTimeExpired = event;
         // construct bitmap text object when adding timer display
     }
 

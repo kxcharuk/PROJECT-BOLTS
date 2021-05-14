@@ -18,9 +18,14 @@ import Tile_PlayerSpawn from "./Tile-PlayerSpawn";
 import Tile_Floor from "./Tile-Floor";
 import Tile_ItemSpawn from "./Tile-ItemSpawn";
 import EnemyProjectile from "./EnemyProjectile";
+import Enemy_Sentinel from "./Enemy-Sentinel";
+import Enemy_Turret from "./Enemy-Turret";
+import Enemy_Laser from "./Enemy-Laser";
+import Timer from "./Timer";
 
 // game objects
-let background:createjs.Sprite;
+let roundStartTimer:Timer;
+let roundTimer:Timer;
 let player:Player;
 let enemies:Enemy[] = [];
 let playerProjPool:PlayerProjectile[] = [];
@@ -29,6 +34,8 @@ let tiles:Tile[] = [];
 let levelManager:LevelManager;
 
 let eventPlayerKilled:createjs.Event;
+let eventRoundStart:createjs.Event;
+let eventRoundTimerExpired:createjs.Event;
 
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
@@ -130,12 +137,18 @@ function onGameEvent(e:createjs.Event):void{
             
         break;
 
+        case "roundStart":
+
+        break;
+
         case "roundOver":
 
         break;
 
         case "roundReset":
         
+        break;
+
         case "timerExpired":
 
         break;
@@ -155,27 +168,37 @@ function onReady(e:createjs.Event):void {
     //stage.addChild(background);
 
     eventPlayerKilled = new createjs.Event("playerDeath", true, false);
+    eventRoundStart = new createjs.Event("roundStart", true, false);
+    eventRoundTimerExpired = new createjs.Event("timerExpired", true, false);
 
     player = new Player(stage, assetManager);
     player.sprite.x = 240;
     player.sprite.y = 340;
     player.addMe();
 
+    roundStartTimer = new Timer(stage, assetManager, eventRoundStart);
+    roundTimer = new Timer(stage, assetManager, eventRoundTimerExpired);
   
     for(let i:number = 0; i < 200; i++){
         enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled));
     }
 
-    // enemy = new Enemy(stage, assetManager, eventPlayerKilled, enemyProjPool);
-    // enemy.positionMe(240, 200);
-    // enemy.addMe();
     // contruct enemy object pool
+    for(let i:number = 0; i < 5; i++){
+        enemies.push(new Enemy_Sentinel(stage, assetManager, eventPlayerKilled, enemyProjPool));
+    }
+    for(let i:number = 0; i < 5; i++){
+        enemies.push(new Enemy_Laser(stage, assetManager, eventPlayerKilled, enemyProjPool));
+    }
+    for(let i:number = 0; i < 5; i++){
+        enemies.push(new Enemy_Turret(stage, assetManager, eventPlayerKilled, enemyProjPool, player));
+    }
 
     for(let i:number = 0; i < PLAYER_PROJECTILE_MAX; i++){
         playerProjPool.push(new PlayerProjectile(stage, assetManager, enemies));
     }
 
-    // temporary for first playable | will change when tiles functionality expands -> mayb want to move this to level manager
+    // contructing tiles
     for(let i:number = 0; i < 56; i++){
         tiles.push(new Tile_Wall(stage, assetManager, player));
     }
@@ -183,7 +206,7 @@ function onReady(e:createjs.Event):void {
         tiles.push(new Tile_Obstacle(stage, assetManager, player));
     }
     for(let i:number = 0; i < 25; i++){
-        tiles.push(new Tile_EnemySpawn(stage, assetManager, player));
+        tiles.push(new Tile_EnemySpawn(stage, assetManager, player, enemies));
     }
     for(let i:number = 0; i < 25; i++){
         tiles.push(new Tile_ItemSpawn(stage, assetManager, player));
@@ -194,7 +217,6 @@ function onReady(e:createjs.Event):void {
     tiles.push(new Tile_PlayerSpawn(stage,assetManager, player));
     console.log("tiles.length = " + tiles.length);
     levelManager = new LevelManager(stage, tiles);
-    //levelManager.loadLevel();
     levelManager.randomizeLevel();
     levelManager.loadLevel();
 
@@ -209,6 +231,8 @@ function onReady(e:createjs.Event):void {
     document.onmousemove = onMouseMove;
     document.onmousedown = onMouseDown;
 
+    // start round start timer
+
     // startup the ticker
     createjs.Ticker.framerate = FRAME_RATE;
     createjs.Ticker.on("tick", onTick);        
@@ -222,12 +246,17 @@ function onTick(e:createjs.Event):void {
     // object updates
     monitorKeys();
     player.update(tiles);
+    for(let projectile of playerProjPool){
+        if(projectile.isActive){
+            projectile.update(tiles);
+        }
+    }
     for(let enemy of enemies){
         if(enemy.isActive){
             enemy.update(tiles, player);
         }
     }
-    for(let projectile of playerProjPool){
+    for(let projectile of enemyProjPool){
         if(projectile.isActive){
             projectile.update(tiles);
         }

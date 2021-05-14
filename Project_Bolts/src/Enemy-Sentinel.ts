@@ -23,8 +23,11 @@ export default class Enemy_Sentinel extends Enemy{
         else{
             this._movementAngle = 315;
         }
-        
-        this._shotDelay = randomMe(500, 1000);
+
+        this._sprite = assetManager.getSprite("character-sprites","enemy1");
+        this._id = Enemy.ID_SENTINEL;
+
+        this._shotDelay = randomMe(500, 2000);
         this.timer = window.setInterval(()=>{
             this.shoot();
         }, this._shotDelay);
