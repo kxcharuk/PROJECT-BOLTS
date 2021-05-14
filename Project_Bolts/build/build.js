@@ -9977,6 +9977,18 @@ exports.ASSET_MANIFEST = [
         src: "./lib/spritesheets/character-sprites.png",
         id: "character-sprites",
         data: 0
+    },
+    {
+        type: "json",
+        src: "./lib/spritesheets/glyphs.json",
+        id: "glyphs",
+        data: 0
+    },
+    {
+        type: "image",
+        src: "./lib/spritesheets/glyphs.png",
+        id: "glyphs",
+        data: 0
     }
 ];
 
@@ -10192,6 +10204,7 @@ class Enemy extends GameObject_1.default {
             return;
         }
         this._state = Enemy.STATE_DEAD;
+        this.stopMe();
         this.removeMe();
     }
     startMe() {
@@ -10201,6 +10214,9 @@ class Enemy extends GameObject_1.default {
         this._state = Enemy.STATE_IDLE;
     }
     move() {
+        if (this._state != Enemy.STATE_ALIVE) {
+            return;
+        }
         this.xDisplacement = Math.cos(Toolkit_1.toRadians(this._movementAngle)) * this._speed;
         this.yDisplacement = Math.sin(Toolkit_1.toRadians(this._movementAngle)) * this._speed;
         this._sprite.x += this.xDisplacement;
@@ -10287,7 +10303,7 @@ class EnemyProjectile extends Projectile_1.default {
     }
     detectCollisions(tiles) {
         super.detectCollisions(tiles);
-        if (Toolkit_1.radiusHit(this._sprite, 16, this.player.sprite, 16)) {
+        if (Toolkit_1.radiusHit(this._sprite, 5, this.player.sprite, 13)) {
             if (!this.player.isActive) {
                 return;
             }
@@ -10460,7 +10476,9 @@ function onReady(e) {
     player.sprite.y = 340;
     player.addMe();
     roundStartTimer = new Timer_1.default(stage, assetManager, eventRoundStart);
+    roundStartTimer.positionText(215, 215, 3);
     roundTimer = new Timer_1.default(stage, assetManager, eventRoundTimerExpired);
+    roundTimer.positionText(8, 8, 1);
     for (let i = 0; i < 200; i++) {
         enemyProjPool.push(new EnemyProjectile_1.default(stage, assetManager, player, eventPlayerKilled));
     }
@@ -11171,16 +11189,29 @@ class Timer {
         this.assetManager = assetManager;
         this._seconds = 0;
         this.eventTimeExpired = event;
+        this.txtSeconds = new createjs.BitmapText("10", assetManager.getSpriteSheet("glyphs"));
+        this.txtSeconds.letterSpacing = 1;
+        this.txtSeconds.x = 16;
+        this.txtSeconds.y = 16;
     }
     startTimer(duration) {
+        this.stage.addChild(this.txtSeconds);
         this._seconds = duration;
         this.timer = window.setInterval(() => {
             this._seconds--;
+            this.txtSeconds.text = this._seconds.toString();
             if (this._seconds <= 0) {
+                this.stage.removeChild(this.txtSeconds);
                 this.stage.dispatchEvent(this.eventTimeExpired);
                 window.clearInterval(this.timer);
             }
         }, 1000);
+    }
+    positionText(x, y, scale) {
+        this.txtSeconds.x = x;
+        this.txtSeconds.y = y;
+        this.txtSeconds.scaleX = scale;
+        this.txtSeconds.scaleY = scale;
     }
 }
 exports.default = Timer;

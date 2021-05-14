@@ -161,6 +161,7 @@ function onGameEvent(e:createjs.Event):void{
                     enemy.stopMe();
                 }
             }
+            // loop through proj and stop them as well
             console.log("timer expired!!");
         break;
 
@@ -189,7 +190,9 @@ function onReady(e:createjs.Event):void {
     player.addMe();
 
     roundStartTimer = new Timer(stage, assetManager, eventRoundStart);
+    roundStartTimer.positionText(215,215, 3);
     roundTimer = new Timer(stage, assetManager, eventRoundTimerExpired);
+    roundTimer.positionText(8,8,1);
   
     for(let i:number = 0; i < 200; i++){
         enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled));

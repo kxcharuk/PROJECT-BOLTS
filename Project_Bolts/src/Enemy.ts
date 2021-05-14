@@ -53,6 +53,7 @@ export default class Enemy extends GameObject{
     public killMe():void{
         if(this._state != Enemy.STATE_ALIVE) {return;}
         this._state = Enemy.STATE_DEAD; // change to DYING and create onanimationend event listener => handler
+        this.stopMe();
         this.removeMe();
     }
 
@@ -66,7 +67,7 @@ export default class Enemy extends GameObject{
 
     // ---------------------------------------------------------------- private methods
     protected move():void{
-        //if(this._state != Enemy.STATE_ALIVE) {return;}
+        if(this._state != Enemy.STATE_ALIVE) {return;}
 
         this.xDisplacement = Math.cos(toRadians(this._movementAngle)) * this._speed;
         this.yDisplacement = Math.sin(toRadians(this._movementAngle)) * this._speed;

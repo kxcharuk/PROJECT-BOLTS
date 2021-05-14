@@ -35,7 +35,7 @@ export default class EnemyProjectile extends Projectile{
     // --------------------------------------------------------------------- private methods
     protected detectCollisions(tiles:Tile[]):void{
         super.detectCollisions(tiles);
-        if(radiusHit(this._sprite, 16, this.player.sprite, 16)){
+        if(radiusHit(this._sprite, 5, this.player.sprite, 13)){
             if(!this.player.isActive) {return;}
             this.stage.dispatchEvent(this.eventPlayerKilled);
         }
