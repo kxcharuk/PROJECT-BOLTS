@@ -12,6 +12,7 @@ export default class Enemy_Laser extends Enemy{
         super(stage, assetManager, eventPlayerKilled, projectilePool);
         this._sprite = assetManager.getSprite("character-sprites","enemy2");
         this._id = Enemy.ID_LASER;
+        this._ammoType = EnemyProjectile.TYPE_LASER;
 
         let random = randomMe(0,1);
         // move this into addMe function
@@ -21,12 +22,6 @@ export default class Enemy_Laser extends Enemy{
         else{
             this._movementAngle = 90;
         }
-        // --------------------------------
-
-        this._shotDelay = randomMe(500, 2500);
-        this.timer = window.setInterval(()=>{
-            this.shoot();
-        }, this._shotDelay);
     }
 
     // ---------------------------------------------------------------------------------------- public methods
@@ -41,7 +36,7 @@ export default class Enemy_Laser extends Enemy{
         let count:number = 0;
         for(let projectile of this.enemyProjPool){
             if(count > 1) {break;}
-            if(!projectile.isActive){
+            if(!projectile.isActive && projectile.type == this._ammoType){
                 if(count == 0){
                     projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 90);
                 }

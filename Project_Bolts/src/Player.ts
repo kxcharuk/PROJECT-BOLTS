@@ -28,7 +28,6 @@ export default class Player extends GameObject{
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event){
         super(stage,assetManager);
         this._state = Player.STATE_IDLE;
-        this._state = Player.STATE_IDLE;
         this._speed = PLAYER_SPEED;
         this._sprite = assetManager.getSprite("character-sprites", "bracket");
         this._canShoot = false;
@@ -117,5 +116,9 @@ export default class Player extends GameObject{
 
     public set CanShoot(value:boolean){
         this._canShoot = value;
+    }
+
+    public get state():number{
+        return this._state;
     }
 }

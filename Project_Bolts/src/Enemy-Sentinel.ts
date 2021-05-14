@@ -24,13 +24,10 @@ export default class Enemy_Sentinel extends Enemy{
             this._movementAngle = 315;
         }
 
+        this._ammoType = EnemyProjectile.TYPE_BULLET;
+
         this._sprite = assetManager.getSprite("character-sprites","enemy1");
         this._id = Enemy.ID_SENTINEL;
-
-        this._shotDelay = randomMe(500, 2000);
-        this.timer = window.setInterval(()=>{
-            this.shoot();
-        }, this._shotDelay);
     }
 
     // ---------------------------------------------------------------------------- public methods
@@ -38,6 +35,11 @@ export default class Enemy_Sentinel extends Enemy{
         super.update(tiles, player);
         this.detectCollisions(tiles, player, 90);
         this.lookAtPlayer(player);
+    }
+
+    public removeMe():void{
+        super.removeMe();
+        window.clearInterval(this.timer);
     }
     // ---------------------------------------------------------------------------- private methods
 

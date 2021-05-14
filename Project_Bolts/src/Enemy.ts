@@ -4,7 +4,7 @@ import EnemyProjectile from "./EnemyProjectile";
 import GameObject from "./GameObject";
 import Player from "./Player";
 import Tile from "./Tile";
-import { boxHit, radiusHit, toDegrees, toRadians } from "./Toolkit";
+import { boxHit, radiusHit, randomMe, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Enemy extends GameObject{
@@ -15,8 +15,8 @@ export default class Enemy extends GameObject{
     public static STATE_DYING:number = 2;
     public static STATE_DEAD:number = 3;
 
-    public static ID_LASER:number = 0;
-    public static ID_SENTINEL:number = 1;
+    public static ID_SENTINEL:number = 0;
+    public static ID_LASER:number = 1;
     public static ID_TURRET:number = 2;
 
 
@@ -26,6 +26,7 @@ export default class Enemy extends GameObject{
     protected _state:number;
     protected _movementAngle:number; // may need to store the angle at which we are moving so we can easily change it
     protected _id:number;
+    protected _ammoType:number;
     
     protected timer:number;
     protected xDisplacement:number;
@@ -42,6 +43,8 @@ export default class Enemy extends GameObject{
         this._isActive = false;
         this.enemyProjPool = enemyProjPool;
         this.eventPlayerKilled = eventPlayerKilled;
+
+        this._shotDelay = randomMe(750, 2500);
     }
 
     // ---------------------------------------------------------------- public methods
@@ -59,10 +62,14 @@ export default class Enemy extends GameObject{
 
     public startMe():void{
         this._state = Enemy.STATE_ALIVE;
+        this.timer = window.setInterval(()=>{
+            this.shoot();
+        }, this._shotDelay);
     }
 
     public stopMe():void{
         this._state = Enemy.STATE_IDLE;
+        window.clearInterval(this.timer);
     }
 
     // ---------------------------------------------------------------- private methods
@@ -110,7 +117,7 @@ export default class Enemy extends GameObject{
     protected shoot():void{
         if(this._state != Enemy.STATE_ALIVE){return;}
         for(let projectile of this.enemyProjPool){
-            if(!projectile.isActive){
+            if(!projectile.isActive && projectile.type == this._ammoType){
                 projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
                 break;
             }

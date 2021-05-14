@@ -22,10 +22,10 @@ export default class Tile_EnemySpawn extends Tile{
     //-------------------------------------------------------------------- public methods
     public addMe():void{
         super.addMe();
-        this.getNewEnemy();
+        this.getEnemy();
     }
     //-------------------------------------------------------------------- private methods
-    private getNewEnemy():void{
+    private getEnemy():void{
         this._enemyID = randomMe(0, 2);
         for(let enemy of this.enemies){
             if(!enemy.isActive){

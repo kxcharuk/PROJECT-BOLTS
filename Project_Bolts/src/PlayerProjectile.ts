@@ -30,7 +30,7 @@ export default class PlayerProjectile extends Projectile{
         for(let enemy of this.enemies){
             if(radiusHit(this._sprite, 16, enemy.sprite, 16)){
                 if(!enemy.isActive) {return;}
-                enemy.removeMe(); // to be changed to enemy.killMe();
+                enemy.killMe(); // to be changed to enemy.killMe();
                 this.removeMe();
             }
         }

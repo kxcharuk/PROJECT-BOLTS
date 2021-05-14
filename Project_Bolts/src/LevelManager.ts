@@ -144,6 +144,12 @@ export default class LevelManager{
         }
     }
 
+    public clearLevel():void{
+        for(let tile of this.tiles){
+            tile.removeMe();
+        }
+    }
+
     // ----------------------------------------------------- private methods
 
     private setBorder():void{

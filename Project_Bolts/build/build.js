@@ -10006,12 +10006,14 @@ exports.ASSET_MANIFEST = [
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
+const EnemyProjectile_1 = __webpack_require__(/*! ./EnemyProjectile */ "./src/EnemyProjectile.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Enemy_Laser extends Enemy_1.default {
     constructor(stage, assetManager, eventPlayerKilled, projectilePool) {
         super(stage, assetManager, eventPlayerKilled, projectilePool);
         this._sprite = assetManager.getSprite("character-sprites", "enemy2");
         this._id = Enemy_1.default.ID_LASER;
+        this._ammoType = EnemyProjectile_1.default.TYPE_LASER;
         let random = Toolkit_1.randomMe(0, 1);
         if (random == 1) {
             this._movementAngle = 0;
@@ -10019,10 +10021,6 @@ class Enemy_Laser extends Enemy_1.default {
         else {
             this._movementAngle = 90;
         }
-        this._shotDelay = Toolkit_1.randomMe(500, 2500);
-        this.timer = window.setInterval(() => {
-            this.shoot();
-        }, this._shotDelay);
     }
     update(tiles, player) {
         super.update(tiles, player);
@@ -10037,7 +10035,7 @@ class Enemy_Laser extends Enemy_1.default {
             if (count > 1) {
                 break;
             }
-            if (!projectile.isActive) {
+            if (!projectile.isActive && projectile.type == this._ammoType) {
                 if (count == 0) {
                     projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 90);
                 }
@@ -10065,6 +10063,7 @@ exports.default = Enemy_Laser;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
+const EnemyProjectile_1 = __webpack_require__(/*! ./EnemyProjectile */ "./src/EnemyProjectile.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Enemy_Sentinel extends Enemy_1.default {
     constructor(stage, assetManager, eventPlayerKilled, projectilePool) {
@@ -10082,17 +10081,18 @@ class Enemy_Sentinel extends Enemy_1.default {
         else {
             this._movementAngle = 315;
         }
+        this._ammoType = EnemyProjectile_1.default.TYPE_BULLET;
         this._sprite = assetManager.getSprite("character-sprites", "enemy1");
         this._id = Enemy_1.default.ID_SENTINEL;
-        this._shotDelay = Toolkit_1.randomMe(500, 2000);
-        this.timer = window.setInterval(() => {
-            this.shoot();
-        }, this._shotDelay);
     }
     update(tiles, player) {
         super.update(tiles, player);
         this.detectCollisions(tiles, player, 90);
         this.lookAtPlayer(player);
+    }
+    removeMe() {
+        super.removeMe();
+        window.clearInterval(this.timer);
     }
 }
 exports.default = Enemy_Sentinel;
@@ -10111,16 +10111,14 @@ exports.default = Enemy_Sentinel;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
+const EnemyProjectile_1 = __webpack_require__(/*! ./EnemyProjectile */ "./src/EnemyProjectile.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Enemy_Turret extends Enemy_1.default {
     constructor(stage, assetManager, eventPlayerKilled, projectilePool, player) {
         super(stage, assetManager, eventPlayerKilled, projectilePool);
         this._sprite = assetManager.getSprite("character-sprites", "enemy3");
         this._id = Enemy_1.default.ID_TURRET;
-        this._shotDelay = Toolkit_1.randomMe(500, 2000);
-        this.timer = window.setInterval(() => {
-            this.shoot();
-        }, this._shotDelay);
+        this._ammoType = EnemyProjectile_1.default.TYPE_TURRET;
         this.player = player;
     }
     update() {
@@ -10142,18 +10140,18 @@ class Enemy_Turret extends Enemy_1.default {
             if (count > 3) {
                 break;
             }
-            if (!projectile.isActive) {
+            if (!projectile.isActive && projectile.type == this._ammoType) {
                 if (count == 0) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation - 45);
                 }
                 else if (count == 1) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 90);
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 45);
                 }
                 else if (count == 2) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 180);
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 135);
                 }
                 else if (count == 3) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 270);
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 225);
                 }
                 count++;
             }
@@ -10192,6 +10190,7 @@ class Enemy extends GameObject_1.default {
         this._isActive = false;
         this.enemyProjPool = enemyProjPool;
         this.eventPlayerKilled = eventPlayerKilled;
+        this._shotDelay = Toolkit_1.randomMe(750, 2500);
     }
     update(tiles, player) {
         if (this._state != Enemy.STATE_ALIVE) {
@@ -10209,9 +10208,13 @@ class Enemy extends GameObject_1.default {
     }
     startMe() {
         this._state = Enemy.STATE_ALIVE;
+        this.timer = window.setInterval(() => {
+            this.shoot();
+        }, this._shotDelay);
     }
     stopMe() {
         this._state = Enemy.STATE_IDLE;
+        window.clearInterval(this.timer);
     }
     move() {
         if (this._state != Enemy.STATE_ALIVE) {
@@ -10245,7 +10248,7 @@ class Enemy extends GameObject_1.default {
             return;
         }
         for (let projectile of this.enemyProjPool) {
-            if (!projectile.isActive) {
+            if (!projectile.isActive && projectile.type == this._ammoType) {
                 projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
                 break;
             }
@@ -10266,8 +10269,8 @@ Enemy.STATE_IDLE = 0;
 Enemy.STATE_ALIVE = 1;
 Enemy.STATE_DYING = 2;
 Enemy.STATE_DEAD = 3;
-Enemy.ID_LASER = 0;
-Enemy.ID_SENTINEL = 1;
+Enemy.ID_SENTINEL = 0;
+Enemy.ID_LASER = 1;
 Enemy.ID_TURRET = 2;
 
 
@@ -10286,9 +10289,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Projectile_1 = __webpack_require__(/*! ./Projectile */ "./src/Projectile.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class EnemyProjectile extends Projectile_1.default {
-    constructor(stage, assetManager, player, eventPlayerKilled) {
+    constructor(stage, assetManager, player, eventPlayerKilled, type) {
         super(stage, assetManager);
-        this._sprite = assetManager.getSprite("projectile-sprites", "bullet/active");
+        this._type = type;
+        if (this._type == EnemyProjectile.TYPE_BULLET) {
+            this._sprite = assetManager.getSprite("projectile-sprites", "bullet/active");
+        }
+        else if (this._type == EnemyProjectile.TYPE_LASER) {
+            this._sprite = assetManager.getSprite("projectile-sprites", "turret/active");
+        }
+        else if (this._type == EnemyProjectile.TYPE_TURRET) {
+            this._sprite = assetManager.getSprite("projectile-sprites", "turret/active");
+        }
+        this._sprite.scaleX = 1.2;
+        this._sprite.scaleY = 1.2;
         this._speed = 2;
         this.player = player;
         this.eventPlayerKilled = eventPlayerKilled;
@@ -10310,8 +10324,14 @@ class EnemyProjectile extends Projectile_1.default {
             this.stage.dispatchEvent(this.eventPlayerKilled);
         }
     }
+    get type() {
+        return this._type;
+    }
 }
 exports.default = EnemyProjectile;
+EnemyProjectile.TYPE_BULLET = 0;
+EnemyProjectile.TYPE_LASER = 1;
+EnemyProjectile.TYPE_TURRET = 2;
 
 
 /***/ }),
@@ -10351,12 +10371,17 @@ let playerProjPool = [];
 let enemyProjPool = [];
 let tiles = [];
 let levelManager;
-let eventPlayerKilled;
-let eventRoundStart;
-let eventRoundTimerExpired;
 let stage;
 let canvas;
 let assetManager;
+let eventPlayerKilled;
+let eventRoundStart;
+let eventRoundTimerExpired;
+let eventRoundReset;
+let eventRoundOver;
+let playerLives;
+let roundInProgress;
+let enemiesInLevel;
 let upKey = false;
 let downKey = false;
 let rightKey = false;
@@ -10385,6 +10410,35 @@ function monitorKeys() {
     }
     else if (downKey) {
         player.move(90);
+    }
+}
+function monitorEnemiesLeft() {
+    if (!roundInProgress) {
+        return;
+    }
+    if (enemiesInLevel <= 0) {
+        stage.dispatchEvent(eventRoundOver);
+    }
+}
+function reset() {
+    levelManager.clearLevel();
+    player.stopMe();
+    player.removeMe();
+    for (let projectile of playerProjPool) {
+        if (projectile.isActive) {
+            projectile.removeMe();
+        }
+    }
+    for (let enemy of enemies) {
+        if (enemy.isActive) {
+            enemy.stopMe();
+            enemy.removeMe();
+        }
+    }
+    for (let projectile of enemyProjPool) {
+        if (projectile.isActive) {
+            projectile.removeMe();
+        }
     }
 }
 function onKeyDown(e) {
@@ -10416,7 +10470,7 @@ function onKeyUp(e) {
     }
 }
 function onMouseDown(e) {
-    if (!player.CanShoot) {
+    if (player.state != Player_1.default.STATE_ALIVE) {
         return;
     }
     console.log("click");
@@ -10438,30 +10492,58 @@ function onGameEvent(e) {
             break;
         case "roundStart":
             roundTimer.startTimer(10);
+            enemiesInLevel = 0;
+            player.addMe();
+            player.startMe();
             for (let enemy of enemies) {
                 if (enemy.isActive) {
-                    player.startMe();
                     enemy.startMe();
+                    enemiesInLevel++;
                 }
             }
             console.log("start round!!");
             break;
         case "roundOver":
+            reset();
+            levelManager.randomizeLevel();
+            levelManager.loadLevel();
+            roundStartTimer.startTimer(5);
             break;
         case "roundReset":
+            reset();
+            levelManager.loadLevel();
+            player.addMe();
+            roundStartTimer.startTimer(5);
             break;
         case "timerExpired":
+            roundTimer.stopTimer();
             player.stopMe();
             for (let enemy of enemies) {
-                if (enemy.isActive) {
-                    player.stopMe();
-                    enemy.stopMe();
-                }
+                enemy.stopMe();
+            }
+            playerLives--;
+            if (playerLives <= 0) {
+                console.log("gameover");
+            }
+            else {
+                stage.dispatchEvent(eventRoundReset);
             }
             console.log("timer expired!!");
             break;
         case "playerKilled":
+            if (player.state != Player_1.default.STATE_ALIVE) {
+                return;
+            }
+            roundTimer.stopTimer();
             player.killMe();
+            player.stopMe();
+            playerLives--;
+            if (playerLives <= 0) {
+                console.log("gameover");
+            }
+            else {
+                stage.dispatchEvent(eventRoundReset);
+            }
             console.log("player killed!!");
             break;
     }
@@ -10471,16 +10553,21 @@ function onReady(e) {
     eventPlayerKilled = new createjs.Event("playerKilled", true, false);
     eventRoundStart = new createjs.Event("roundStart", true, false);
     eventRoundTimerExpired = new createjs.Event("timerExpired", true, false);
+    eventRoundReset = new createjs.Event("roundReset", true, false);
+    eventRoundOver = new createjs.Event("roundOver", true, false);
     player = new Player_1.default(stage, assetManager, eventPlayerKilled);
     player.sprite.x = 240;
     player.sprite.y = 340;
     player.addMe();
+    playerLives = 100;
     roundStartTimer = new Timer_1.default(stage, assetManager, eventRoundStart);
     roundStartTimer.positionText(215, 215, 3);
     roundTimer = new Timer_1.default(stage, assetManager, eventRoundTimerExpired);
     roundTimer.positionText(8, 8, 1);
-    for (let i = 0; i < 200; i++) {
-        enemyProjPool.push(new EnemyProjectile_1.default(stage, assetManager, player, eventPlayerKilled));
+    for (let i = 0; i < 100; i++) {
+        enemyProjPool.push(new EnemyProjectile_1.default(stage, assetManager, player, eventPlayerKilled, EnemyProjectile_1.default.TYPE_BULLET));
+        enemyProjPool.push(new EnemyProjectile_1.default(stage, assetManager, player, eventPlayerKilled, EnemyProjectile_1.default.TYPE_LASER));
+        enemyProjPool.push(new EnemyProjectile_1.default(stage, assetManager, player, eventPlayerKilled, EnemyProjectile_1.default.TYPE_TURRET));
     }
     for (let i = 0; i < 5; i++) {
         enemies.push(new Enemy_Sentinel_1.default(stage, assetManager, eventPlayerKilled, enemyProjPool));
@@ -10517,8 +10604,10 @@ function onReady(e) {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
-    stage.on("playerKilled", onGameEvent);
     stage.on("roundStart", onGameEvent);
+    stage.on("roundOver", onGameEvent);
+    stage.on("roundReset", onGameEvent);
+    stage.on("playerKilled", onGameEvent);
     stage.on("timerExpired", onGameEvent);
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
@@ -10746,6 +10835,11 @@ class LevelManager {
             }
         }
     }
+    clearLevel() {
+        for (let tile of this.tiles) {
+            tile.removeMe();
+        }
+    }
     setBorder() {
         for (let y = 0; y < 15; y++) {
             for (let x = 0; x < 15; x++) {
@@ -10778,7 +10872,6 @@ const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
 class Player extends GameObject_1.default {
     constructor(stage, assetManager, eventPlayerKilled) {
         super(stage, assetManager);
-        this._state = Player.STATE_IDLE;
         this._state = Player.STATE_IDLE;
         this._speed = Constants_1.PLAYER_SPEED;
         this._sprite = assetManager.getSprite("character-sprites", "bracket");
@@ -10852,6 +10945,9 @@ class Player extends GameObject_1.default {
     set CanShoot(value) {
         this._canShoot = value;
     }
+    get state() {
+        return this._state;
+    }
 }
 exports.default = Player;
 Player.STATE_IDLE = 0;
@@ -10893,7 +10989,7 @@ class PlayerProjectile extends Projectile_1.default {
                 if (!enemy.isActive) {
                     return;
                 }
-                enemy.removeMe();
+                enemy.killMe();
                 this.removeMe();
             }
         }
@@ -10993,9 +11089,9 @@ class Tile_EnemySpawn extends Tile_1.default {
     }
     addMe() {
         super.addMe();
-        this.getNewEnemy();
+        this.getEnemy();
     }
-    getNewEnemy() {
+    getEnemy() {
         this._enemyID = Toolkit_1.randomMe(0, 2);
         for (let enemy of this.enemies) {
             if (!enemy.isActive) {
@@ -11103,6 +11199,7 @@ class Tile_PlayerSpawn extends Tile_1.default {
     }
     movePlayerHere() {
         this.player.positionMe(this._sprite.x, this._sprite.y);
+        this.player.addMe();
     }
     addMe() {
         super.addMe();
@@ -11156,7 +11253,7 @@ class Tile extends GameObject_1.default {
     }
     addMe() {
         super.addMe();
-        this.stage.addChildAt(this._sprite, this.stage.getChildIndex(this.player.sprite));
+        this.stage.addChildAt(this._sprite, 1);
     }
     get id() {
         return this._id;
@@ -11195,6 +11292,7 @@ class Timer {
         this.txtSeconds.y = 16;
     }
     startTimer(duration) {
+        window.clearInterval(this.timer);
         this.stage.addChild(this.txtSeconds);
         this._seconds = duration;
         this.timer = window.setInterval(() => {
@@ -11206,6 +11304,9 @@ class Timer {
                 window.clearInterval(this.timer);
             }
         }, 1000);
+    }
+    stopTimer() {
+        window.clearInterval(this.timer);
     }
     positionText(x, y, scale) {
         this.txtSeconds.x = x;

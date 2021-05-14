@@ -14,11 +14,7 @@ export default class Enemy_Turret extends Enemy{
         this._sprite = assetManager.getSprite("character-sprites","enemy3");
         this._id = Enemy.ID_TURRET;
 
-        this._shotDelay = randomMe(500, 2000);
-        this.timer = window.setInterval(()=>{
-            this.shoot();
-        }, this._shotDelay);
-
+        this._ammoType = EnemyProjectile.TYPE_TURRET;
         this.player = player;
     }
 
@@ -39,18 +35,18 @@ export default class Enemy_Turret extends Enemy{
         let count:number = 0;
         for(let projectile of this.enemyProjPool){
             if(count > 3) { break;}
-            if(!projectile.isActive){
+            if(!projectile.isActive && projectile.type == this._ammoType){
                 if(count == 0){
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation - 45);
                 }
                 else if(count == 1){
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 90);
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 45);
                 }
                 else if(count == 2){
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 180);
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 135);
                 }
                 else if(count == 3){
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 270);
+                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 225);
                 }
                 count++;
             }

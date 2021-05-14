@@ -28,6 +28,7 @@ export default class Timer{
     
     // ------------------------------------------------------------------------- public methods
     public startTimer(duration:number):void{
+        window.clearInterval(this.timer);
         this.stage.addChild(this.txtSeconds);
         // start interval here
         this._seconds = duration;
@@ -43,6 +44,10 @@ export default class Timer{
                 window.clearInterval(this.timer);
             }
         }, 1000);
+    }
+
+    public stopTimer():void{
+        window.clearInterval(this.timer);
     }
 
     public positionText(x:number, y:number, scale:number):void{

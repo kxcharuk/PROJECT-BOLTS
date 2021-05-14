@@ -14,6 +14,7 @@ export default class Tile_PlayerSpawn extends Tile{
     //-------------------------------------------------------------------- public methods
     public movePlayerHere():void{
         this.player.positionMe(this._sprite.x, this._sprite.y);
+        this.player.addMe();
     }
 
     public addMe():void{

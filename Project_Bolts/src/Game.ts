@@ -34,13 +34,19 @@ let enemyProjPool:EnemyProjectile[] = [];
 let tiles:Tile[] = [];
 let levelManager:LevelManager;
 
-let eventPlayerKilled:createjs.Event;
-let eventRoundStart:createjs.Event;
-let eventRoundTimerExpired:createjs.Event;
-
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
 let assetManager:AssetManager;
+
+let eventPlayerKilled:createjs.Event;
+let eventRoundStart:createjs.Event;
+let eventRoundTimerExpired:createjs.Event;
+let eventRoundReset:createjs.Event;
+let eventRoundOver:createjs.Event;
+
+let playerLives:number;
+let roundInProgress:boolean;
+let enemiesInLevel:number;
 
 // key boolean
 let upKey:boolean = false;
@@ -76,6 +82,35 @@ function monitorKeys():void{
     }
 }
 
+function monitorEnemiesLeft():void{
+    if(!roundInProgress){ return;}
+    if(enemiesInLevel <= 0){
+        // dispatch round over event
+        stage.dispatchEvent(eventRoundOver);
+    }
+}
+
+function reset():void{
+    levelManager.clearLevel();
+    player.stopMe();
+    player.removeMe();
+    for(let projectile of playerProjPool){
+        if(projectile.isActive){
+            projectile.removeMe();
+        }
+    }
+    for(let enemy of enemies){
+        if(enemy.isActive){
+            enemy.stopMe();
+            enemy.removeMe();
+        }
+    }
+    for(let projectile of enemyProjPool){
+        if(projectile.isActive){
+            projectile.removeMe();
+        }
+    }
+}
 // --------------------------------------------------- event handlers
 function onKeyDown(e:KeyboardEvent):void{
     if(e.key == "w" || e.key == "ArrowUp"){
@@ -108,7 +143,7 @@ function onKeyUp(e:KeyboardEvent):void{
 }
 
 function onMouseDown(e:MouseEvent):void{
-    if(!player.CanShoot) {return;}
+    if(player.state != Player.STATE_ALIVE) {return;}
     console.log("click");
     for(let projectile of playerProjPool){
         if(projectile.isActive == false){
@@ -136,37 +171,65 @@ function onGameEvent(e:createjs.Event):void{
 
         case "roundStart":
             roundTimer.startTimer(10);
+            enemiesInLevel = 0;
+            player.addMe();
+            player.startMe();
             for(let enemy of enemies){
                 if(enemy.isActive){
-                    player.startMe();
                     enemy.startMe();
+                    enemiesInLevel++;
                 }
             }
             console.log("start round!!");
         break;
 
         case "roundOver":
-
+            // reset everything(players, enemies, projectiles, etc.)
+            // reconfigure the level
+            // start the round start timer again\
+            reset();
+            levelManager.randomizeLevel();
+            levelManager.loadLevel();
+            roundStartTimer.startTimer(5);
         break;
 
         case "roundReset":
-        
+            reset();
+            levelManager.loadLevel();
+            player.addMe();
+            roundStartTimer.startTimer(5);
         break;
 
         case "timerExpired":
+            roundTimer.stopTimer();
             player.stopMe();
             for(let enemy of enemies){
-                if(enemy.isActive){
-                    player.stopMe();
-                    enemy.stopMe();
-                }
+                enemy.stopMe();
+            }
+
+            playerLives--;
+            if(playerLives <= 0){
+                console.log("gameover");
+            }
+            else{
+                stage.dispatchEvent(eventRoundReset);
             }
             // loop through proj and stop them as well
             console.log("timer expired!!");
         break;
 
         case "playerKilled":
+            if(player.state != Player.STATE_ALIVE) {return;}
+            roundTimer.stopTimer();
             player.killMe();
+            player.stopMe();
+            playerLives--;
+            if(playerLives <= 0){
+                console.log("gameover");
+            }
+            else{
+                stage.dispatchEvent(eventRoundReset);
+            }
             console.log("player killed!!");
         break;
     }
@@ -183,19 +246,25 @@ function onReady(e:createjs.Event):void {
     eventPlayerKilled = new createjs.Event("playerKilled", true, false);
     eventRoundStart = new createjs.Event("roundStart", true, false);
     eventRoundTimerExpired = new createjs.Event("timerExpired", true, false);
+    eventRoundReset = new createjs.Event("roundReset", true, false);
+    eventRoundOver = new createjs.Event("roundOver", true, false);
 
     player = new Player(stage, assetManager, eventPlayerKilled);
     player.sprite.x = 240;
     player.sprite.y = 340;
     player.addMe();
 
+    playerLives = 100;
+
     roundStartTimer = new Timer(stage, assetManager, eventRoundStart);
     roundStartTimer.positionText(215,215, 3);
     roundTimer = new Timer(stage, assetManager, eventRoundTimerExpired);
     roundTimer.positionText(8,8,1);
   
-    for(let i:number = 0; i < 200; i++){
-        enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled));
+    for(let i:number = 0; i < 100; i++){
+        enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled, EnemyProjectile.TYPE_BULLET));
+        enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled, EnemyProjectile.TYPE_LASER));
+        enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled, EnemyProjectile.TYPE_TURRET));
     }
 
     // contruct enemy object pool
@@ -239,8 +308,10 @@ function onReady(e:createjs.Event):void {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
-    stage.on("playerKilled", onGameEvent);
     stage.on("roundStart", onGameEvent);
+    stage.on("roundOver", onGameEvent);
+    stage.on("roundReset", onGameEvent);
+    stage.on("playerKilled", onGameEvent);
     stage.on("timerExpired", onGameEvent);
 
     // set up keyboard listeners
