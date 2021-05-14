@@ -1,5 +1,6 @@
 import AssetManager from "./AssetManager";
 import { ENEMY_SPEED } from "./Constants";
+import EnemyProjectile from "./EnemyProjectile";
 import GameObject from "./GameObject";
 import Player from "./Player";
 import Tile from "./Tile";
@@ -18,6 +19,12 @@ export default class Enemy extends GameObject{
     public static ID_ANGLE:number = 1;
     public static ID_SPINNER:number = 3;
 
+    public static STATE_IDLE = 0;
+    public static STATE_ALIVE = 1;
+    public static STATE_DYING = 2;
+    public static STATE_DEAD = 3;
+
+
     // properties
     protected _speed:number;
     protected _state:number;
@@ -25,12 +32,17 @@ export default class Enemy extends GameObject{
     protected _looksAtPlayer:boolean; // may move this to a sub class
     protected _movesPerp:boolean;
     protected _id:number;
+    protected _looksAtPlayer:boolean; // could be removed if/when sub-classes are added
+    protected _movesPerp:boolean; // ""
     
-
+    protected timer:number;
     protected xDisplacement:number;
     protected yDisplacement:number;
+    protected eventPlayerKilled:createjs.Event;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager){
+    protected enemyProjPool:EnemyProjectile[];
+
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, enemyProjPool:EnemyProjectile[]){
         super(stage, assetManager);
         this._speed = ENEMY_SPEED;
         //this._state = Enemy.STATE_ALIVE;
@@ -39,13 +51,18 @@ export default class Enemy extends GameObject{
         if(this._movementAngle % 90 == 0){this._movesPerp = true;}
         else {this._movesPerp = false;}
         this._sprite = assetManager.getSprite("placeholder-assets", "enemy2");
+        this.enemyProjPool = enemyProjPool;
+        this.timer = window.setInterval(()=>{
+            this.shoot();
+        }, 1000);
+        this.eventPlayerKilled = eventPlayerKilled;
     }
 
     // ---------------------------------------------------------------- public methods
     public update(tiles:Tile[], player:Player):void{
         // if(this._state != Enemy.STATE_ALIVE) {return;}
         this.move();
-        this.detectCollisions(tiles);
+        this.detectCollisions(tiles, player);
         if(this._looksAtPlayer){
             this.lookAtPlayer(player);
         }
@@ -68,7 +85,7 @@ export default class Enemy extends GameObject{
         this._sprite.y += this.yDisplacement;
     }
 
-    private detectCollisions(tiles:Tile[]):void{
+    private detectCollisions(tiles:Tile[], player:Player):void{
         // collision with tiles
         for(let tile of tiles){
             if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
@@ -98,6 +115,9 @@ export default class Enemy extends GameObject{
             }
 
         }
+        if(radiusHit(this._sprite, 12, player.sprite, 12)){
+            this.stage.dispatchEvent(this.eventPlayerKilled);
+        }
         /* we could make detecting collisions more optimal by sectioning the stage coordinates into
         quadrants and only run collision checks for objects in the same quadrant as you.
         alternatively we could also create a large radius or box around objects and only detect collisions of
@@ -106,6 +126,16 @@ export default class Enemy extends GameObject{
         after projectiles of both types are added there will be a lot of collision checks per frame...
         */
         // collision with player projectiles?
+    }
+
+    private shoot():void{
+        if(this._state != Enemy.STATE_ALIVE){return;}
+        for(let projectile of this.enemyProjPool){
+            if(!projectile.isActive){
+                projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
+                break;
+            }
+        }
     }
 
     private lookAtPlayer(player:Player):void{

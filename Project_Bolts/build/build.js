@@ -10215,7 +10215,6 @@ function onReady(e) {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
-    stage.mouseMoveOutside = true;
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
     document.onmousemove = onMouseMove;
@@ -10242,6 +10241,7 @@ function main() {
     canvas.width = Constants_1.STAGE_WIDTH;
     canvas.height = Constants_1.STAGE_HEIGHT;
     stage = new createjs.StageGL(canvas, { antialias: true });
+    stage.mouseMoveOutside = true;
     stage.enableMouseOver(20);
     assetManager = new AssetManager_1.default(stage);
     stage.on("allAssetsLoaded", onReady, null, true);

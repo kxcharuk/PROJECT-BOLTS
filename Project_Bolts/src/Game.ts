@@ -17,14 +17,18 @@ import Tile_Obstacle from "./Tile-Obstacle";
 import Tile_PlayerSpawn from "./Tile-PlayerSpawn";
 import Tile_Floor from "./Tile-Floor";
 import Tile_ItemSpawn from "./Tile-ItemSpawn";
+import EnemyProjectile from "./EnemyProjectile";
 
 // game objects
 let background:createjs.Sprite;
 let player:Player;
 let enemy:Enemy;
 let playerProjPool:PlayerProjectile[] = [];
+let enemyProjPool:EnemyProjectile[] = [];
 let tiles:Tile[] = [];
 let levelManager:LevelManager;
+
+let eventPlayerKilled:createjs.Event;
 
 let stage:createjs.StageGL;
 let canvas:HTMLCanvasElement;
@@ -131,6 +135,12 @@ function onGameEvent(e:createjs.Event):void{
         break;
 
         case "roundReset":
+        
+        case "timerExpired":
+
+        break;
+
+        case "playerKilled":
 
         break;
     }
@@ -144,13 +154,20 @@ function onReady(e:createjs.Event):void {
     //background = assetManager.getSprite("placeholder-assets","background");
     //stage.addChild(background);
 
+    eventPlayerKilled = new createjs.Event("playerDeath", true, false);
+
     player = new Player(stage, assetManager);
     player.sprite.x = 240;
     player.sprite.y = 340;
     player.addMe();
 
-    enemy = new Enemy(stage, assetManager);
-    enemy.looksAtPlayer = false;
+  
+    for(let i:number = 0; i < 200; i++){
+        enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled));
+    }
+
+    enemy = new Enemy(stage, assetManager, eventPlayerKilled, enemyProjPool);
+    enemy.looksAtPlayer = true;
     enemy.positionMe(240, 200);
     enemy.addMe();
 
@@ -176,7 +193,6 @@ function onReady(e:createjs.Event):void {
     }
     tiles.push(new Tile_PlayerSpawn(stage,assetManager, player));
     console.log("tiles.length = " + tiles.length);
-
     levelManager = new LevelManager(stage, tiles);
     //levelManager.loadLevel();
     levelManager.randomizeLevel();
@@ -186,7 +202,6 @@ function onReady(e:createjs.Event):void {
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
-    stage.mouseMoveOutside = true;
 
     // set up keyboard listeners
     document.onkeydown = onKeyDown;
@@ -230,7 +245,9 @@ function main():void {
 
     // create stage object
     stage = new createjs.StageGL(canvas, { antialias: true });
-    stage.enableMouseOver(20);
+    stage.mouseMoveOutside = true;
+    stage.enableMouseOver(20); // make constant
+
     //stage.cursor = "none";
     // construct AssetManager object to load spritesheet and sound assets
     assetManager = new AssetManager(stage);
