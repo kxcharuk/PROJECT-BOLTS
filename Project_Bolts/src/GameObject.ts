@@ -13,21 +13,17 @@ export default class GameObject{
     protected assetManager:AssetManager;
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
-        // link local refs to handle
+        // hooking up local refs
         this.stage = stage;
         this.assetManager = assetManager;
-
-        // init properties
+        this._isActive = false;
     }
 
 
     // ----------------------------------------------------------------------------- public methods
-    // public update():void{
-
-    // }
 
     public addMe():void{
-        this._sprite.play();
+        //this._sprite.play();
         this.stage.addChild(this._sprite);
         this._isActive = true;
     }

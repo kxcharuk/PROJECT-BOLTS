@@ -4,22 +4,34 @@ import EnemyProjectile from "./EnemyProjectile";
 import GameObject from "./GameObject";
 import Player from "./Player";
 import Tile from "./Tile";
-import Timer from "./Timer";
 import { boxHit, radiusHit, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Enemy extends GameObject{
 
     // class const
+    public static STATE_IDLE:number = 0;
+    public static STATE_ALIVE:number = 1;
+    public static STATE_DYING:number = 2;
+    public static STATE_DEAD:number = 3;
+
+    public static ID_LINEAR:number = 0;
+    public static ID_ANGLE:number = 1;
+    public static ID_SPINNER:number = 3;
+
     public static STATE_IDLE = 0;
     public static STATE_ALIVE = 1;
     public static STATE_DYING = 2;
     public static STATE_DEAD = 3;
 
+
     // properties
     protected _speed:number;
     protected _state:number;
     protected _movementAngle:number; // may need to store the angle at which we are moving so we can easily change it
+    protected _looksAtPlayer:boolean; // may move this to a sub class
+    protected _movesPerp:boolean;
+    protected _id:number;
     protected _looksAtPlayer:boolean; // could be removed if/when sub-classes are added
     protected _movesPerp:boolean; // ""
     
@@ -33,13 +45,12 @@ export default class Enemy extends GameObject{
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, enemyProjPool:EnemyProjectile[]){
         super(stage, assetManager);
         this._speed = ENEMY_SPEED;
-        this._state = Enemy.STATE_ALIVE;
+        //this._state = Enemy.STATE_ALIVE;
         this._isActive = false;
-        this._movementAngle = 45;
+        this._movementAngle = 0;
         if(this._movementAngle % 90 == 0){this._movesPerp = true;}
         else {this._movesPerp = false;}
-        this._sprite = assetManager.getSprite("placeholder-assets", "enemy");
-
+        this._sprite = assetManager.getSprite("placeholder-assets", "enemy2");
         this.enemyProjPool = enemyProjPool;
         this.timer = window.setInterval(()=>{
             this.shoot();
@@ -49,6 +60,7 @@ export default class Enemy extends GameObject{
 
     // ---------------------------------------------------------------- public methods
     public update(tiles:Tile[], player:Player):void{
+        // if(this._state != Enemy.STATE_ALIVE) {return;}
         this.move();
         this.detectCollisions(tiles, player);
         if(this._looksAtPlayer){
@@ -64,7 +76,7 @@ export default class Enemy extends GameObject{
 
     // ---------------------------------------------------------------- private methods
     private move():void{
-        if(this._state != Enemy.STATE_ALIVE) {return;}
+        //if(this._state != Enemy.STATE_ALIVE) {return;}
 
         this.xDisplacement = Math.cos(toRadians(this._movementAngle)) * this._speed;
         this.yDisplacement = Math.sin(toRadians(this._movementAngle)) * this._speed;
@@ -76,28 +88,32 @@ export default class Enemy extends GameObject{
     private detectCollisions(tiles:Tile[], player:Player):void{
         // collision with tiles
         for(let tile of tiles){
-            if(tile.isActive){
-                if(boxHit(this._sprite, tile.sprite)){
-                    if(this._movesPerp){
-                        this._movementAngle += 180;
-                        // debug start
-                        if(this._movementAngle >= 360){
-                            this._movementAngle -= 360;
+            if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
+                if(tile.isActive){
+                    if(radiusHit(this._sprite, 13,tile.sprite, 13)){
+                        // using radius is easier but doesnt have the clean edge detect for the square tiles
+                        if(this._movesPerp){
+                            this._movementAngle += 180;
+                            // debug start
+                            if(this._movementAngle >= 360){
+                                this._movementAngle -= 360;
+                            }
+                            // debug end
+                            this.move();
                         }
-                        // debug end
-                        this.move();
-                    }
-                    else{
-                        this._movementAngle += 90;
-                        //debug start
-                        if(this._movementAngle >= 360){
-                            this._movementAngle -= 360;
+                        else{
+                            this._movementAngle += 90;
+                            //debug start
+                            if(this._movementAngle >= 360){
+                                this._movementAngle -= 360;
+                            }
+                            // debug end
+                            this.move();
                         }
-                        // debug end
-                        this.move();
                     }
                 }
             }
+
         }
         if(radiusHit(this._sprite, 12, player.sprite, 12)){
             this.stage.dispatchEvent(this.eventPlayerKilled);
@@ -137,5 +153,9 @@ export default class Enemy extends GameObject{
 
     public set looksAtPlayer(value:boolean){
         this._looksAtPlayer = value;
+    }
+
+    public get id():number{
+        return this._id;
     }
 }

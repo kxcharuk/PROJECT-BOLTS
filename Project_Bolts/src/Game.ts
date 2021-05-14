@@ -10,6 +10,13 @@ import Player from "./Player";
 import PlayerProjectile from "./PlayerProjectile";
 import Tile from "./Tile";
 import Enemy from "./Enemy";
+import LevelManager from "./LevelManager";
+import Tile_Wall from "./Tile-Wall";
+import Tile_EnemySpawn from "./Tile-EnemySpawn";
+import Tile_Obstacle from "./Tile-Obstacle";
+import Tile_PlayerSpawn from "./Tile-PlayerSpawn";
+import Tile_Floor from "./Tile-Floor";
+import Tile_ItemSpawn from "./Tile-ItemSpawn";
 import EnemyProjectile from "./EnemyProjectile";
 
 // game objects
@@ -19,6 +26,7 @@ let enemy:Enemy;
 let playerProjPool:PlayerProjectile[] = [];
 let enemyProjPool:EnemyProjectile[] = [];
 let tiles:Tile[] = [];
+let levelManager:LevelManager;
 
 let eventPlayerKilled:createjs.Event;
 
@@ -122,6 +130,12 @@ function onGameEvent(e:createjs.Event):void{
             
         break;
 
+        case "roundOver":
+
+        break;
+
+        case "roundReset":
+        
         case "timerExpired":
 
         break;
@@ -137,16 +151,17 @@ function onReady(e:createjs.Event):void {
     console.log(">> adding sprites to game");
 
     // construct game object
-    background = assetManager.getSprite("placeholder-assets","background");
-    stage.addChild(background);
+    //background = assetManager.getSprite("placeholder-assets","background");
+    //stage.addChild(background);
 
     eventPlayerKilled = new createjs.Event("playerDeath", true, false);
 
     player = new Player(stage, assetManager);
     player.sprite.x = 240;
-    player.sprite.y = 240;
+    player.sprite.y = 340;
     player.addMe();
 
+  
     for(let i:number = 0; i < 200; i++){
         enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled));
     }
@@ -160,47 +175,28 @@ function onReady(e:createjs.Event):void {
         playerProjPool.push(new PlayerProjectile(stage, assetManager, enemy));
     }
 
-    // temporary for first playable | will change when tiles functionality expands (and level manager added)
-    for(let i:number = 0; i < 15; i++){
-        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_TOP));
+    // temporary for first playable | will change when tiles functionality expands -> mayb want to move this to level manager
+    for(let i:number = 0; i < 56; i++){
+        tiles.push(new Tile_Wall(stage, assetManager, player));
     }
-    for(let i:number = 0; i < 15; i++){
-        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_LEFT));
+    for(let i:number = 0; i < 25; i++){
+        tiles.push(new Tile_Obstacle(stage, assetManager, player));
     }
-    for(let i:number = 0; i < 15; i++){
-        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_RIGHT));
+    for(let i:number = 0; i < 25; i++){
+        tiles.push(new Tile_EnemySpawn(stage, assetManager, player));
     }
-    for(let i:number = 0; i < 15; i++){
-        tiles.push(new Tile(stage, assetManager, Tile.TYPE_WALL_BOTTOM));
+    for(let i:number = 0; i < 25; i++){
+        tiles.push(new Tile_ItemSpawn(stage, assetManager, player));
     }
+    for(let i:number = 0; i < 200; i++){
+        tiles.push(new Tile_Floor(stage, assetManager, player));
+    }
+    tiles.push(new Tile_PlayerSpawn(stage,assetManager, player));
     console.log("tiles.length = " + tiles.length);
-    // placing tiles on stage (temp for first-playable)
-    let iT:number = 16;
-    let iL:number = 16;
-    let iR:number = 16;
-    let iB:number = 16;
-    for(let tile of tiles){
-        if(tile.type == Tile.TYPE_WALL_TOP){
-            tile.positionMe(iT, 16);
-            tile.addMe();
-            iT += 32;
-        }
-        else if(tile.type == Tile.TYPE_WALL_LEFT){
-            tile.positionMe(16, iL);
-            tile.addMe();
-            iL += 32;
-        }
-        else if(tile.type == Tile.TYPE_WALL_RIGHT){
-            tile.positionMe(464, iR);
-            tile.addMe();
-            iR += 32;
-        }
-        else if(tile.type == Tile.TYPE_WALL_BOTTOM){
-            tile.positionMe(iB, 464);
-            tile.addMe();
-            iB += 32;
-        }
-    }
+    levelManager = new LevelManager(stage, tiles);
+    //levelManager.loadLevel();
+    levelManager.randomizeLevel();
+    levelManager.loadLevel();
 
     // listen for game events
     stage.on("gameOver", onGameEvent);

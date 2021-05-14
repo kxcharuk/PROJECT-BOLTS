@@ -1,28 +1,35 @@
 import AssetManager from "./AssetManager";
 import GameObject from "./GameObject";
+import Player from "./Player";
 
 
 export default class Tile extends GameObject{
 
-    // temp for first-playable (as the level manager map makes this obsolete)
-    public static TYPE_WALL_TOP = 1;
-    public static TYPE_WALL_LEFT = 2;
-    public static TYPE_WALL_RIGHT = 3;
-    public static TYPE_WALL_BOTTOM = 4;
+    public static ID_FLOOR:number = 0;
+    public static ID_WALL:number = 1;
+    public static ID_OBSTACLE:number = 2;
+    public static ID_PLAYER_SPAWN:number = 3;
+    public static ID_ENEMY_SPAWN:number = 4;
+    public static ID_ITEM_SPAWN:number = 5;
 
-    // temp for first-playable (as this will be handled with sub-classes)
-    private _type:number;
+    protected _id:number;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager, type:number){
+    protected player:Player;
+
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, player:Player){
         super(stage, assetManager);
-        this._sprite = assetManager.getSprite("placeholder-assets", "wall");
-        this._type = type;
+        this.player = player;
+        this._id = Tile.ID_FLOOR;
     }
 
     // -------------------------------------------------------------- public methods
+    public addMe():void{
+        super.addMe();
+        this.stage.addChildAt(this._sprite, this.stage.getChildIndex(this.player.sprite));
+    }
     // -------------------------------------------------------------- private methods
     // -------------------------------------------------------------- accessors
-    public get type():number{
-        return this._type;
+    public get id():number{
+        return this._id;
     }
 }

@@ -2,11 +2,12 @@ import AssetManager from "./AssetManager";
 import { PLAYER_SHOT_DELAY, PLAYER_SPEED } from "./Constants";
 import GameObject from "./GameObject";
 import Tile from "./Tile";
-import { boxHit, toDegrees, toRadians } from "./Toolkit";
+import { boxHit, radiusHit, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Player extends GameObject{
     // class constants
+    public static STATE_IDLE:number = 0;
     public static STATE_ALIVE:number = 1;
     public static STATE_DYING:number = 2;
     public static STATE_DEAD:number = 3;
@@ -26,8 +27,10 @@ export default class Player extends GameObject{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage,assetManager);
+        //this._state = Player.STATE_IDLE;
+        this._state = Player.STATE_ALIVE;
         this._speed = PLAYER_SPEED;
-        this._sprite = assetManager.getSprite("placeholder-assets", "player");
+        this._sprite = assetManager.getSprite("placeholder-assets", "bracket");
         this._canShoot = true;
         this._shotDelay = PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
@@ -36,9 +39,11 @@ export default class Player extends GameObject{
 
     // -------------------------------------------------------------------- public methods
     public update(tiles:Tile[]):void{
+        if(this._state != Player.STATE_ALIVE) {return;}
         if(!this._canShoot){
             this.checkShootDelay();
         }
+        this.rotateTowards();
         this.detectCollisions(tiles);
     }
 
@@ -51,10 +56,9 @@ export default class Player extends GameObject{
     }
 
     public rotateTowards():void{
-        let adj:number = this.stage.mouseX - this._sprite.x; // works but need to make the x and y not central to the player sprite but the page instead (or maybe the canvas)
+        let adj:number = this.stage.mouseX - this._sprite.x;
         let opp:number = this.stage.mouseY - this._sprite.y;
-        // let adj:number = this.stage.mouseX - 240;
-        // let opp:number = this.stage.mouseY - 240;
+
         let radians:number = Math.atan2(opp,adj);
 
         this._sprite.rotation = toDegrees(radians);
@@ -71,16 +75,22 @@ export default class Player extends GameObject{
     // -------------------------------------------------------------------- private methods
     private detectCollisions(tiles:Tile[]):void{
         for(let tile of tiles){
-            if(tile.isActive){
-                if(boxHit(this._sprite, tile.sprite)){
-                    // halting the sprite if trying to pass through a wall
-                    this._sprite.x -= this.xDisplacement * this._speed;
-                    this._sprite.y -= this.yDisplacement * this._speed;
+            if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
+                if(tile.isActive){
+                    if(radiusHit(this._sprite, 13, tile.sprite, 13)){
+                        // halting the sprite if trying to pass through a wall
+                        this._sprite.x -= this.xDisplacement * this._speed;
+                        this._sprite.y -= this.yDisplacement * this._speed;
+                        // maybe should move this into the tile script as now they have access to the player
+                        // also need to make this collision better/more seamless, very clunky right now
+                        // idea could be to take in the angle(and possibly the location) of the collision...
+                        // and adjust the players movement trajectory based on that to create a sliding motion
+                        // when colliding/riding along the walls (as of now it stops you dead in your tracks)
+                    }
                 }
             }
         }
     }
-
 
     private checkShootDelay():void{
         this._ticksExpired++;
