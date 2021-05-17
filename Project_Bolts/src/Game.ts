@@ -171,7 +171,7 @@ function onGameEvent(e:createjs.Event):void{
         break;
 
         case "roundStart":
-            roundTimer.startTimer(10);
+            roundTimer.startTimer(100);
             enemiesInLevel = 0;
             player.addMe();
             player.startMe();
@@ -191,14 +191,14 @@ function onGameEvent(e:createjs.Event):void{
             reset();
             levelManager.randomizeLevel();
             levelManager.loadLevel();
-            roundStartTimer.startTimer(5);
+            roundStartTimer.startTimer(3);
         break;
 
         case "roundReset":
             reset();
             levelManager.loadLevel();
             player.addMe();
-            roundStartTimer.startTimer(5);
+            roundStartTimer.startTimer(3);
         break;
 
         case "timerExpired":
@@ -286,15 +286,15 @@ function onReady(e:createjs.Event):void {
 
     
     // contruct enemy object pool
-    for(let i:number = 0; i < 5; i++){
-        enemies.push(new Enemy_Sentinel(stage, assetManager, eventPlayerKilled, enemyProjPool));
-    }
-    for(let i:number = 0; i < 5; i++){
-        enemies.push(new Enemy_Laser(stage, assetManager, eventPlayerKilled, enemyProjPool));
-    }
-    for(let i:number = 0; i < 5; i++){
-        enemies.push(new Enemy_Turret(stage, assetManager, eventPlayerKilled, enemyProjPool, player));
-    }
+    // for(let i:number = 0; i < 5; i++){
+    //     enemies.push(new Enemy_Sentinel(stage, assetManager, eventPlayerKilled, enemyProjPool));
+    // }
+    // for(let i:number = 0; i < 5; i++){
+    //     enemies.push(new Enemy_Laser(stage, assetManager, eventPlayerKilled, enemyProjPool));
+    // }
+    // for(let i:number = 0; i < 5; i++){
+    //     enemies.push(new Enemy_Turret(stage, assetManager, eventPlayerKilled, enemyProjPool, player));
+    // }
 
     for(let i:number = 0; i < PLAYER_PROJECTILE_MAX; i++){
         playerProjPool.push(new PlayerProjectile(stage, assetManager, enemies));
@@ -358,26 +358,27 @@ function onTick(e:createjs.Event):void {
     // object updates
     monitorKeys();
     player.update(tiles);
-    for(let projectile of playerProjPool){
-        if(projectile.isActive){
-            projectile.update(tiles);
-        }
-    }
-    for(let enemy of enemies){
-        if(enemy.isActive){
-            enemy.update(tiles, player);
-        }
-    }
-    for(let projectile of enemyProjPool){
-        if(projectile.isActive){
-            projectile.update(tiles);
-        }
-    }
-    for(let item of items){
-        if(item.isActive){
-            item.update(player);
-        }
-    }
+    
+    // for(let projectile of playerProjPool){
+    //     if(projectile.isActive){
+    //         projectile.update(tiles);
+    //     }
+    // }
+    // for(let enemy of enemies){
+    //     if(enemy.isActive){
+    //         enemy.update(tiles, player);
+    //     }
+    // }
+    // for(let projectile of enemyProjPool){
+    //     if(projectile.isActive){
+    //         projectile.update(tiles);
+    //     }
+    // }
+    // for(let item of items){
+    //     if(item.isActive){
+    //         item.update(player);
+    //     }
+    // }
     
     // update the stage!
     stage.update();

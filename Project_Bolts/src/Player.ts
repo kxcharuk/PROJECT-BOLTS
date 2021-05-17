@@ -2,7 +2,7 @@ import AssetManager from "./AssetManager";
 import { PLAYER_SHOT_DELAY, PLAYER_SPEED } from "./Constants";
 import GameObject from "./GameObject";
 import Tile from "./Tile";
-import { boxHit, radiusHit, toDegrees, toRadians } from "./Toolkit";
+import { boxHit, radiusHit, radiusHitExt, radiusToBoxHit, toDegrees, toRadians } from "./Toolkit";
 
 
 export default class Player extends GameObject{
@@ -21,6 +21,9 @@ export default class Player extends GameObject{
 
     private xDisplacement:number;
     private yDisplacement:number;
+    private movementAngle:number;
+    private testX:number;
+    private testY:number;
 
     // custom events
     private eventPlayerDied:createjs.Event;
@@ -48,6 +51,8 @@ export default class Player extends GameObject{
 
     public move(degree:number):void{
         if(this._state != Player.STATE_ALIVE) {return;}
+        this.movementAngle = degree;
+        console.log("Movement Angle: " + this.movementAngle);
         this.xDisplacement = Math.cos(toRadians(degree));
         this.yDisplacement = Math.sin(toRadians(degree));
         
@@ -86,18 +91,43 @@ export default class Player extends GameObject{
         for(let tile of tiles){
             if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
                 if(tile.isActive){
-                    if(radiusHit(this._sprite, 13, tile.sprite, 13)){
-                        // halting the sprite if trying to pass through a wall
+                    // if(radiusHit(this._sprite, 13, tile.sprite, 13)){
+                    //     // halting the sprite if trying to pass through a wall
+                    //     this._sprite.x -= this.xDisplacement * this._speed;
+                    //     this._sprite.y -= this.yDisplacement * this._speed;
+                    //     //this.wallCollisionHandler(tile);
+                    //     // maybe should move this into the tile script as now they have access to the player
+                    //     // also need to make this collision better/more seamless, very clunky right now
+                    //     // idea could be to take in the angle(and possibly the location) of the collision...
+                    //     // and adjust the players movement trajectory based on that to create a sliding motion
+                    //     // when colliding/riding along the walls (as of now it stops you dead in your tracks)
+                    // }
+                    // if(boxHit(this._sprite, tile.sprite)){
+                    //     this._sprite.x -= this.xDisplacement * this._speed;
+                    //     this._sprite.y -= this.yDisplacement * this._speed;
+                    // }
+                    if(radiusToBoxHit(this._sprite, 14, tile.sprite)){
                         this._sprite.x -= this.xDisplacement * this._speed;
                         this._sprite.y -= this.yDisplacement * this._speed;
-                        // maybe should move this into the tile script as now they have access to the player
-                        // also need to make this collision better/more seamless, very clunky right now
-                        // idea could be to take in the angle(and possibly the location) of the collision...
-                        // and adjust the players movement trajectory based on that to create a sliding motion
-                        // when colliding/riding along the walls (as of now it stops you dead in your tracks)
                     }
                 }
             }
+        }
+    }
+
+    private wallCollisionHandler(tile:Tile):void{
+        if(radiusHitExt((this._sprite.x + this.xDisplacement), this._sprite.y, 13, tile.sprite.x, tile.sprite.y, 13)){
+            // if horizontal movement results in collision then we move vertically only
+            this._sprite.x -= this.xDisplacement * this._speed;
+            this._sprite.y += this.yDisplacement * this._speed;
+        }
+        else if(radiusHitExt(this._sprite.x, (this._sprite.y + this.yDisplacement), 13, tile.sprite.x, tile.sprite.y, 13)){
+            this._sprite.x += this.xDisplacement * this._speed;
+            this._sprite.y -= this.yDisplacement * this._speed;
+        }
+        else{
+            this._sprite.x -= this.xDisplacement * this._speed;
+            this._sprite.y -= this.yDisplacement * this._speed;
         }
     }
 
