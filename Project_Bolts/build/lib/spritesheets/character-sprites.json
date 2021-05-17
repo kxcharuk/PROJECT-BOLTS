@@ -1,0 +1,31 @@
+{
+
+"images": [
+    "character-sprites.png"
+],
+
+"framerate": 30,
+"frames": [
+    [1, 1, 30, 30, 0, 15, 15],
+    [33, 1, 30, 26, 0, 15, 13],
+    [33, 29, 26, 32, 0, 13, 16],
+    [1, 33, 21, 32, 0, 10.5, 16],
+    [24, 63, 20, 28, 0, 10, 14],
+    [46, 63, 9, 26, 0, 4.5, 13]
+],
+
+"animations": {
+    "enemy3": { "frames": [0] },
+    "enemy1": { "frames": [1] },
+    "bracket": { "frames": [2] },
+    "character": { "frames": [3] },
+    "enemy2": { "frames": [4] },
+    "weapon": { "frames": [5] }
+},
+
+"texturepacker": [
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:407110121af5716055a6bab6d26baf94:1763ffb19bc1fb69528120bc387bb411:2adb24ae5362b16140405b1000e6f943$",
+        "Created with TexturePacker (https://www.codeandweb.com/texturepacker) for EaselJS"
+]
+
+}

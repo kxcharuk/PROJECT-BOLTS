@@ -115,13 +115,13 @@ export default class LevelManager{
         for(let y:number = 1; y < 14; y++){
             for(let x:number = 1; x < 14; x++){
                 let random:number = randomMe(0,100);
-                if(random >= 0 && random <= 65){
+                if(random >= 0 && random <= 70){
                     this.level[y][x] = Tile.ID_FLOOR;
                 }
-                else if(random > 65 && random <= 75){
+                else if(random > 70 && random <= 80){
                     this.level[y][x] = Tile.ID_OBSTACLE;
                 }
-                else if(random > 75 && random <= 85){
+                else if(random > 80 && random <= 85){
                     this.level[y][x] = Tile.ID_ENEMY_SPAWN;
                 }
                 else if(random > 85 && random <= 95){
@@ -141,6 +141,12 @@ export default class LevelManager{
                     this.level[y][x] = Tile.ID_FLOOR;
                 }
             }
+        }
+    }
+
+    public clearLevel():void{
+        for(let tile of this.tiles){
+            tile.removeMe();
         }
     }
 

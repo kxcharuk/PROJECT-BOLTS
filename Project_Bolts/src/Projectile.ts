@@ -6,8 +6,11 @@ import { boxHit, radiusHit, toRadians } from "./Toolkit";
 
 export default class Projectile extends GameObject{
 
+    // class constants
+
     // properties
     protected _speed:number;
+    protected _state:number;
 
     private xDisplacement:number;
     private yDisplacement:number;

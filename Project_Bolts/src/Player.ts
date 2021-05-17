@@ -25,16 +25,15 @@ export default class Player extends GameObject{
     // custom events
     private eventPlayerDied:createjs.Event;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager){
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event){
         super(stage,assetManager);
-        //this._state = Player.STATE_IDLE;
-        this._state = Player.STATE_ALIVE;
+        this._state = Player.STATE_IDLE;
         this._speed = PLAYER_SPEED;
-        this._sprite = assetManager.getSprite("placeholder-assets", "bracket");
-        this._canShoot = true;
+        this._sprite = assetManager.getSprite("character-sprites", "bracket");
+        this._canShoot = false;
         this._shotDelay = PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
-        this.eventPlayerDied = new createjs.Event("playerdied", true, false);
+        this.eventPlayerDied = eventPlayerKilled;
     }
 
     // -------------------------------------------------------------------- public methods
@@ -48,6 +47,7 @@ export default class Player extends GameObject{
     }
 
     public move(degree:number):void{
+        if(this._state != Player.STATE_ALIVE) {return;}
         this.xDisplacement = Math.cos(toRadians(degree));
         this.yDisplacement = Math.sin(toRadians(degree));
         
@@ -69,7 +69,16 @@ export default class Player extends GameObject{
         this._state = Player.STATE_DEAD; // this needs to be changed to STATE_DYING and using animationend to change to STATE_DEAD
         this._isActive = false;
         this.removeMe();
-        this._sprite.dispatchEvent(this.eventPlayerDied);
+        //this._sprite.dispatchEvent(this.eventPlayerDied);
+    }
+
+    public startMe():void{
+        this._state = Player.STATE_ALIVE;
+        this._canShoot = true;
+    }
+
+    public stopMe():void{
+        this._state = Player.STATE_IDLE;
     }
 
     // -------------------------------------------------------------------- private methods
@@ -107,5 +116,9 @@ export default class Player extends GameObject{
 
     public set CanShoot(value:boolean){
         this._canShoot = value;
+    }
+
+    public get state():number{
+        return this._state;
     }
 }
