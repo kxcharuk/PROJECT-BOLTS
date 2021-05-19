@@ -150,6 +150,13 @@ export default class LevelManager{
         }
     }
 
+    public loadNewLevel():void{
+        this.clearLevel();
+        this.randomizeLevel();
+        this.checkAroundPlayer();
+        this.loadLevel();
+    }
+
     // ----------------------------------------------------- private methods
 
     private setBorder():void{
@@ -160,5 +167,26 @@ export default class LevelManager{
                 }
             }
         }
+    }
+
+    private checkAroundPlayer():void{
+        for(let y:number = 1; y < 14; y++){
+            for(let x:number = 1; x < 14; x++){
+                if(this.level[y][x] == Tile.ID_PLAYER_SPAWN){
+                    if(this.level[y - 1][x] != Tile.ID_FLOOR || this.level[y - 1][x] != Tile.ID_WALL) { this.level[y - 1][x] = Tile.ID_FLOOR; }
+                    if(this.level[y + 1][x] != Tile.ID_FLOOR || this.level[y + 1][x] != Tile.ID_WALL) { this.level[y + 1][x] = Tile.ID_FLOOR; }
+                    if(this.level[y][x - 1] != Tile.ID_FLOOR || this.level[y][x - 1] != Tile.ID_WALL) { this.level[y][x - 1] = Tile.ID_FLOOR; }
+                    if(this.level[y][x + 1] != Tile.ID_FLOOR || this.level[y][x + 1] != Tile.ID_WALL) { this.level[y][x + 1] = Tile.ID_FLOOR; }
+                    if(this.level[y - 1][x - 1] != Tile.ID_FLOOR || this.level[y - 1][x - 1] != Tile.ID_WALL) { this.level[y - 1][x - 1] = Tile.ID_FLOOR; }
+                    if(this.level[y + 1][x + 1] != Tile.ID_FLOOR || this.level[y + 1][x + 1] != Tile.ID_WALL) { this.level[y + 1][x + 1] = Tile.ID_FLOOR; }
+                    if(this.level[y + 1][x - 1] != Tile.ID_FLOOR || this.level[y + 1][x - 1] != Tile.ID_WALL) { this.level[y + 1][x - 1] = Tile.ID_FLOOR; }
+                    if(this.level[y - 1][x + 1] != Tile.ID_FLOOR || this.level[y - 1][x + 1] != Tile.ID_WALL) { this.level[y - 1][x + 1] = Tile.ID_FLOOR; }
+                }
+            }
+        }
+    }
+
+    private changeElement(y:number, x:number, newElement:number):void{
+        this.level[y][x] = newElement;
     }
 }

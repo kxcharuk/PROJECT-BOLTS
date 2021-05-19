@@ -10508,8 +10508,7 @@ function onGameEvent(e) {
             break;
         case "roundOver":
             reset();
-            levelManager.randomizeLevel();
-            levelManager.loadLevel();
+            levelManager.loadNewLevel();
             roundStartTimer.startTimer(5);
             break;
         case "roundReset":
@@ -10616,8 +10615,7 @@ function onReady(e) {
     tiles.push(new Tile_PlayerSpawn_1.default(stage, assetManager, player));
     console.log("tiles.length = " + tiles.length);
     levelManager = new LevelManager_1.default(stage, tiles);
-    levelManager.randomizeLevel();
-    levelManager.loadLevel();
+    levelManager.loadNewLevel();
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
@@ -10901,6 +10899,12 @@ class LevelManager {
             tile.removeMe();
         }
     }
+    loadNewLevel() {
+        this.clearLevel();
+        this.randomizeLevel();
+        this.checkAroundPlayer();
+        this.loadLevel();
+    }
     setBorder() {
         for (let y = 0; y < 15; y++) {
             for (let x = 0; x < 15; x++) {
@@ -10909,6 +10913,41 @@ class LevelManager {
                 }
             }
         }
+    }
+    checkAroundPlayer() {
+        for (let y = 1; y < 14; y++) {
+            for (let x = 1; x < 14; x++) {
+                if (this.level[y][x] == Tile_1.default.ID_PLAYER_SPAWN) {
+                    if (this.level[y - 1][x] != Tile_1.default.ID_FLOOR || this.level[y - 1][x] != Tile_1.default.ID_WALL) {
+                        this.level[y - 1][x] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y + 1][x] != Tile_1.default.ID_FLOOR || this.level[y + 1][x] != Tile_1.default.ID_WALL) {
+                        this.level[y + 1][x] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y][x - 1] != Tile_1.default.ID_FLOOR || this.level[y][x - 1] != Tile_1.default.ID_WALL) {
+                        this.level[y][x - 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y][x + 1] != Tile_1.default.ID_FLOOR || this.level[y][x + 1] != Tile_1.default.ID_WALL) {
+                        this.level[y][x + 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y - 1][x - 1] != Tile_1.default.ID_FLOOR || this.level[y - 1][x - 1] != Tile_1.default.ID_WALL) {
+                        this.level[y - 1][x - 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y + 1][x + 1] != Tile_1.default.ID_FLOOR || this.level[y + 1][x + 1] != Tile_1.default.ID_WALL) {
+                        this.level[y + 1][x + 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y + 1][x - 1] != Tile_1.default.ID_FLOOR || this.level[y + 1][x - 1] != Tile_1.default.ID_WALL) {
+                        this.level[y + 1][x - 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y - 1][x + 1] != Tile_1.default.ID_FLOOR || this.level[y - 1][x + 1] != Tile_1.default.ID_WALL) {
+                        this.level[y - 1][x + 1] = Tile_1.default.ID_FLOOR;
+                    }
+                }
+            }
+        }
+    }
+    changeElement(y, x, newElement) {
+        this.level[y][x] = newElement;
     }
 }
 exports.default = LevelManager;
