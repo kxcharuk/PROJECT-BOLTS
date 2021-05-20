@@ -10106,28 +10106,39 @@ let rightKey = false;
 let leftKey = false;
 function monitorKeys() {
     if (leftKey && upKey) {
+        player.isMoving = true;
         player.move(-135);
     }
     else if (leftKey && downKey) {
+        player.isMoving = true;
         player.move(135);
     }
     else if (rightKey && upKey) {
+        player.isMoving = true;
         player.move(-45);
     }
     else if (rightKey && downKey) {
+        player.isMoving = true;
         player.move(45);
     }
     else if (leftKey) {
+        player.isMoving = true;
         player.move(180);
     }
     else if (rightKey) {
+        player.isMoving = true;
         player.move(0);
     }
     else if (upKey) {
+        player.isMoving = true;
         player.move(-90);
     }
     else if (downKey) {
+        player.isMoving = true;
         player.move(90);
+    }
+    else {
+        player.isMoving = false;
     }
 }
 function reset() {
@@ -10193,7 +10204,7 @@ function onMouseDown(e) {
     for (let projectile of playerProjPool) {
         if (projectile.isActive == false) {
             projectile.shoot(player.sprite.x, player.sprite.y, player.sprite.rotation);
-            player.CanShoot = false;
+            player.canShoot = false;
             break;
         }
     }
@@ -10342,8 +10353,8 @@ function onReady(e) {
 }
 function onTick(e) {
     document.getElementById("fps").innerHTML = String(createjs.Ticker.getMeasuredFPS());
-    monitorKeys();
     player.update(tiles);
+    monitorKeys();
     stage.update();
 }
 function main() {
@@ -10624,6 +10635,9 @@ class Player extends GameObject_1.default {
         this._shotDelay = Constants_1.PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
         this.eventPlayerDied = eventPlayerKilled;
+        this._canMoveHorizontal = true;
+        this._canMoveVertical = true;
+        this._isMoving = false;
     }
     update(tiles) {
         if (this._state != Player.STATE_ALIVE) {
@@ -10632,19 +10646,26 @@ class Player extends GameObject_1.default {
         if (!this._canShoot) {
             this.checkShootDelay();
         }
-        this.rotateTowards();
         this.detectCollisions(tiles);
+        if (this._isMoving) {
+            if (this._canMoveHorizontal) {
+                this._sprite.x += this.xDisplacement * this._speed;
+            }
+            if (this._canMoveVertical) {
+                this._sprite.y += this.yDisplacement * this._speed;
+            }
+        }
+        this._canMoveHorizontal = true;
+        this._canMoveVertical = true;
+        this.rotateTowards();
     }
     move(degree) {
         if (this._state != Player.STATE_ALIVE) {
             return;
         }
-        this.movementAngle = degree;
-        console.log("Movement Angle: " + this.movementAngle);
+        this._movementAngle = degree;
         this.xDisplacement = Math.cos(Toolkit_1.toRadians(degree));
         this.yDisplacement = Math.sin(Toolkit_1.toRadians(degree));
-        this._sprite.x += this.xDisplacement * this._speed;
-        this._sprite.y += this.yDisplacement * this._speed;
     }
     rotateTowards() {
         let adj = this.stage.mouseX - this._sprite.x;
@@ -10671,26 +10692,30 @@ class Player extends GameObject_1.default {
         for (let tile of tiles) {
             if (tile.id == Tile_1.default.ID_WALL || tile.id == Tile_1.default.ID_OBSTACLE) {
                 if (tile.isActive) {
-                    if (Toolkit_1.radiusToBoxHit(this._sprite, 14, tile.sprite)) {
-                        this._sprite.x -= this.xDisplacement * this._speed;
-                        this._sprite.y -= this.yDisplacement * this._speed;
+                    let tempX = this._sprite.x + (this.xDisplacement * this._speed);
+                    let tempY = this._sprite.y + (this.yDisplacement * this._speed);
+                    if (Toolkit_1.radiusToBoxHitExt(tempX, this._sprite.y, 13, tile.sprite) && !Toolkit_1.radiusToBoxHitExt(this._sprite.x, tempY, 13, tile.sprite)) {
+                        this._canMoveHorizontal = false;
+                    }
+                    if (Toolkit_1.radiusToBoxHitExt(this._sprite.x, tempY, 13, tile.sprite) && !Toolkit_1.radiusToBoxHitExt(tempX, this._sprite.y, 13, tile.sprite)) {
+                        this._canMoveVertical = false;
+                    }
+                    if (Toolkit_1.radiusToBoxHit(this._sprite, 13, tile.sprite)) {
+                        if (Toolkit_1.radiusToBoxHitExt((this._sprite.x + this._speed), this._sprite.y, 13, tile.sprite)) {
+                            this._sprite.x -= this._speed;
+                        }
+                        if (Toolkit_1.radiusToBoxHitExt((this._sprite.x - this._speed), this._sprite.y, 13, tile.sprite)) {
+                            this._sprite.x += this._speed;
+                        }
+                        if (Toolkit_1.radiusToBoxHitExt(this._sprite.x, (this._sprite.y + this._speed), 13, tile.sprite)) {
+                            this._sprite.y -= this._speed;
+                        }
+                        if (Toolkit_1.radiusToBoxHitExt(this._sprite.x, (this._sprite.y - this._speed), 13, tile.sprite)) {
+                            this._sprite.y += this._speed;
+                        }
                     }
                 }
             }
-        }
-    }
-    wallCollisionHandler(tile) {
-        if (Toolkit_1.radiusHitExt((this._sprite.x + this.xDisplacement), this._sprite.y, 13, tile.sprite.x, tile.sprite.y, 13)) {
-            this._sprite.x -= this.xDisplacement * this._speed;
-            this._sprite.y += this.yDisplacement * this._speed;
-        }
-        else if (Toolkit_1.radiusHitExt(this._sprite.x, (this._sprite.y + this.yDisplacement), 13, tile.sprite.x, tile.sprite.y, 13)) {
-            this._sprite.x += this.xDisplacement * this._speed;
-            this._sprite.y -= this.yDisplacement * this._speed;
-        }
-        else {
-            this._sprite.x -= this.xDisplacement * this._speed;
-            this._sprite.y -= this.yDisplacement * this._speed;
         }
     }
     checkShootDelay() {
@@ -10700,14 +10725,20 @@ class Player extends GameObject_1.default {
             this._ticksExpired = 0;
         }
     }
-    get CanShoot() {
+    get canShoot() {
         return this._canShoot;
     }
-    set CanShoot(value) {
+    set canShoot(value) {
         this._canShoot = value;
     }
     get state() {
         return this._state;
+    }
+    set movementAngle(value) {
+        this._movementAngle = value;
+    }
+    set isMoving(value) {
+        this._isMoving = value;
     }
 }
 exports.default = Player;
@@ -11185,7 +11216,7 @@ function radiusToBoxHit(spriteR, radius, spriteB) {
     let bottomLeftY = spriteB.y + halfExtY;
     let bottomRightX = spriteB.x + halfExtX;
     let bottomRightY = spriteB.y + halfExtY;
-    if (radiusHit(spriteR, radius, spriteB, radius)) {
+    if (radiusHit(spriteR, radius, spriteB, halfExtX)) {
         return true;
     }
     let a;
@@ -11218,6 +11249,50 @@ function radiusToBoxHit(spriteR, radius, spriteB) {
     return false;
 }
 exports.radiusToBoxHit = radiusToBoxHit;
+function radiusToBoxHitExt(x, y, radius, spriteB) {
+    let halfExtX = (spriteB.getBounds().width) / 2;
+    let halfExtY = (spriteB.getBounds().height) / 2;
+    let topLeftX = spriteB.x - halfExtX;
+    let topLeftY = spriteB.y - halfExtY;
+    let topRightX = spriteB.x + halfExtX;
+    let topRightY = spriteB.y - halfExtY;
+    let bottomLeftX = spriteB.x - halfExtX;
+    let bottomLeftY = spriteB.y + halfExtY;
+    let bottomRightX = spriteB.x + halfExtX;
+    let bottomRightY = spriteB.y + halfExtY;
+    if (radiusHitExt(x, y, radius, spriteB.x, spriteB.y, halfExtX)) {
+        return true;
+    }
+    let a;
+    let b;
+    let c;
+    a = x - topLeftX;
+    b = y - topLeftY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = x - topRightX;
+    b = y - topRightY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = x - bottomRightX;
+    b = y - bottomRightY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = x - bottomLeftX;
+    b = y - bottomLeftY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    return false;
+}
+exports.radiusToBoxHitExt = radiusToBoxHitExt;
 function toRadians(degrees) {
     return (degrees * (Math.PI / 180));
 }

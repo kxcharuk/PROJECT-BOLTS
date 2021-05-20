@@ -60,28 +60,39 @@ let leftKey:boolean = false;
 // --------------------------------------------------- private methods
 function monitorKeys():void{
     if(leftKey && upKey){
+        player.isMoving = true;
         player.move(-135);
     }
     else if(leftKey && downKey){
+        player.isMoving = true;
         player.move(135);
     }
     else if(rightKey && upKey){
+        player.isMoving = true;
         player.move(-45);
     }
     else if(rightKey && downKey){
+        player.isMoving = true;
         player.move(45);
     }
     else if(leftKey){
+        player.isMoving = true;
         player.move(180);
     }
     else if(rightKey){
+        player.isMoving = true;
         player.move(0);
     }
     else if(upKey){
+        player.isMoving = true;
         player.move(-90);
     }
     else if(downKey){
+        player.isMoving = true;
         player.move(90);
+    }
+    else{
+        player.isMoving = false;
     }
 }
 
@@ -149,7 +160,7 @@ function onMouseDown(e:MouseEvent):void{
     for(let projectile of playerProjPool){
         if(projectile.isActive == false){
             projectile.shoot(player.sprite.x, player.sprite.y, player.sprite.rotation);
-            player.CanShoot = false;
+            player.canShoot = false;
             break;
         }
     }
@@ -356,8 +367,8 @@ function onTick(e:createjs.Event):void {
     document.getElementById("fps").innerHTML = String(createjs.Ticker.getMeasuredFPS());
     
     // object updates
-    monitorKeys();
     player.update(tiles);
+    monitorKeys();
     
     // for(let projectile of playerProjPool){
     //     if(projectile.isActive){
