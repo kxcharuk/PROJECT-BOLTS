@@ -107,32 +107,18 @@ export default class LevelManager{
     }
 
     public randomizeLevel():void{
-        this.setBorder();
-        // debug start
-        let numberOfPlayerSpawns:number = 1;
-        // debug end
 
         for(let y:number = 1; y < 14; y++){
             for(let x:number = 1; x < 14; x++){
                 let random:number = randomMe(0,100);
-                if(random >= 0 && random <= 70){
+                if(random >= 0 && random <= 75){
                     this.level[y][x] = Tile.ID_FLOOR;
                 }
-                else if(random > 70 && random <= 80){
+                else if(random > 75 && random <= 85){
                     this.level[y][x] = Tile.ID_OBSTACLE;
                 }
-                else if(random > 80 && random <= 85){
-                    this.level[y][x] = Tile.ID_ENEMY_SPAWN;
-                }
                 else if(random > 85 && random <= 95){
-                    if(numberOfPlayerSpawns > 0){
-                        this.level[y][x] = Tile.ID_PLAYER_SPAWN;
-                        console.log("player spawn");
-                        numberOfPlayerSpawns--;
-                    }
-                    else{
-                        this.level[y][x] = Tile.ID_FLOOR;
-                    }
+                    this.level[y][x] = Tile.ID_ENEMY_SPAWN;
                 }
                 else if(random > 95){
                     this.level[y][x] = Tile.ID_ITEM_SPAWN;
@@ -153,7 +139,9 @@ export default class LevelManager{
     public loadNewLevel():void{
         this.clearLevel();
         this.randomizeLevel();
+        this.setPlayerSpawn();
         this.checkAroundPlayer();
+        this.setBorder();
         this.loadLevel();
     }
 
@@ -184,6 +172,13 @@ export default class LevelManager{
                 }
             }
         }
+    }
+
+    private setPlayerSpawn():void{
+        let x:number = randomMe(1, 14);
+        let y:number = randomMe(1, 14);
+
+        this.level[y][x] = Tile.ID_PLAYER_SPAWN;
     }
 
     private changeElement(y:number, x:number, newElement:number):void{

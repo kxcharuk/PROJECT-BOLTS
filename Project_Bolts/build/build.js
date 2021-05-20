@@ -10232,7 +10232,7 @@ class Enemy extends GameObject_1.default {
             if (tile.id == Tile_1.default.ID_WALL || tile.id == Tile_1.default.ID_OBSTACLE) {
                 if (tile.isActive) {
                     if (Toolkit_1.radiusHit(this._sprite, 13, tile.sprite, 13)) {
-                        this._movementAngle += bounceAngle;
+                        this._movementAngle = 180 - this._movementAngle;
                         if (this._movementAngle >= 360) {
                             this._movementAngle -= 360;
                         }
@@ -10861,29 +10861,17 @@ class LevelManager {
         }
     }
     randomizeLevel() {
-        this.setBorder();
-        let numberOfPlayerSpawns = 1;
         for (let y = 1; y < 14; y++) {
             for (let x = 1; x < 14; x++) {
                 let random = Toolkit_1.randomMe(0, 100);
-                if (random >= 0 && random <= 70) {
+                if (random >= 0 && random <= 75) {
                     this.level[y][x] = Tile_1.default.ID_FLOOR;
                 }
-                else if (random > 70 && random <= 80) {
+                else if (random > 75 && random <= 85) {
                     this.level[y][x] = Tile_1.default.ID_OBSTACLE;
                 }
-                else if (random > 80 && random <= 85) {
-                    this.level[y][x] = Tile_1.default.ID_ENEMY_SPAWN;
-                }
                 else if (random > 85 && random <= 95) {
-                    if (numberOfPlayerSpawns > 0) {
-                        this.level[y][x] = Tile_1.default.ID_PLAYER_SPAWN;
-                        console.log("player spawn");
-                        numberOfPlayerSpawns--;
-                    }
-                    else {
-                        this.level[y][x] = Tile_1.default.ID_FLOOR;
-                    }
+                    this.level[y][x] = Tile_1.default.ID_ENEMY_SPAWN;
                 }
                 else if (random > 95) {
                     this.level[y][x] = Tile_1.default.ID_ITEM_SPAWN;
@@ -10902,7 +10890,9 @@ class LevelManager {
     loadNewLevel() {
         this.clearLevel();
         this.randomizeLevel();
+        this.setPlayerSpawn();
         this.checkAroundPlayer();
+        this.setBorder();
         this.loadLevel();
     }
     setBorder() {
@@ -10945,6 +10935,11 @@ class LevelManager {
                 }
             }
         }
+    }
+    setPlayerSpawn() {
+        let x = Toolkit_1.randomMe(1, 14);
+        let y = Toolkit_1.randomMe(1, 14);
+        this.level[y][x] = Tile_1.default.ID_PLAYER_SPAWN;
     }
     changeElement(y, x, newElement) {
         this.level[y][x] = newElement;
