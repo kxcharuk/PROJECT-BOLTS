@@ -202,9 +202,8 @@ function onGameEvent(e:createjs.Event):void{
             // reconfigure the level
             // start the round start timer again\
             reset();
-            levelManager.randomizeLevel();
-            levelManager.loadLevel();
-            roundStartTimer.startTimer(3);
+            levelManager.loadNewLevel();
+            roundStartTimer.startTimer(5);
         break;
 
         case "roundReset":
@@ -337,9 +336,9 @@ function onReady(e:createjs.Event):void {
     }
     tiles.push(new Tile_PlayerSpawn(stage,assetManager, player));
     console.log("tiles.length = " + tiles.length);
+    // need to move this into game start?
     levelManager = new LevelManager(stage, tiles);
-    levelManager.randomizeLevel();
-    levelManager.loadLevel();
+    levelManager.loadNewLevel();
 
     // listen for game events
     stage.on("gameOver", onGameEvent);

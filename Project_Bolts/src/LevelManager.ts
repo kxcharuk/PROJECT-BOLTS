@@ -1,15 +1,29 @@
 import { STAGE_HEIGHT, STAGE_WIDTH } from "./Constants";
 import Tile from "./Tile";
 import Tile_EnemySpawn from "./Tile-EnemySpawn";
+import Tile_ItemSpawn from "./Tile-ItemSpawn";
 import { randomMe } from "./Toolkit";
+import Vector2 from "./Vector2";
 
 
 export default class LevelManager{
 
-    private level:number[][];
     // local refs
     private stage:createjs.StageGL;
     private tiles:Tile[];
+    
+    private level:number[][];
+    private waypoints:Vector2[] = []; // all non wall/obstacle tiles (potential paths)
+    private searchQueue:Vector2[] = [];
+    private enemySpawns:Vector2[] = [];
+    private searched:Vector2[] = [];
+    private playerSpawn:Vector2;
+    private searchCenter:Vector2;
+
+    private static directions:Vector2[] = [new Vector2(1,0), new Vector2(0,1), new Vector2(-1,0), new Vector2(0,-1)];
+
+    private _pathFound:boolean;
+
     constructor(stage:createjs.StageGL, tiles:Tile[]){
         this.stage = stage;
         this.tiles = tiles;
@@ -31,6 +45,9 @@ export default class LevelManager{
             [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
         ];
+
+        this.playerSpawn = new Vector2(0,0);
+        this.searchCenter = new Vector2(0,0);
     }
 
     // ----------------------------------------------------- public methods
@@ -94,7 +111,7 @@ export default class LevelManager{
                     for(let tile of this.tiles){
                         if(tile.id == Tile.ID_FLOOR && !tile.isActive){
                             tile.positionMe(x , y);
-                            tile.addMe();
+                            tile.addMe();// tile
                             break;
                         }
                     }
@@ -107,32 +124,18 @@ export default class LevelManager{
     }
 
     public randomizeLevel():void{
-        this.setBorder();
-        // debug start
-        let numberOfPlayerSpawns:number = 1;
-        // debug end
 
         for(let y:number = 1; y < 14; y++){
             for(let x:number = 1; x < 14; x++){
                 let random:number = randomMe(0,100);
-                if(random >= 0 && random <= 70){
+                if(random >= 0 && random <= 75){
                     this.level[y][x] = Tile.ID_FLOOR;
                 }
-                else if(random > 70 && random <= 80){
+                else if(random > 75 && random <= 85){
                     this.level[y][x] = Tile.ID_OBSTACLE;
                 }
-                else if(random > 80 && random <= 85){
-                    this.level[y][x] = Tile.ID_ENEMY_SPAWN;
-                }
                 else if(random > 85 && random <= 95){
-                    if(numberOfPlayerSpawns > 0){
-                        this.level[y][x] = Tile.ID_PLAYER_SPAWN;
-                        console.log("player spawn");
-                        numberOfPlayerSpawns--;
-                    }
-                    else{
-                        this.level[y][x] = Tile.ID_FLOOR;
-                    }
+                    this.level[y][x] = Tile.ID_ENEMY_SPAWN;
                 }
                 else if(random > 95){
                     this.level[y][x] = Tile.ID_ITEM_SPAWN;
@@ -150,6 +153,18 @@ export default class LevelManager{
         }
     }
 
+    public loadNewLevel():void{
+        this.clearLevel();
+        this.randomizeLevel();
+        while(this.checkPaths()){
+            this.randomizeLevel();
+        }
+        this.setPlayerSpawn();
+        this.checkAroundPlayer();
+        this.setBorder();
+        this.loadLevel();
+    }
+
     // ----------------------------------------------------- private methods
 
     private setBorder():void{
@@ -160,5 +175,111 @@ export default class LevelManager{
                 }
             }
         }
+    }
+
+    private checkAroundPlayer():void{
+        // this could be optimized by storing the player spawn x,y in variables (eliminating the need to search for it)
+        for(let y:number = 1; y < 14; y++){
+            for(let x:number = 1; x < 14; x++){
+                if(this.level[y][x] == Tile.ID_PLAYER_SPAWN){
+                    if(this.level[y - 1][x] != Tile.ID_FLOOR || this.level[y - 1][x] != Tile.ID_WALL) { this.level[y - 1][x] = Tile.ID_FLOOR; }
+                    if(this.level[y + 1][x] != Tile.ID_FLOOR || this.level[y + 1][x] != Tile.ID_WALL) { this.level[y + 1][x] = Tile.ID_FLOOR; }
+                    if(this.level[y][x - 1] != Tile.ID_FLOOR || this.level[y][x - 1] != Tile.ID_WALL) { this.level[y][x - 1] = Tile.ID_FLOOR; }
+                    if(this.level[y][x + 1] != Tile.ID_FLOOR || this.level[y][x + 1] != Tile.ID_WALL) { this.level[y][x + 1] = Tile.ID_FLOOR; }
+                    if(this.level[y - 1][x - 1] != Tile.ID_FLOOR || this.level[y - 1][x - 1] != Tile.ID_WALL) { this.level[y - 1][x - 1] = Tile.ID_FLOOR; }
+                    if(this.level[y + 1][x + 1] != Tile.ID_FLOOR || this.level[y + 1][x + 1] != Tile.ID_WALL) { this.level[y + 1][x + 1] = Tile.ID_FLOOR; }
+                    if(this.level[y + 1][x - 1] != Tile.ID_FLOOR || this.level[y + 1][x - 1] != Tile.ID_WALL) { this.level[y + 1][x - 1] = Tile.ID_FLOOR; }
+                    if(this.level[y - 1][x + 1] != Tile.ID_FLOOR || this.level[y - 1][x + 1] != Tile.ID_WALL) { this.level[y - 1][x + 1] = Tile.ID_FLOOR; }
+                }
+            }
+        }
+    }
+
+    private setPlayerSpawn():void{
+        let x:number = randomMe(1, 14);
+        let y:number = randomMe(1, 14);
+
+        this.level[y][x] = Tile.ID_PLAYER_SPAWN;
+        this.playerSpawn.x = x;
+        this.playerSpawn.y = y;
+
+    }
+
+    private checkPlayerToEnemiesPaths():void{
+
+    }
+
+    private checkPaths():boolean{
+        for(let y:number = 0; y < 15; y++ ){
+            for(let x:number = 0; x < 15; x++){
+                if(this.level[y][x] != Tile.ID_WALL && this.level[y][x] != Tile.ID_OBSTACLE){
+                    this.waypoints.push(new Vector2(x,y)); // consider object pooling
+                }
+                if(this.level[y][x] == Tile.ID_ENEMY_SPAWN){
+                    this.enemySpawns.push(new Vector2(x,y)); // consider object pooling
+                }
+            }
+        }
+        for(let enemySpawn of this.enemySpawns){
+            if(!this.bfs(enemySpawn)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private bfs(target:Vector2):boolean{
+        this.searchQueue.push(this.playerSpawn);
+        let searching:boolean = true;
+        while(/*this.searchQueue.length > 0 && !this._pathFound*/searching){
+            if(this.searchQueue.length == 0){
+                this._pathFound = false;
+                searching = false;
+                return false;
+            }
+            else if(this.searchCenter == target){
+                this._pathFound = true;
+                searching = false;
+                return true;
+            }
+            else{
+                this.searchCenter = this.searchQueue.shift();
+                this.searchNeighbors();
+                this.searched.push(this.searchCenter);
+            }
+        }
+        return false; // might be a problem
+    }
+
+    private searchNeighbors():void{
+        for(let direction of LevelManager.directions){
+            let searchCoords = this.searchCenter.add(direction.x, direction.y);
+            for(let waypoint of this.waypoints){
+                if(waypoint == searchCoords){
+                    this.queueNeighbor(searchCoords);
+                }
+            }
+        }
+    }
+
+    private queueNeighbor(searchCoords:Vector2){
+        let addToQueue:boolean = true;
+        for(let searchedWaypoint of this.searched){
+            if(searchedWaypoint == searchCoords){
+                addToQueue = false;
+            }
+        }
+        for(let queuedWaypoint of this.searchQueue){
+            if(queuedWaypoint == searchCoords){
+                addToQueue = false;
+            }
+        }
+        if(addToQueue){
+            this.searchQueue.push(searchCoords);
+        }
+    }
+
+    private changeElement(y:number, x:number, newElement:number):void{
+        this.level[y][x] = newElement;
     }
 }

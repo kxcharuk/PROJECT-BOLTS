@@ -94,6 +94,7 @@ export default class Enemy extends GameObject{
                     if(radiusHit(this._sprite, 13,tile.sprite, 13)){
                         // using radius is easier but doesnt have the clean edge detect for the square tiles
                         this._movementAngle += bounceAngle;
+                        //this._movementAngle = 180 - this._movementAngle;
                         // debug start
                         if(this._movementAngle >= 360){
                             this._movementAngle -= 360;

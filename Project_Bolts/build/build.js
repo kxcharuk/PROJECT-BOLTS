@@ -10232,9 +10232,9 @@ function onGameEvent(e) {
             break;
         case "roundOver":
             reset();
-            levelManager.randomizeLevel();
-            levelManager.loadLevel();
-            roundStartTimer.startTimer(3);
+            levelManager.loadNewLevel();
+            roundStartTimer.startTimer(5);
+
             break;
         case "roundReset":
             reset();
@@ -10331,8 +10331,7 @@ function onReady(e) {
     tiles.push(new Tile_PlayerSpawn_1.default(stage, assetManager, player));
     console.log("tiles.length = " + tiles.length);
     levelManager = new LevelManager_1.default(stage, tiles);
-    levelManager.randomizeLevel();
-    levelManager.loadLevel();
+    levelManager.loadNewLevel();
     stage.on("gameOver", onGameEvent);
     stage.on("gameStart", onGameEvent);
     stage.on("gameReset", onGameEvent);
@@ -10467,8 +10466,13 @@ exports.default = Item;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Tile_1 = __webpack_require__(/*! ./Tile */ "./src/Tile.ts");
 const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
+const Vector2_1 = __webpack_require__(/*! ./Vector2 */ "./src/Vector2.ts");
 class LevelManager {
     constructor(stage, tiles) {
+        this.waypoints = [];
+        this.searchQueue = [];
+        this.enemySpawns = [];
+        this.searched = [];
         this.stage = stage;
         this.tiles = tiles;
         this.level = [
@@ -10488,6 +10492,8 @@ class LevelManager {
             [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ];
+        this.playerSpawn = new Vector2_1.default(0, 0);
+        this.searchCenter = new Vector2_1.default(0, 0);
     }
     loadLevel() {
         let offset = 16;
@@ -10558,29 +10564,17 @@ class LevelManager {
         }
     }
     randomizeLevel() {
-        this.setBorder();
-        let numberOfPlayerSpawns = 1;
         for (let y = 1; y < 14; y++) {
             for (let x = 1; x < 14; x++) {
                 let random = Toolkit_1.randomMe(0, 100);
-                if (random >= 0 && random <= 70) {
+                if (random >= 0 && random <= 75) {
                     this.level[y][x] = Tile_1.default.ID_FLOOR;
                 }
-                else if (random > 70 && random <= 80) {
+                else if (random > 75 && random <= 85) {
                     this.level[y][x] = Tile_1.default.ID_OBSTACLE;
                 }
-                else if (random > 80 && random <= 85) {
-                    this.level[y][x] = Tile_1.default.ID_ENEMY_SPAWN;
-                }
                 else if (random > 85 && random <= 95) {
-                    if (numberOfPlayerSpawns > 0) {
-                        this.level[y][x] = Tile_1.default.ID_PLAYER_SPAWN;
-                        console.log("player spawn");
-                        numberOfPlayerSpawns--;
-                    }
-                    else {
-                        this.level[y][x] = Tile_1.default.ID_FLOOR;
-                    }
+                    this.level[y][x] = Tile_1.default.ID_ENEMY_SPAWN;
                 }
                 else if (random > 95) {
                     this.level[y][x] = Tile_1.default.ID_ITEM_SPAWN;
@@ -10596,6 +10590,17 @@ class LevelManager {
             tile.removeMe();
         }
     }
+    loadNewLevel() {
+        this.clearLevel();
+        this.randomizeLevel();
+        while (this.checkPaths()) {
+            this.randomizeLevel();
+        }
+        this.setPlayerSpawn();
+        this.checkAroundPlayer();
+        this.setBorder();
+        this.loadLevel();
+    }
     setBorder() {
         for (let y = 0; y < 15; y++) {
             for (let x = 0; x < 15; x++) {
@@ -10605,8 +10610,119 @@ class LevelManager {
             }
         }
     }
+    checkAroundPlayer() {
+        for (let y = 1; y < 14; y++) {
+            for (let x = 1; x < 14; x++) {
+                if (this.level[y][x] == Tile_1.default.ID_PLAYER_SPAWN) {
+                    if (this.level[y - 1][x] != Tile_1.default.ID_FLOOR || this.level[y - 1][x] != Tile_1.default.ID_WALL) {
+                        this.level[y - 1][x] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y + 1][x] != Tile_1.default.ID_FLOOR || this.level[y + 1][x] != Tile_1.default.ID_WALL) {
+                        this.level[y + 1][x] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y][x - 1] != Tile_1.default.ID_FLOOR || this.level[y][x - 1] != Tile_1.default.ID_WALL) {
+                        this.level[y][x - 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y][x + 1] != Tile_1.default.ID_FLOOR || this.level[y][x + 1] != Tile_1.default.ID_WALL) {
+                        this.level[y][x + 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y - 1][x - 1] != Tile_1.default.ID_FLOOR || this.level[y - 1][x - 1] != Tile_1.default.ID_WALL) {
+                        this.level[y - 1][x - 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y + 1][x + 1] != Tile_1.default.ID_FLOOR || this.level[y + 1][x + 1] != Tile_1.default.ID_WALL) {
+                        this.level[y + 1][x + 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y + 1][x - 1] != Tile_1.default.ID_FLOOR || this.level[y + 1][x - 1] != Tile_1.default.ID_WALL) {
+                        this.level[y + 1][x - 1] = Tile_1.default.ID_FLOOR;
+                    }
+                    if (this.level[y - 1][x + 1] != Tile_1.default.ID_FLOOR || this.level[y - 1][x + 1] != Tile_1.default.ID_WALL) {
+                        this.level[y - 1][x + 1] = Tile_1.default.ID_FLOOR;
+                    }
+                }
+            }
+        }
+    }
+    setPlayerSpawn() {
+        let x = Toolkit_1.randomMe(1, 14);
+        let y = Toolkit_1.randomMe(1, 14);
+        this.level[y][x] = Tile_1.default.ID_PLAYER_SPAWN;
+        this.playerSpawn.x = x;
+        this.playerSpawn.y = y;
+    }
+    checkPlayerToEnemiesPaths() {
+    }
+    checkPaths() {
+        for (let y = 0; y < 15; y++) {
+            for (let x = 0; x < 15; x++) {
+                if (this.level[y][x] != Tile_1.default.ID_WALL && this.level[y][x] != Tile_1.default.ID_OBSTACLE) {
+                    this.waypoints.push(new Vector2_1.default(x, y));
+                }
+                if (this.level[y][x] == Tile_1.default.ID_ENEMY_SPAWN) {
+                    this.enemySpawns.push(new Vector2_1.default(x, y));
+                }
+            }
+        }
+        for (let enemySpawn of this.enemySpawns) {
+            if (!this.bfs(enemySpawn)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    bfs(target) {
+        this.searchQueue.push(this.playerSpawn);
+        let searching = true;
+        while (searching) {
+            if (this.searchQueue.length == 0) {
+                this._pathFound = false;
+                searching = false;
+                return false;
+            }
+            else if (this.searchCenter == target) {
+                this._pathFound = true;
+                searching = false;
+                return true;
+            }
+            else {
+                this.searchCenter = this.searchQueue.shift();
+                this.searchNeighbors();
+                this.searched.push(this.searchCenter);
+            }
+        }
+        return false;
+    }
+    searchNeighbors() {
+        for (let direction of LevelManager.directions) {
+            let searchCoords = this.searchCenter.add(direction.x, direction.y);
+            for (let waypoint of this.waypoints) {
+                if (waypoint == searchCoords) {
+                    this.queueNeighbor(searchCoords);
+                }
+            }
+        }
+    }
+    queueNeighbor(searchCoords) {
+        let addToQueue = true;
+        for (let searchedWaypoint of this.searched) {
+            if (searchedWaypoint == searchCoords) {
+                addToQueue = false;
+            }
+        }
+        for (let queuedWaypoint of this.searchQueue) {
+            if (queuedWaypoint == searchCoords) {
+                addToQueue = false;
+            }
+        }
+        if (addToQueue) {
+            this.searchQueue.push(searchCoords);
+        }
+    }
+    changeElement(y, x, newElement) {
+        this.level[y][x] = newElement;
+    }
 }
 exports.default = LevelManager;
+LevelManager.directions = [new Vector2_1.default(1, 0), new Vector2_1.default(0, 1), new Vector2_1.default(-1, 0), new Vector2_1.default(0, -1)];
 
 
 /***/ }),
@@ -11301,6 +11417,45 @@ function toDegrees(radians) {
     return (radians * (180 / Math.PI));
 }
 exports.toDegrees = toDegrees;
+
+
+/***/ }),
+
+/***/ "./src/Vector2.ts":
+/*!************************!*\
+  !*** ./src/Vector2.ts ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class Vector2 {
+    constructor(x, y) {
+        this._x = x;
+        this._y = y;
+    }
+    return() {
+        return this;
+    }
+    add(x, y) {
+        return new Vector2(this._x + x, this._y + y);
+    }
+    get x() {
+        return this._x;
+    }
+    set x(value) {
+        this._x = value;
+    }
+    get y() {
+        return this._y;
+    }
+    set y(value) {
+        this._y = value;
+    }
+}
+exports.default = Vector2;
 
 
 /***/ }),
