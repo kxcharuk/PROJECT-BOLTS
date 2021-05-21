@@ -64,6 +64,139 @@ export function radiusHit(sprite1:createjs.Sprite, radius1:number, sprite2:creat
     }
 }
 
+export function radiusHitExt(x1:number, y1:number, radius1:number, x2:number, y2:number, radius2:number):boolean {
+    // radius testing collision detection!
+    let a:number = x1 - x2;
+    let b:number = y1 - y2;
+
+    // get the c with pythagorean's theorem
+    let c:number= Math.sqrt((a * a) + (b * b));
+    // add two radius together
+    if (c <= (radius1 + radius2)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export function radiusToBoxHit(spriteR:createjs.Sprite, radius:number, spriteB:createjs.Sprite):boolean{
+    // this will only work for objects with registration points that are centered
+    let halfExtX = (spriteB.getBounds().width)/2;
+    let halfExtY = (spriteB.getBounds().height)/2;
+
+    let topLeftX = spriteB.x - halfExtX;
+    let topLeftY = spriteB.y - halfExtY;
+
+    let topRightX = spriteB.x + halfExtX;
+    let topRightY = spriteB.y - halfExtY;
+
+    let bottomLeftX = spriteB.x - halfExtX;
+    let bottomLeftY = spriteB.y + halfExtY;
+
+    let bottomRightX = spriteB.x + halfExtX;
+    let bottomRightY = spriteB.y + halfExtY;
+
+    if(radiusHit(spriteR, radius, spriteB, halfExtX)){
+        return true;
+    }
+
+    let a:number;
+    let b:number;
+    let c:number;
+    
+    // test top left
+    a = spriteR.x - topLeftX;
+    b = spriteR.y - topLeftY;
+    // get c from points a (radius sprite) to points b-e (box x,y +- halfExts)
+    c = Math.sqrt((a*a)+(b*b));
+    // there is no extent from the corner so we just need to check if the radius reaches points b
+    if(c <= radius){
+        return true;
+    }
+    // test top right
+    a = spriteR.x - topRightX;
+    b = spriteR.y - topRightY;
+    c = Math.sqrt((a*a)+(b*b));
+    if(c <= radius){
+        return true;
+    }
+    // test bottom right
+    a = spriteR.x - bottomRightX;
+    b = spriteR.y - bottomRightY;
+    c = Math.sqrt((a*a)+(b*b));
+    if(c <= radius){
+        return true;
+    }
+    // test bottom left
+    a = spriteR.x - bottomLeftX;
+    b = spriteR.y - bottomLeftY;
+    c = Math.sqrt((a*a)+(b*b));
+    if(c <= radius){
+        return true;
+    }
+
+    return false;
+}
+
+export function radiusToBoxHitExt(x:number, y:number, radius:number, spriteB:createjs.Sprite):boolean{
+    // this will only work for objects with registration points that are centered
+    let halfExtX = (spriteB.getBounds().width)/2;
+    let halfExtY = (spriteB.getBounds().height)/2;
+
+    let topLeftX = spriteB.x - halfExtX;
+    let topLeftY = spriteB.y - halfExtY;
+
+    let topRightX = spriteB.x + halfExtX;
+    let topRightY = spriteB.y - halfExtY;
+
+    let bottomLeftX = spriteB.x - halfExtX;
+    let bottomLeftY = spriteB.y + halfExtY;
+
+    let bottomRightX = spriteB.x + halfExtX;
+    let bottomRightY = spriteB.y + halfExtY;
+
+    if(radiusHitExt(x, y, radius, spriteB.x, spriteB.y, halfExtX)){
+        return true;
+    }
+
+    let a:number;
+    let b:number;
+    let c:number;
+    
+    // test top left
+    a = x - topLeftX;
+    b = y - topLeftY;
+    // get c from points a (radius sprite) to points b-e (box x,y +- halfExts)
+    c = Math.sqrt((a*a)+(b*b));
+    // there is no extent from the corner so we just need to check if the radius reaches points b
+    if(c <= radius){
+        return true;
+    }
+    // test top right
+    a = x - topRightX;
+    b = y - topRightY;
+    c = Math.sqrt((a*a)+(b*b));
+    if(c <= radius){
+        return true;
+    }
+    // test bottom right
+    a = x - bottomRightX;
+    b = y - bottomRightY;
+    c = Math.sqrt((a*a)+(b*b));
+    if(c <= radius){
+        return true;
+    }
+    // test bottom left
+    a = x - bottomLeftX;
+    b = y - bottomLeftY;
+    c = Math.sqrt((a*a)+(b*b));
+    if(c <= radius){
+        return true;
+    }
+
+    return false;
+}
+
 export function toRadians(degrees:number){
     return (degrees * (Math.PI/180));
 }

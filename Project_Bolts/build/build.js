@@ -9995,290 +9995,6 @@ exports.ASSET_MANIFEST = [
 
 /***/ }),
 
-/***/ "./src/Enemy-Laser.ts":
-/*!****************************!*\
-  !*** ./src/Enemy-Laser.ts ***!
-  \****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
-const EnemyProjectile_1 = __webpack_require__(/*! ./EnemyProjectile */ "./src/EnemyProjectile.ts");
-const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
-class Enemy_Laser extends Enemy_1.default {
-    constructor(stage, assetManager, eventPlayerKilled, projectilePool) {
-        super(stage, assetManager, eventPlayerKilled, projectilePool);
-        this._sprite = assetManager.getSprite("character-sprites", "enemy2");
-        this._id = Enemy_1.default.ID_LASER;
-        this._ammoType = EnemyProjectile_1.default.TYPE_LASER;
-        let random = Toolkit_1.randomMe(0, 1);
-        if (random == 1) {
-            this._movementAngle = 0;
-        }
-        else {
-            this._movementAngle = 90;
-        }
-    }
-    update(tiles, player) {
-        super.update(tiles, player);
-        this.detectCollisions(tiles, player, 180);
-    }
-    shoot() {
-        if (this._state != Enemy_1.default.STATE_ALIVE) {
-            return;
-        }
-        let count = 0;
-        for (let projectile of this.enemyProjPool) {
-            if (count > 1) {
-                break;
-            }
-            if (!projectile.isActive && projectile.type == this._ammoType) {
-                if (count == 0) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 90);
-                }
-                else if (count == 1) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 270);
-                }
-                count++;
-            }
-        }
-    }
-}
-exports.default = Enemy_Laser;
-
-
-/***/ }),
-
-/***/ "./src/Enemy-Sentinel.ts":
-/*!*******************************!*\
-  !*** ./src/Enemy-Sentinel.ts ***!
-  \*******************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
-const EnemyProjectile_1 = __webpack_require__(/*! ./EnemyProjectile */ "./src/EnemyProjectile.ts");
-const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
-class Enemy_Sentinel extends Enemy_1.default {
-    constructor(stage, assetManager, eventPlayerKilled, projectilePool) {
-        super(stage, assetManager, eventPlayerKilled, projectilePool);
-        let random = Toolkit_1.randomMe(0, 3);
-        if (random == 0) {
-            this._movementAngle = 45;
-        }
-        else if (random == 1) {
-            this._movementAngle = 135;
-        }
-        else if (random == 2) {
-            this._movementAngle = 225;
-        }
-        else {
-            this._movementAngle = 315;
-        }
-        this._ammoType = EnemyProjectile_1.default.TYPE_BULLET;
-        this._sprite = assetManager.getSprite("character-sprites", "enemy1");
-        this._id = Enemy_1.default.ID_SENTINEL;
-    }
-    update(tiles, player) {
-        super.update(tiles, player);
-        this.detectCollisions(tiles, player, 90);
-        this.lookAtPlayer(player);
-    }
-    removeMe() {
-        super.removeMe();
-        window.clearInterval(this.timer);
-    }
-}
-exports.default = Enemy_Sentinel;
-
-
-/***/ }),
-
-/***/ "./src/Enemy-Turret.ts":
-/*!*****************************!*\
-  !*** ./src/Enemy-Turret.ts ***!
-  \*****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Enemy_1 = __webpack_require__(/*! ./Enemy */ "./src/Enemy.ts");
-const EnemyProjectile_1 = __webpack_require__(/*! ./EnemyProjectile */ "./src/EnemyProjectile.ts");
-const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
-class Enemy_Turret extends Enemy_1.default {
-    constructor(stage, assetManager, eventPlayerKilled, projectilePool, player) {
-        super(stage, assetManager, eventPlayerKilled, projectilePool);
-        this._sprite = assetManager.getSprite("character-sprites", "enemy3");
-        this._id = Enemy_1.default.ID_TURRET;
-        this._ammoType = EnemyProjectile_1.default.TYPE_TURRET;
-        this.player = player;
-    }
-    update() {
-        if (this._state != Enemy_1.default.STATE_ALIVE) {
-            return;
-        }
-        this.spin();
-        this.detectCollisions();
-    }
-    spin() {
-        this._sprite.rotation += this._speed;
-    }
-    shoot() {
-        if (this._state != Enemy_1.default.STATE_ALIVE) {
-            return;
-        }
-        let count = 0;
-        for (let projectile of this.enemyProjPool) {
-            if (count > 3) {
-                break;
-            }
-            if (!projectile.isActive && projectile.type == this._ammoType) {
-                if (count == 0) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation - 45);
-                }
-                else if (count == 1) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 45);
-                }
-                else if (count == 2) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 135);
-                }
-                else if (count == 3) {
-                    projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation + 225);
-                }
-                count++;
-            }
-        }
-    }
-    detectCollisions() {
-        if (Toolkit_1.radiusHit(this._sprite, 15, this.player.sprite, 13)) {
-            this.stage.dispatchEvent(this.eventPlayerKilled);
-        }
-    }
-}
-exports.default = Enemy_Turret;
-
-
-/***/ }),
-
-/***/ "./src/Enemy.ts":
-/*!**********************!*\
-  !*** ./src/Enemy.ts ***!
-  \**********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
-const GameObject_1 = __webpack_require__(/*! ./GameObject */ "./src/GameObject.ts");
-const Tile_1 = __webpack_require__(/*! ./Tile */ "./src/Tile.ts");
-const Toolkit_1 = __webpack_require__(/*! ./Toolkit */ "./src/Toolkit.ts");
-class Enemy extends GameObject_1.default {
-    constructor(stage, assetManager, eventPlayerKilled, enemyProjPool) {
-        super(stage, assetManager);
-        this._state = Enemy.STATE_IDLE;
-        this._speed = Constants_1.ENEMY_SPEED;
-        this._isActive = false;
-        this.enemyProjPool = enemyProjPool;
-        this.eventPlayerKilled = eventPlayerKilled;
-        this.eventEnemyKilled = new createjs.Event("enemyKilled", true, false);
-        this._shotDelay = Toolkit_1.randomMe(750, 2500);
-    }
-    update(tiles, player) {
-        if (this._state != Enemy.STATE_ALIVE) {
-            return;
-        }
-        this.move();
-    }
-    killMe() {
-        if (this._state != Enemy.STATE_ALIVE) {
-            return;
-        }
-        this._state = Enemy.STATE_DEAD;
-        this.stopMe();
-        this.removeMe();
-        this.stage.dispatchEvent(this.eventEnemyKilled);
-    }
-    startMe() {
-        this._state = Enemy.STATE_ALIVE;
-        this.timer = window.setInterval(() => {
-            this.shoot();
-        }, this._shotDelay);
-    }
-    stopMe() {
-        this._state = Enemy.STATE_IDLE;
-        window.clearInterval(this.timer);
-    }
-    move() {
-        if (this._state != Enemy.STATE_ALIVE) {
-            return;
-        }
-        this.xDisplacement = Math.cos(Toolkit_1.toRadians(this._movementAngle)) * this._speed;
-        this.yDisplacement = Math.sin(Toolkit_1.toRadians(this._movementAngle)) * this._speed;
-        this._sprite.x += this.xDisplacement;
-        this._sprite.y += this.yDisplacement;
-    }
-    detectCollisions(tiles, player, bounceAngle) {
-        for (let tile of tiles) {
-            if (tile.id == Tile_1.default.ID_WALL || tile.id == Tile_1.default.ID_OBSTACLE) {
-                if (tile.isActive) {
-                    if (Toolkit_1.radiusHit(this._sprite, 13, tile.sprite, 13)) {
-                        this._movementAngle += bounceAngle;
-                        if (this._movementAngle >= 360) {
-                            this._movementAngle -= 360;
-                        }
-                        this.move();
-                    }
-                }
-            }
-        }
-        if (Toolkit_1.radiusHit(this._sprite, 12, player.sprite, 12)) {
-            this.killMe();
-            this.stage.dispatchEvent(this.eventPlayerKilled);
-        }
-    }
-    shoot() {
-        if (this._state != Enemy.STATE_ALIVE) {
-            return;
-        }
-        for (let projectile of this.enemyProjPool) {
-            if (!projectile.isActive && projectile.type == this._ammoType) {
-                projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation);
-                break;
-            }
-        }
-    }
-    lookAtPlayer(player) {
-        let adj = player.sprite.x - this._sprite.x;
-        let opp = player.sprite.y - this._sprite.y;
-        let radians = Math.atan2(opp, adj);
-        this._sprite.rotation = Toolkit_1.toDegrees(radians);
-    }
-    get id() {
-        return this._id;
-    }
-}
-exports.default = Enemy;
-Enemy.STATE_IDLE = 0;
-Enemy.STATE_ALIVE = 1;
-Enemy.STATE_DYING = 2;
-Enemy.STATE_DEAD = 3;
-Enemy.ID_SENTINEL = 0;
-Enemy.ID_LASER = 1;
-Enemy.ID_TURRET = 2;
-
-
-/***/ }),
-
 /***/ "./src/EnemyProjectile.ts":
 /*!********************************!*\
   !*** ./src/EnemyProjectile.ts ***!
@@ -10362,9 +10078,6 @@ const Tile_PlayerSpawn_1 = __webpack_require__(/*! ./Tile-PlayerSpawn */ "./src/
 const Tile_Floor_1 = __webpack_require__(/*! ./Tile-Floor */ "./src/Tile-Floor.ts");
 const Tile_ItemSpawn_1 = __webpack_require__(/*! ./Tile-ItemSpawn */ "./src/Tile-ItemSpawn.ts");
 const EnemyProjectile_1 = __webpack_require__(/*! ./EnemyProjectile */ "./src/EnemyProjectile.ts");
-const Enemy_Sentinel_1 = __webpack_require__(/*! ./Enemy-Sentinel */ "./src/Enemy-Sentinel.ts");
-const Enemy_Turret_1 = __webpack_require__(/*! ./Enemy-Turret */ "./src/Enemy-Turret.ts");
-const Enemy_Laser_1 = __webpack_require__(/*! ./Enemy-Laser */ "./src/Enemy-Laser.ts");
 const Timer_1 = __webpack_require__(/*! ./Timer */ "./src/Timer.ts");
 const Item_1 = __webpack_require__(/*! ./Item */ "./src/Item.ts");
 let roundStartTimer;
@@ -10393,28 +10106,39 @@ let rightKey = false;
 let leftKey = false;
 function monitorKeys() {
     if (leftKey && upKey) {
+        player.isMoving = true;
         player.move(-135);
     }
     else if (leftKey && downKey) {
+        player.isMoving = true;
         player.move(135);
     }
     else if (rightKey && upKey) {
+        player.isMoving = true;
         player.move(-45);
     }
     else if (rightKey && downKey) {
+        player.isMoving = true;
         player.move(45);
     }
     else if (leftKey) {
+        player.isMoving = true;
         player.move(180);
     }
     else if (rightKey) {
+        player.isMoving = true;
         player.move(0);
     }
     else if (upKey) {
+        player.isMoving = true;
         player.move(-90);
     }
     else if (downKey) {
+        player.isMoving = true;
         player.move(90);
+    }
+    else {
+        player.isMoving = false;
     }
 }
 function reset() {
@@ -10480,7 +10204,7 @@ function onMouseDown(e) {
     for (let projectile of playerProjPool) {
         if (projectile.isActive == false) {
             projectile.shoot(player.sprite.x, player.sprite.y, player.sprite.rotation);
-            player.CanShoot = false;
+            player.canShoot = false;
             break;
         }
     }
@@ -10494,7 +10218,7 @@ function onGameEvent(e) {
         case "gameReset":
             break;
         case "roundStart":
-            roundTimer.startTimer(10);
+            roundTimer.startTimer(100);
             enemiesInLevel = 0;
             player.addMe();
             player.startMe();
@@ -10510,12 +10234,13 @@ function onGameEvent(e) {
             reset();
             levelManager.loadNewLevel();
             roundStartTimer.startTimer(5);
+
             break;
         case "roundReset":
             reset();
             levelManager.loadLevel();
             player.addMe();
-            roundStartTimer.startTimer(5);
+            roundStartTimer.startTimer(3);
             break;
         case "timerExpired":
             player.stopMe();
@@ -10582,15 +10307,6 @@ function onReady(e) {
         enemyProjPool.push(new EnemyProjectile_1.default(stage, assetManager, player, eventPlayerKilled, EnemyProjectile_1.default.TYPE_LASER));
         enemyProjPool.push(new EnemyProjectile_1.default(stage, assetManager, player, eventPlayerKilled, EnemyProjectile_1.default.TYPE_TURRET));
     }
-    for (let i = 0; i < 5; i++) {
-        enemies.push(new Enemy_Sentinel_1.default(stage, assetManager, eventPlayerKilled, enemyProjPool));
-    }
-    for (let i = 0; i < 5; i++) {
-        enemies.push(new Enemy_Laser_1.default(stage, assetManager, eventPlayerKilled, enemyProjPool));
-    }
-    for (let i = 0; i < 5; i++) {
-        enemies.push(new Enemy_Turret_1.default(stage, assetManager, eventPlayerKilled, enemyProjPool, player));
-    }
     for (let i = 0; i < Constants_1.PLAYER_PROJECTILE_MAX; i++) {
         playerProjPool.push(new PlayerProjectile_1.default(stage, assetManager, enemies));
     }
@@ -10636,28 +10352,8 @@ function onReady(e) {
 }
 function onTick(e) {
     document.getElementById("fps").innerHTML = String(createjs.Ticker.getMeasuredFPS());
-    monitorKeys();
     player.update(tiles);
-    for (let projectile of playerProjPool) {
-        if (projectile.isActive) {
-            projectile.update(tiles);
-        }
-    }
-    for (let enemy of enemies) {
-        if (enemy.isActive) {
-            enemy.update(tiles, player);
-        }
-    }
-    for (let projectile of enemyProjPool) {
-        if (projectile.isActive) {
-            projectile.update(tiles);
-        }
-    }
-    for (let item of items) {
-        if (item.isActive) {
-            item.update(player);
-        }
-    }
+    monitorKeys();
     stage.update();
 }
 function main() {
@@ -11055,6 +10751,9 @@ class Player extends GameObject_1.default {
         this._shotDelay = Constants_1.PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
         this.eventPlayerDied = eventPlayerKilled;
+        this._canMoveHorizontal = true;
+        this._canMoveVertical = true;
+        this._isMoving = false;
     }
     update(tiles) {
         if (this._state != Player.STATE_ALIVE) {
@@ -11063,17 +10762,26 @@ class Player extends GameObject_1.default {
         if (!this._canShoot) {
             this.checkShootDelay();
         }
-        this.rotateTowards();
         this.detectCollisions(tiles);
+        if (this._isMoving) {
+            if (this._canMoveHorizontal) {
+                this._sprite.x += this.xDisplacement * this._speed;
+            }
+            if (this._canMoveVertical) {
+                this._sprite.y += this.yDisplacement * this._speed;
+            }
+        }
+        this._canMoveHorizontal = true;
+        this._canMoveVertical = true;
+        this.rotateTowards();
     }
     move(degree) {
         if (this._state != Player.STATE_ALIVE) {
             return;
         }
+        this._movementAngle = degree;
         this.xDisplacement = Math.cos(Toolkit_1.toRadians(degree));
         this.yDisplacement = Math.sin(Toolkit_1.toRadians(degree));
-        this._sprite.x += this.xDisplacement * this._speed;
-        this._sprite.y += this.yDisplacement * this._speed;
     }
     rotateTowards() {
         let adj = this.stage.mouseX - this._sprite.x;
@@ -11100,9 +10808,27 @@ class Player extends GameObject_1.default {
         for (let tile of tiles) {
             if (tile.id == Tile_1.default.ID_WALL || tile.id == Tile_1.default.ID_OBSTACLE) {
                 if (tile.isActive) {
-                    if (Toolkit_1.radiusHit(this._sprite, 13, tile.sprite, 13)) {
-                        this._sprite.x -= this.xDisplacement * this._speed;
-                        this._sprite.y -= this.yDisplacement * this._speed;
+                    let tempX = this._sprite.x + (this.xDisplacement * this._speed);
+                    let tempY = this._sprite.y + (this.yDisplacement * this._speed);
+                    if (Toolkit_1.radiusToBoxHitExt(tempX, this._sprite.y, 13, tile.sprite) && !Toolkit_1.radiusToBoxHitExt(this._sprite.x, tempY, 13, tile.sprite)) {
+                        this._canMoveHorizontal = false;
+                    }
+                    if (Toolkit_1.radiusToBoxHitExt(this._sprite.x, tempY, 13, tile.sprite) && !Toolkit_1.radiusToBoxHitExt(tempX, this._sprite.y, 13, tile.sprite)) {
+                        this._canMoveVertical = false;
+                    }
+                    if (Toolkit_1.radiusToBoxHit(this._sprite, 13, tile.sprite)) {
+                        if (Toolkit_1.radiusToBoxHitExt((this._sprite.x + this._speed), this._sprite.y, 13, tile.sprite)) {
+                            this._sprite.x -= this._speed;
+                        }
+                        if (Toolkit_1.radiusToBoxHitExt((this._sprite.x - this._speed), this._sprite.y, 13, tile.sprite)) {
+                            this._sprite.x += this._speed;
+                        }
+                        if (Toolkit_1.radiusToBoxHitExt(this._sprite.x, (this._sprite.y + this._speed), 13, tile.sprite)) {
+                            this._sprite.y -= this._speed;
+                        }
+                        if (Toolkit_1.radiusToBoxHitExt(this._sprite.x, (this._sprite.y - this._speed), 13, tile.sprite)) {
+                            this._sprite.y += this._speed;
+                        }
                     }
                 }
             }
@@ -11115,14 +10841,20 @@ class Player extends GameObject_1.default {
             this._ticksExpired = 0;
         }
     }
-    get CanShoot() {
+    get canShoot() {
         return this._canShoot;
     }
-    set CanShoot(value) {
+    set canShoot(value) {
         this._canShoot = value;
     }
     get state() {
         return this._state;
+    }
+    set movementAngle(value) {
+        this._movementAngle = value;
+    }
+    set isMoving(value) {
+        this._isMoving = value;
     }
 }
 exports.default = Player;
@@ -11577,6 +11309,106 @@ function radiusHit(sprite1, radius1, sprite2, radius2) {
     }
 }
 exports.radiusHit = radiusHit;
+function radiusHitExt(x1, y1, radius1, x2, y2, radius2) {
+    let a = x1 - x2;
+    let b = y1 - y2;
+    let c = Math.sqrt((a * a) + (b * b));
+    if (c <= (radius1 + radius2)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+exports.radiusHitExt = radiusHitExt;
+function radiusToBoxHit(spriteR, radius, spriteB) {
+    let halfExtX = (spriteB.getBounds().width) / 2;
+    let halfExtY = (spriteB.getBounds().height) / 2;
+    let topLeftX = spriteB.x - halfExtX;
+    let topLeftY = spriteB.y - halfExtY;
+    let topRightX = spriteB.x + halfExtX;
+    let topRightY = spriteB.y - halfExtY;
+    let bottomLeftX = spriteB.x - halfExtX;
+    let bottomLeftY = spriteB.y + halfExtY;
+    let bottomRightX = spriteB.x + halfExtX;
+    let bottomRightY = spriteB.y + halfExtY;
+    if (radiusHit(spriteR, radius, spriteB, halfExtX)) {
+        return true;
+    }
+    let a;
+    let b;
+    let c;
+    a = spriteR.x - topLeftX;
+    b = spriteR.y - topLeftY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = spriteR.x - topRightX;
+    b = spriteR.y - topRightY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = spriteR.x - bottomRightX;
+    b = spriteR.y - bottomRightY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = spriteR.x - bottomLeftX;
+    b = spriteR.y - bottomLeftY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    return false;
+}
+exports.radiusToBoxHit = radiusToBoxHit;
+function radiusToBoxHitExt(x, y, radius, spriteB) {
+    let halfExtX = (spriteB.getBounds().width) / 2;
+    let halfExtY = (spriteB.getBounds().height) / 2;
+    let topLeftX = spriteB.x - halfExtX;
+    let topLeftY = spriteB.y - halfExtY;
+    let topRightX = spriteB.x + halfExtX;
+    let topRightY = spriteB.y - halfExtY;
+    let bottomLeftX = spriteB.x - halfExtX;
+    let bottomLeftY = spriteB.y + halfExtY;
+    let bottomRightX = spriteB.x + halfExtX;
+    let bottomRightY = spriteB.y + halfExtY;
+    if (radiusHitExt(x, y, radius, spriteB.x, spriteB.y, halfExtX)) {
+        return true;
+    }
+    let a;
+    let b;
+    let c;
+    a = x - topLeftX;
+    b = y - topLeftY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = x - topRightX;
+    b = y - topRightY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = x - bottomRightX;
+    b = y - bottomRightY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    a = x - bottomLeftX;
+    b = y - bottomLeftY;
+    c = Math.sqrt((a * a) + (b * b));
+    if (c <= radius) {
+        return true;
+    }
+    return false;
+}
+exports.radiusToBoxHitExt = radiusToBoxHitExt;
 function toRadians(degrees) {
     return (degrees * (Math.PI / 180));
 }
