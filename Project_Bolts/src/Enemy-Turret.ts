@@ -11,7 +11,7 @@ export default class Enemy_Turret extends Enemy{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, projectilePool:EnemyProjectile[], player:Player){
         super(stage, assetManager, eventPlayerKilled, projectilePool);
-        this._sprite = assetManager.getSprite("character-sprites","enemy3");
+        this._sprite = assetManager.getSprite("character-sprites","enemy-turret");
         this._id = Enemy.ID_TURRET;
 
         this._ammoType = EnemyProjectile.TYPE_TURRET;

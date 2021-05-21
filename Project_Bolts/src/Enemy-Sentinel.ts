@@ -26,7 +26,7 @@ export default class Enemy_Sentinel extends Enemy{
 
         this._ammoType = EnemyProjectile.TYPE_BULLET;
 
-        this._sprite = assetManager.getSprite("character-sprites","enemy1");
+        this._sprite = assetManager.getSprite("character-sprites","enemy-sentinel");
         this._id = Enemy.ID_SENTINEL;
     }
 

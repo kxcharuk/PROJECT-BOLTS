@@ -10,7 +10,7 @@ export default class Enemy_Laser extends Enemy{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, projectilePool:EnemyProjectile[]){
         super(stage, assetManager, eventPlayerKilled, projectilePool);
-        this._sprite = assetManager.getSprite("character-sprites","enemy2");
+        this._sprite = assetManager.getSprite("character-sprites","enemy-laser");
         this._id = Enemy.ID_LASER;
         this._ammoType = EnemyProjectile.TYPE_LASER;
 
@@ -21,6 +21,7 @@ export default class Enemy_Laser extends Enemy{
         }
         else{
             this._movementAngle = 90;
+            this._sprite.rotation = 90;
         }
     }
 

@@ -25,7 +25,7 @@ export default class Tile extends GameObject{
     // -------------------------------------------------------------- public methods
     public addMe():void{
         super.addMe();
-        this.stage.addChildAt(this._sprite, 1/*this.stage.getChildIndex(this.player.sprite)*/);
+        this.stage.addChildAt(this._sprite, 1);
     }
     // -------------------------------------------------------------- private methods
     // -------------------------------------------------------------- accessors
