@@ -24,12 +24,14 @@ import Enemy_Laser from "./Enemy-Laser";
 import Timer from "./Timer";
 import GameObject from "./GameObject";
 import Item from "./Item";
+import ScreenManager from "./ScreenManager";
 
 // game objects
 let roundStartTimer:Timer;
 let roundTimer:Timer;
 let player:Player;
 let levelManager:LevelManager;
+let screenManager:ScreenManager;
 // obj pools
 let enemies:Enemy[] = [];
 let playerProjPool:PlayerProjectile[] = [];
@@ -46,7 +48,7 @@ let eventRoundStart:createjs.Event;
 let eventRoundTimerExpired:createjs.Event;
 let eventRoundReset:createjs.Event;
 let eventRoundOver:createjs.Event;
-
+/// game vars
 let playerLives:number;
 let score:number;
 let enemiesInLevel:number;
@@ -174,11 +176,11 @@ function onGameEvent(e:createjs.Event):void{
         break;
 
         case "gameOver":
-            
+            screenManager.showGameOver();
         break;
 
         case "gameReset": 
-            
+            // logic for game reset
         break;
 
         case "roundStart":
@@ -265,15 +267,17 @@ function onGameEvent(e:createjs.Event):void{
 function onReady(e:createjs.Event):void {
     console.log(">> adding sprites to game");
 
-    // construct game object
-    //background = assetManager.getSprite("placeholder-assets","background");
-    //stage.addChild(background);
-
+    
+    // construct event obj
     eventPlayerKilled = new createjs.Event("playerKilled", true, false);
     eventRoundStart = new createjs.Event("roundStart", true, false);
     eventRoundTimerExpired = new createjs.Event("timerExpired", true, false);
     eventRoundReset = new createjs.Event("roundReset", true, false);
     eventRoundOver = new createjs.Event("roundOver", true, false);
+    
+    // construct game object
+    screenManager = new ScreenManager(stage, assetManager);
+    screenManager.showStart();
 
     player = new Player(stage, assetManager, eventPlayerKilled);
     player.sprite.x = 240;
