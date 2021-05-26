@@ -1,0 +1,33 @@
+{
+
+"images": [
+    "screens-ui-sprites.png"
+],
+
+"framerate": 30,
+"frames": [
+    [1, 1, 480, 480, 0, 0, 0],
+    [1, 483, 480, 480, 0, 0, 0],
+    [1, 965, 64, 16, 0, 32, 8],
+    [1, 983, 50, 16, 0, 25, 8],
+    [1, 1001, 45, 16, 0, 22.5, 8],
+    [483, 1, 480, 480, 0, 0, 0],
+    [483, 483, 480, 480, 0, 0, 0]
+],
+
+"animations": {
+    "info": { "frames": [0] },
+    "placeholder-gameover": { "frames": [1] },
+    "score-text": { "frames": [2] },
+    "lives-text": { "frames": [3] },
+    "time-text": { "frames": [4] },
+    "placeholder-start": { "frames": [5] },
+    "start": { "frames": [6] }
+},
+
+"texturepacker": [
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:24c869582a8a64f88254a2f06bb0633d:51fa67d1b3657d78487be20e03ee6368:22cfa848fc1536a2e7efe8357e123b08$",
+        "Created with TexturePacker (https://www.codeandweb.com/texturepacker) for EaselJS"
+]
+
+}
