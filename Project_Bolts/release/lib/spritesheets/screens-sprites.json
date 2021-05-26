@@ -1,0 +1,23 @@
+{
+
+"images": [
+    "screens-sprites.png"
+],
+
+"framerate": 30,
+"frames": [
+    [1, 1, 480, 480, 0, 0, 0],
+    [1, 483, 480, 480, 0, 0, 0]
+],
+
+"animations": {
+    "placeholder-gameover": { "frames": [0] },
+    "placeholder-start": { "frames": [1] }
+},
+
+"texturepacker": [
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:8595997223abcb6875379beaeb8cd98d:0ea134b1896afbbc81f3b327ff85b599:f808c37071719449bf6c2bb06b3b2efe$",
+        "Created with TexturePacker (https://www.codeandweb.com/texturepacker) for EaselJS"
+]
+
+}

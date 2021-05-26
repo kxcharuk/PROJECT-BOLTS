@@ -28,6 +28,7 @@ export const ASSET_MANIFEST = [
         id:"placeholder-assets",
         data:0
     },
+    // projectiles
     {
         type:"json",
         src:"./lib/spritesheets/projectile-sprites.json",
@@ -40,6 +41,7 @@ export const ASSET_MANIFEST = [
         id:"projectile-sprites",
         data:0
     },
+    // characters
     {
         type:"json",
         src:"./lib/spritesheets/character-sprites.json",
@@ -52,6 +54,20 @@ export const ASSET_MANIFEST = [
         id:"character-sprites",
         data:0
     },
+    // screens
+    {
+        type:"json",
+        src:"./lib/spritesheets/screens-sprites.json",
+        id:"screens",
+        data:0
+    },
+    {
+        type:"image",
+        src:"./lib/spritesheets/screens-sprites.png",
+        id:"screens",
+        data:0
+    },
+    // glyphs
     {
         type:"json",
         src:"./lib/spritesheets/glyphs.json",

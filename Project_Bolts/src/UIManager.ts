@@ -23,17 +23,45 @@ export default class UIManager{
 
         // init bitmap obj
         this.txtScore = new createjs.BitmapText("0", assetManager.getSpriteSheet("glyphs"));
+        this.txtScore.x = 442;
+        this.txtScore.y = 10;
+        this.txtScore.letterSpacing = 1;
+        this.stage.addChildAt(this.txtScore, stage.numChildren);
+
         this.txtLives = new createjs.BitmapText("0", assetManager.getSpriteSheet("glyphs"));
+        this.txtLives.x = 222;
+        this.txtLives.y = 10;
+        this.txtLives.letterSpacing = 1;
+        this.stage.addChildAt(this.txtLives, stage.numChildren);
+
         this.txtTime = new createjs.BitmapText("0", assetManager.getSpriteSheet("glyphs"));
+        this.txtTime.x = 16;
+        this.txtTime.y = 10;
+        this.stage.addChildAt(this.txtTime, stage.numChildren);
 
         // init sprite obj
         this.spriteTimer = assetManager.getSprite("placeholder-assets", "item");
         // this.spriteLives = assetManager.getSprite("");
     }
     // ----------------------------------------------------------------------------- public methods
-    public update(score:number, time:number):void{
+    public update(score:number, time:number, lives:number):void{
         this.txtScore.text = score.toString();
         this.txtTime.text = time.toString();
+        this.txtLives.text = lives.toString();
+    }
+
+    public positionScoreText(x:number, y:number, scale:number):void{
+        this.txtScore.x = x;
+        this.txtScore.y = y;
+        this.txtScore.scaleX = scale;
+        this.txtScore.scaleY = scale;
+    }
+
+    public positionLivesText(x:number, y:number, scale:number):void{
+        this.txtLives.x = x;
+        this.txtLives.y = y;
+        this.txtLives.scaleX = scale;
+        this.txtLives.scaleY = scale;
     }
 
 

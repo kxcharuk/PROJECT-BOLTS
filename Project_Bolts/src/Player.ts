@@ -33,7 +33,7 @@ export default class Player extends GameObject{
         super(stage,assetManager);
         this._state = Player.STATE_IDLE;
         this._speed = PLAYER_SPEED;
-        this._sprite = assetManager.getSprite("character-sprites", "bracket");
+        this._sprite = assetManager.getSprite("character-sprites", "player");
         this._canShoot = false;
         this._shotDelay = PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
