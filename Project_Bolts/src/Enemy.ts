@@ -59,12 +59,13 @@ export default class Enemy extends GameObject{
         if(this._state != Enemy.STATE_ALIVE) {return;}
         this._state = Enemy.STATE_DEAD; // change to DYING and create onanimationend event listener => handler
         this.stopMe();
-        this.removeMe();
+        //this.removeMe();
         this.stage.dispatchEvent(this.eventEnemyKilled);
     }
 
     public startMe():void{
         this._state = Enemy.STATE_ALIVE;
+        this._sprite.play();
         this.timer = window.setInterval(()=>{
             this.shoot();
         }, this._shotDelay);

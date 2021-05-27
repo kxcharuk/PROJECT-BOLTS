@@ -1,0 +1,27 @@
+{
+
+"images": [
+    "environment-sprites.png"
+],
+
+"framerate": 30,
+"frames": [
+    [1, 1, 32, 32, 0, 16, 16],
+    [1, 35, 32, 32, 0, 16, 16],
+    [1, 69, 32, 32, 0, 16, 16],
+    [35, 1, 32, 32, 0, 16, 16]
+],
+
+"animations": {
+    "corner": { "frames": [0] },
+    "floor": { "frames": [1] },
+    "obstacle": { "frames": [2] },
+    "wall": { "frames": [3] }
+},
+
+"texturepacker": [
+        "SmartUpdateHash: $TexturePacker:SmartUpdate:f8be2e5e5230702948f30c56f4dd4060:1497f3bdc1a3755c77c5132cfc44daa9:f935b573ada93fb315e637807a9ee42b$",
+        "Created with TexturePacker (https://www.codeandweb.com/texturepacker) for EaselJS"
+]
+
+}

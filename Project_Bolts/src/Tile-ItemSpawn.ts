@@ -2,11 +2,13 @@ import AssetManager from "./AssetManager";
 import Item from "./Item";
 import Player from "./Player";
 import Tile from "./Tile";
+import { randomMe } from "./Toolkit";
 
 
 export default class Tile_ItemSpawn extends Tile{
 
     private items:Item[];
+    private _itemID:number;
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, player:Player, items:Item[]){
         super(stage, assetManager, player);
@@ -23,12 +25,14 @@ export default class Tile_ItemSpawn extends Tile{
     }
     //-------------------------------------------------------------------- private methods
     private getItem():void{
-        //this._itemID = randomMe(0, 3);
+        this._itemID = randomMe(0, 2);
         for(let item of this.items){
-            if(!item.isActive){
-                item.positionMe(this._sprite.x, this._sprite.y);
-                item.addMe();
-                break;
+            if(item.id == this._itemID){
+                if(!item.isActive){
+                    item.positionMe(this._sprite.x, this._sprite.y);
+                    item.addMe();
+                    break;
+                }
             }
         }
     }

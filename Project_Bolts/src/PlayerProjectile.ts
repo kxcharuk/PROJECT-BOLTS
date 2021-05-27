@@ -13,7 +13,7 @@ export default class PlayerProjectile extends Projectile{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, enemies:Enemy[]){
         super(stage, assetManager);
-        this._sprite = assetManager.getSprite("projectile-sprites", "rocket/active");
+        this._sprite = assetManager.getSprite("projectile-vfx-sprites", "rocket/active");
         this._speed = PLAYER_PROJECTILE_SPEED;
         this.enemies = enemies; // to be enemy pool
     }

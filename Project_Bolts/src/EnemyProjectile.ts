@@ -21,13 +21,13 @@ export default class EnemyProjectile extends Projectile{
         super(stage, assetManager);
         this._type = type;
         if(this._type == EnemyProjectile.TYPE_BULLET){
-            this._sprite = assetManager.getSprite("projectile-sprites","bullet/active");
+            this._sprite = assetManager.getSprite("projectile-vfx-sprites","bullet/active");
         }
         else if(this._type == EnemyProjectile.TYPE_LASER){
-            this._sprite = assetManager.getSprite("projectile-sprites","turret/active");
+            this._sprite = assetManager.getSprite("projectile-vfx-sprites","turret/active");
         }
         else if(this._type == EnemyProjectile.TYPE_TURRET){
-            this._sprite = assetManager.getSprite("projectile-sprites","turret/active");
+            this._sprite = assetManager.getSprite("projectile-vfx-sprites","turret/active");
         }
 
         this._sprite.scaleX = 1.2;
@@ -53,7 +53,8 @@ export default class EnemyProjectile extends Projectile{
         super.detectCollisions(tiles);
         if(radiusHit(this._sprite, 5, this.player.sprite, 13)){
             if(!this.player.isActive) {return;}
-            this.stage.dispatchEvent(this.eventPlayerKilled);
+            this.removeMe();
+            this.stage.dispatchEvent(this.eventPlayerKilled); // think about just moving this to player.killed() and calling the former here
         }
     }
 

@@ -26,7 +26,7 @@ export default class Enemy_Sentinel extends Enemy{
 
         this._ammoType = EnemyProjectile.TYPE_BULLET;
 
-        this._sprite = assetManager.getSprite("character-sprites","enemy-sentinel");
+        this._sprite = assetManager.getSprite("character-sprites","sentinel-outline/idle");
         this._id = Enemy.ID_SENTINEL;
     }
 
@@ -40,6 +40,13 @@ export default class Enemy_Sentinel extends Enemy{
     public removeMe():void{
         super.removeMe();
         window.clearInterval(this.timer);
+    }
+
+    public killMe():void{
+        if(this._state != Enemy.STATE_ALIVE) {return;}
+        super.killMe();
+        this._sprite.gotoAndPlay("sentinel/death");
+        this._sprite.on("animationend", ()=> { this.removeMe(); } );
     }
     // ---------------------------------------------------------------------------- private methods
 

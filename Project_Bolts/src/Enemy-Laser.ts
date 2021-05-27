@@ -10,7 +10,7 @@ export default class Enemy_Laser extends Enemy{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, projectilePool:EnemyProjectile[]){
         super(stage, assetManager, eventPlayerKilled, projectilePool);
-        this._sprite = assetManager.getSprite("character-sprites","enemy-laser");
+        this._sprite = assetManager.getSprite("character-sprites","antlion-outline/alive");
         this._id = Enemy.ID_LASER;
         this._ammoType = EnemyProjectile.TYPE_LASER;
 
@@ -29,6 +29,12 @@ export default class Enemy_Laser extends Enemy{
     public update(tiles:Tile[], player:Player):void{
         super.update(tiles, player);
         this.detectCollisions(tiles, player, 180);
+    }
+
+    public killMe():void{
+        super.killMe();
+        this._sprite.gotoAndPlay("antlion/death");
+        this._sprite.on("animationend", ()=> { this.removeMe();});
     }
 
     // ---------------------------------------------------------------------------------------- private methods

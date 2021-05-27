@@ -112,7 +112,7 @@ function reset():void{
     }
     for(let enemy of enemies){
         if(enemy.isActive){
-            enemy.stopMe();
+            enemy.stopMe(); // switch these to local resets that handles all of this
             enemy.removeMe();
         }
     }
@@ -178,6 +178,7 @@ function onGameEvent(e:createjs.Event):void{
             levelManager.loadNewLevel();
             roundStartTimer.startTimer(3);
             roundStartTimer.showText = true;
+            screenManager.showGame();
         break;
 
         case "gameOver":
@@ -244,7 +245,7 @@ function onGameEvent(e:createjs.Event):void{
         case "playerKilled":
             if(player.state != Player.STATE_ALIVE) {return;}
             roundTimer.stopTimer();
-            player.killMe();
+            player.killMe();// consider moving this into the collision detect and dispatching event from player.killMe()
             player.stopMe();
             playerLives--;
             if(playerLives <= 0){
@@ -308,7 +309,7 @@ function onReady(e:createjs.Event):void {
     roundStartTimer = new Timer(stage, assetManager, eventRoundStart);
     roundStartTimer.positionText(215,215, 3);
     roundTimer = new Timer(stage, assetManager, eventRoundTimerExpired);
-    roundTimer.positionText(8,8,1);
+    // roundTimer.positionText(,,1);
   
     for(let i:number = 0; i < 100; i++){
         enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled, EnemyProjectile.TYPE_BULLET));
