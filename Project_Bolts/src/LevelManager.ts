@@ -13,12 +13,17 @@ export default class LevelManager{
     private tiles:Tile[];
     
     private level:number[][];
-    private waypoints:Vector2[] = []; // all non wall/obstacle tiles (potential paths)
+    private waypoints:Vector2[] = []; // all non wall/obstacle tiles (potential nodes)
     private searchQueue:Vector2[] = [];
     private enemySpawns:Vector2[] = [];
     private searched:Vector2[] = [];
     private playerSpawn:Vector2;
     private searchCenter:Vector2;
+    private _numEnSpawn:number;
+    private _numItemSpawn:number;
+
+    // custom event
+    private eventLevelLoaded:createjs.Event;
 
     private static directions:Vector2[] = [new Vector2(1,0), new Vector2(0,1), new Vector2(-1,0), new Vector2(0,-1)];
 
@@ -48,16 +53,21 @@ export default class LevelManager{
 
         this.playerSpawn = new Vector2(0,0);
         this.searchCenter = new Vector2(0,0);
+
+        this.eventLevelLoaded = new createjs.Event("levelLoaded", true, false);
+
+        this._numEnSpawn = 5;
+        this._numItemSpawn = 8;
     }
 
     // ----------------------------------------------------- public methods
     public loadLevel():void{
+        console.log("loading level");
         let offset:number = 16;
         let increment:number = 32;
-        // loop throw array and add tiles to stage
-        // change cap in loop to a constant
+        //let tilesPlaced:number = 0;
+        // loop through array and add tiles to stage
         for(let i:number = 0; i < 15; i++){
-            console.log("i = " + i);
             let x:number = 16;
             let y:number = (i * increment) + offset;
             for(let number of this.level[i]){
@@ -67,6 +77,7 @@ export default class LevelManager{
                         if(tile.id == Tile.ID_WALL && !tile.isActive){
                             tile.positionMe(x , y);
                             tile.addMe();
+                            // tilesPlaced++;
                             break;
                         }
                     }
@@ -76,6 +87,7 @@ export default class LevelManager{
                         if(tile.id == Tile.ID_OBSTACLE && !tile.isActive){
                             tile.positionMe(x , y);
                             tile.addMe();
+                            // tilesPlaced++;
                             break;
                         }
                     }
@@ -85,6 +97,7 @@ export default class LevelManager{
                         if(tile.id == Tile.ID_PLAYER_SPAWN && !tile.isActive){
                             tile.positionMe(x , y);
                             tile.addMe();
+                            // tilesPlaced++;
                             break;
                         }
                     }
@@ -94,6 +107,7 @@ export default class LevelManager{
                         if(tile.id == Tile.ID_ENEMY_SPAWN && !tile.isActive){
                             tile.positionMe(x , y);
                             tile.addMe();
+                            // tilesPlaced++;
                             break;
                         }
                     }
@@ -103,6 +117,7 @@ export default class LevelManager{
                         if(tile.id == Tile.ID_ITEM_SPAWN && !tile.isActive){
                             tile.positionMe(x , y);
                             tile.addMe();
+                            // tilesPlaced++;
                             break;
                         }
                     }
@@ -111,20 +126,23 @@ export default class LevelManager{
                     for(let tile of this.tiles){
                         if(tile.id == Tile.ID_FLOOR && !tile.isActive){
                             tile.positionMe(x , y);
-                            tile.addMe();// tile
+                            tile.addMe();
+                            // tilesPlaced++;
                             break;
                         }
                     }
                 }
                 x += increment;
-                console.log("x,y = " + x + "," + y);
             }
             x = 16;
         }
+        // console.log("tiles placed: " + tilesPlaced);
+        this.stage.dispatchEvent(this.eventLevelLoaded);
     }
 
     public randomizeLevel():void{
-
+        let enSpawns = 0;
+        let itemSpawn = 0;
         for(let y:number = 1; y < 14; y++){
             for(let x:number = 1; x < 14; x++){
                 let random:number = randomMe(0,100);
@@ -135,10 +153,22 @@ export default class LevelManager{
                     this.level[y][x] = Tile.ID_OBSTACLE;
                 }
                 else if(random > 85 && random <= 95){
-                    this.level[y][x] = Tile.ID_ENEMY_SPAWN;
+                    if(enSpawns < this.numEnSpawn){
+                        this.level[y][x] = Tile.ID_ENEMY_SPAWN;
+                        enSpawns++;
+                    }
+                    else{
+                        this.level[y][x] = Tile.ID_FLOOR;
+                    }
                 }
                 else if(random > 95){
-                    this.level[y][x] = Tile.ID_ITEM_SPAWN;
+                    if(itemSpawn < this.numItemSpawn){
+                        this.level[y][x] = Tile.ID_ITEM_SPAWN;
+                        itemSpawn++;
+                    }
+                    else{
+                        this.level[y][x] = Tile.ID_FLOOR;
+                    }
                 }
                 else{
                     this.level[y][x] = Tile.ID_FLOOR;
@@ -148,12 +178,16 @@ export default class LevelManager{
     }
 
     public clearLevel():void{
+        console.log("clearing level");
         for(let tile of this.tiles){
-            tile.removeMe();
+            if(tile.isActive){
+                tile.removeMe();
+            }
         }
     }
 
     public loadNewLevel():void{
+        console.log("loading new level");
         this.clearLevel();
         this.randomizeLevel();
         while(this.checkPaths()){
@@ -196,17 +230,13 @@ export default class LevelManager{
     }
 
     private setPlayerSpawn():void{
-        let x:number = randomMe(1, 14);
-        let y:number = randomMe(1, 14);
+        let x:number = randomMe(2, 13);
+        let y:number = randomMe(2, 13);
 
         this.level[y][x] = Tile.ID_PLAYER_SPAWN;
         this.playerSpawn.x = x;
         this.playerSpawn.y = y;
-
-    }
-
-    private checkPlayerToEnemiesPaths():void{
-
+        console.log("placing player at: " + x + "," + y);
     }
 
     private checkPaths():boolean{
@@ -279,7 +309,20 @@ export default class LevelManager{
         }
     }
 
-    private changeElement(y:number, x:number, newElement:number):void{
-        this.level[y][x] = newElement;
+    // ---------------------------------------------------------------------- accessors
+    public get numEnSpawn():number{
+        return this._numEnSpawn;
+    }
+
+    public set numEnSpawn(value:number){
+        this._numEnSpawn = value;
+    }
+
+    public get numItemSpawn():number{
+        return this._numItemSpawn;
+    }
+
+    public set numItemSpawn(value:number){
+        this._numItemSpawn = value;
     }
 }

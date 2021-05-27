@@ -11,6 +11,7 @@ export default class ScreenManager{
     private infoScreen:createjs.Sprite;
     private gameScreen:createjs.Container;
     private gameOverScreen:createjs.Sprite;
+    private loadingScreen:createjs.Sprite;
 
     private eventStartGame:createjs.Event;
     private eventResetGame:createjs.Event;
@@ -19,6 +20,7 @@ export default class ScreenManager{
         this.stage = stage;
         this.player = player;
         // screens
+        this.loadingScreen = assetManager.getSprite("screens-ui-sprites","loading",0,0);
         this.startScreen = assetManager.getSprite("screens-ui-sprites","start", 0,0);
         this.infoScreen = assetManager.getSprite("screens-ui-sprites", "info", 0, 0);
         this.gameOverScreen = assetManager.getSprite("screens-ui-sprites", "placeholder-gameover",0,0);
@@ -40,19 +42,19 @@ export default class ScreenManager{
     // ----------------------------------------------------------------------------- public methods
     public showStart():void{
         this.hideAll();
-        this.stage.addChildAt(this.startScreen, this.stage.getChildIndex(this.player.sprite));
+        this.stage.addChildAt(this.startScreen, 0);
 
-        this.stage.on("click", ()=> { this.showInfo(); }, this, true);
+        this.stage.on("click", ()=> { this.showInfo(); createjs.Sound.play("menu_blip"); }, this, true);
     }
 
     public showInfo():void{
         this.hideAll();
         this.stage.addChildAt(this.infoScreen, 0);
 
-        this.stage.on("click", ()=> { this.stage.dispatchEvent(this.eventStartGame);}, this, true)
+        this.stage.on("click", ()=> { this.stage.dispatchEvent(this.eventStartGame); createjs.Sound.play("menu_blip");}, this, true)
     }
 
-    public showGame():void{
+    public showGame():void{// put this in ui manager
         this.hideAll();
 
         this.stage.addChildAt(this.gameScreen, this.stage.numChildren);
@@ -62,7 +64,13 @@ export default class ScreenManager{
         this.hideAll();
 
         this.stage.addChildAt(this.gameOverScreen, this.stage.numChildren);
-        this.stage.on("click", ()=> { this.hideAll(); this.stage.dispatchEvent(this.eventResetGame); }, this, true);
+        this.stage.on("click", ()=> { this.hideAll(); this.stage.dispatchEvent(this.eventResetGame); createjs.Sound.play("menu_blip");}, this, true);
+    }
+
+    public showLoading():void{
+        this.hideAll();
+
+        this.stage.addChildAt(this.loadingScreen, this.stage.numChildren);
     }
 
     // ------------------------------------------------------------------------------ private methods
@@ -71,5 +79,6 @@ export default class ScreenManager{
         this.stage.removeChild(this.gameScreen);
         this.stage.removeChild(this.infoScreen);
         this.stage.removeChild(this.gameOverScreen);
+        this.stage.removeChild(this.loadingScreen);
     }
 }

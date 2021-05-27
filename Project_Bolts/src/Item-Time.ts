@@ -16,6 +16,6 @@ export default class Item_Time extends Item{
 
     // ------------------------------------------------------------------------------- public methods
     public update(player:Player):void{
-        this.detectCollisions(player, this.eventTimePickUp);
+        this.detectCollisions(player, this.eventTimePickUp, "time/collected", "pickup_time");
     }
 }

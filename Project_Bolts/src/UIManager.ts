@@ -4,18 +4,11 @@ export default class UIManager{
 
     private stage:createjs.StageGL;
 
-    private _playerLives:number;
-    private _score:number;
-    private _time:number;
-
-    // bitmap objects
+    // bitmap text objects
     private txtScore:createjs.BitmapText;
     private txtTime:createjs.BitmapText;
     private txtLives:createjs.BitmapText;
-    // sprite obj
-    private spriteTimer:createjs.Sprite;
-    private spriteScore:createjs.Sprite;
-    private spriteLives:createjs.Sprite;
+    private txtRound:createjs.BitmapText;
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
 
@@ -26,28 +19,30 @@ export default class UIManager{
         this.txtScore.x = (298+36);
         this.txtScore.y = 10;
         this.txtScore.letterSpacing = 1;
-        this.stage.addChildAt(this.txtScore, stage.numChildren);
+        //this.stage.addChildAt(this.txtScore, stage.numChildren);
 
         this.txtLives = new createjs.BitmapText("0", assetManager.getSpriteSheet("glyphs"));
         this.txtLives.x = (416+32);
         this.txtLives.y = 10;
         this.txtLives.letterSpacing = 1;
-        this.stage.addChildAt(this.txtLives, stage.numChildren);
+        //this.stage.addChildAt(this.txtLives, stage.numChildren);
 
         this.txtTime = new createjs.BitmapText("0", assetManager.getSpriteSheet("glyphs"));
         this.txtTime.x = (182+32);
         this.txtTime.y = 10;
-        this.stage.addChildAt(this.txtTime, stage.numChildren);
+        //this.stage.addChildAt(this.txtTime, stage.numChildren);
 
-        // init sprite obj
-        this.spriteTimer = assetManager.getSprite("placeholder-assets", "item");
-        // this.spriteLives = assetManager.getSprite("");
+        this.txtRound = new createjs.BitmapText("0", assetManager.getSpriteSheet("glyphs"));
+        this.txtRound.x = (74+32);
+        this.txtRound.y = 10;
+
     }
     // ----------------------------------------------------------------------------- public methods
-    public update(score:number, time:number, lives:number):void{
+    public update(score:number, time:number, lives:number, round:number):void{
         this.txtScore.text = score.toString();
         this.txtTime.text = time.toString();
         this.txtLives.text = lives.toString();
+        this.txtRound.text = round.toString();
     }
 
     public positionScoreText(x:number, y:number, scale:number):void{
@@ -65,9 +60,11 @@ export default class UIManager{
     }
 
     public showUI():void{
+        // may have to add args to update this when showing
         this.stage.addChildAt(this.txtScore, this.stage.numChildren);
         this.stage.addChildAt(this.txtLives, this.stage.numChildren);
         this.stage.addChildAt(this.txtTime, this.stage.numChildren);
+        this.stage.addChildAt(this.txtRound, this.stage.numChildren);
     }
 
     public hideUI():void{

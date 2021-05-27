@@ -9,13 +9,13 @@ export default class Item_ScoreMult extends Item{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager){
         super(stage, assetManager);
-        this._sprite = assetManager.getSprite("items-sprites", "scoremult/active");
+        this._sprite = assetManager.getSprite("items-sprites", "scoremult/active2");
         this.eventScoreMultPickUp = new createjs.Event("scorePickUp", true, false);
         this._id = Item.ID_SCOREMULT;
     }
 
     // ------------------------------------------------------------------------------- public methods
     public update(player:Player):void{
-        this.detectCollisions(player, this.eventScoreMultPickUp);
+        this.detectCollisions(player, this.eventScoreMultPickUp, "scoremult/collected", "pickup_score");
     }
 }

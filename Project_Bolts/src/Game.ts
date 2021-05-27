@@ -4,7 +4,7 @@
 // importing createjs framework
 import "createjs";
 // importing game constants
-import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST, PLAYER_PROJECTILE_MAX } from "./Constants";
+import { STAGE_WIDTH, STAGE_HEIGHT, FRAME_RATE, ASSET_MANIFEST, PLAYER_PROJECTILE_MAX, ENEMY_SPAWN_MAX, MIN_TIMER_AMOUNT } from "./Constants";
 import AssetManager from "./AssetManager";
 import Player from "./Player";
 import PlayerProjectile from "./PlayerProjectile";
@@ -26,8 +26,12 @@ import GameObject from "./GameObject";
 import Item from "./Item";
 import ScreenManager from "./ScreenManager";
 import UIManager from "./UIManager";
+import Item_ScoreMult from "./Item-ScoreMult";
+import Item_Life from "./Item-Life";
+import Item_Time from "./Item-Time";
 
 // game objects
+let transitionTimer:number;
 let roundStartTimer:Timer;
 let roundTimer:Timer;
 let player:Player;
@@ -54,7 +58,11 @@ let eventGameOver:createjs.Event;
 /// game vars
 let playerLives:number;
 let score:number;
+let scoreMult:number;
 let enemiesInLevel:number;
+let round:number;
+let roundSeconds:number;
+let scoreMultTimer:number;
 
 // key boolean
 let upKey:boolean = false;
@@ -102,18 +110,19 @@ function monitorKeys():void{
 }
 
 function reset():void{
-    levelManager.clearLevel();
+    console.log("reset function");
+    levelManager.clearLevel(); // removes all tiles
     player.stopMe();
     player.removeMe();
+    for(let enemy of enemies){
+       // if(enemy.isActive){
+            enemy.stopMe(); // switch these to local resets that handles all of this
+            enemy.removeMe();
+       // }
+    }
     for(let projectile of playerProjPool){
         if(projectile.isActive){
             projectile.removeMe();
-        }
-    }
-    for(let enemy of enemies){
-        if(enemy.isActive){
-            enemy.stopMe(); // switch these to local resets that handles all of this
-            enemy.removeMe();
         }
     }
     for(let projectile of enemyProjPool){
@@ -161,10 +170,10 @@ function onKeyUp(e:KeyboardEvent):void{
 
 function onMouseDown(e:MouseEvent):void{
     if(player.state != Player.STATE_ALIVE) {return;}
-    console.log("click");
     for(let projectile of playerProjPool){
-        if(projectile.isActive == false){
+        if(projectile.isActive == false && player.canShoot){
             projectile.shoot(player.sprite.x, player.sprite.y, player.sprite.rotation);
+            createjs.Sound.play("player_shoot");
             player.canShoot = false;
             break;
         }
@@ -175,29 +184,45 @@ function onMouseDown(e:MouseEvent):void{
 function onGameEvent(e:createjs.Event):void{
     switch (e.type){
         case "gameStart":
+            console.log("gameStart");
+            createjs.Sound.play("song", {loop: -1});
+            round = 1;
             levelManager.loadNewLevel();
-            roundStartTimer.startTimer(3);
-            roundStartTimer.showText = true;
+            roundStartTimer.startTimer(3, true);
             screenManager.showGame();
+            uiManager.showUI();
         break;
 
         case "gameOver":
+            console.log("gameOver");
+            roundTimer.stopTimer();
+            uiManager.hideUI();
             reset();
             screenManager.showGameOver();
         break;
 
         case "gameReset": 
             // logic for game reset
+            console.log("gameReset");
+            roundTimer.stopTimer();
             playerLives = 3;
             score = 0;
+            round = 1;
+            roundSeconds = 30;
+            screenManager.showLoading();
             levelManager.loadNewLevel();
-            roundStartTimer.startTimer(5);
-        break;
-
+            // roundStartTimer.startTimer(3, true);
+            // screenManager.showGame();
+            // uiManager.showUI();
+            break;
+            
+            
         case "roundStart":
-            roundTimer.startTimer(30);
+            console.log("roundStart");
+            createjs.Sound.play("start");
+            roundTimer.startTimer(roundSeconds, false);
             enemiesInLevel = 0;
-            player.addMe();
+            //player.addMe();
             player.startMe();
             for(let enemy of enemies){
                 if(enemy.isActive){
@@ -205,63 +230,87 @@ function onGameEvent(e:createjs.Event):void{
                     enemiesInLevel++;
                 }
             }
-            console.log("start round!!");
+            uiManager.showUI();
         break;
 
         case "roundOver":
-            // reset everything(players, enemies, projectiles, etc.)
             // reconfigure the level
             // start the round start timer again\
-            reset();
-            levelManager.loadNewLevel();
-            roundStartTimer.startTimer(5);
+            // reset everything(players, enemies, projectiles, etc.)
+            console.log("Player state: " + player.state);
+            console.log("roundOver");
+            roundTimer.stopTimer();
+            round++;
+            if(levelManager.numEnSpawn < ENEMY_SPAWN_MAX){
+                levelManager.numEnSpawn = levelManager.numEnSpawn + 1;
+            }
+            if(roundSeconds > MIN_TIMER_AMOUNT){
+                roundSeconds--;
+            }
+
+            transitionTimer = window.setInterval(()=> {
+                reset();
+                levelManager.loadNewLevel();
+                roundStartTimer.startTimer(3, true);
+                window.clearInterval(transitionTimer);
+            }, 3000);
+
         break;
 
         case "roundReset":
+            console.log("roundReset");
             reset();
+            screenManager.showLoading();
+            roundTimer.stopTimer();
             levelManager.loadLevel();
-            player.addMe();
-            roundStartTimer.startTimer(3);
+            //player.addMe();
+            //roundStartTimer.startTimer(3, true);
+            uiManager.hideUI();
         break;
 
         case "timerExpired":
             //roundTimer.stopTimer();
-            player.stopMe();
-            for(let enemy of enemies){
-                enemy.stopMe();
-            }
-
+            console.log("timerExpired");
             playerLives--;
-            if(playerLives <= 0){
-                // dispatch game over event
-                stage.dispatchEvent(eventGameOver);
-            }
-            else{
-                stage.dispatchEvent(eventRoundReset);
-            }
-            console.log("timer expired!!");
+            createjs.Sound.play("fail");
+            transitionTimer = window.setInterval(()=> {
+                if(playerLives <= 0){
+                    // dispatch game over event
+                    stage.dispatchEvent(eventGameOver);
+                }
+                else{
+                    stage.dispatchEvent(eventRoundReset);
+                }
+                window.clearInterval(transitionTimer);
+            }, 3000);
         break;
 
         case "playerKilled":
-            if(player.state != Player.STATE_ALIVE) {return;}
+            // if(player.state != Player.STATE_DEAD) {return;}
+            console.log("playerKilled");
             roundTimer.stopTimer();
-            player.killMe();// consider moving this into the collision detect and dispatching event from player.killMe()
-            player.stopMe();
+            //player.killMe();// consider moving this into the collision detect and dispatching event from player.killMe()
+            //player.stopMe();
             playerLives--;
-            if(playerLives <= 0){
-                console.log("gameover");
-                // dispatch game over event
-                stage.dispatchEvent(eventGameOver);
-            }
-            else{
-                stage.dispatchEvent(eventRoundReset);
-            }
-            console.log("player killed!!");
+            createjs.Sound.play("fail");
+            transitionTimer = window.setInterval(()=> {
+                if(playerLives <= 0){
+                    // dispatch game over event
+                    console.log("timer dispatch game over");
+                    stage.dispatchEvent(eventGameOver);
+                }
+                else{
+                    console.log("timer dispatch round reset");
+                    stage.dispatchEvent(eventRoundReset);
+                }
+                window.clearInterval(transitionTimer);
+            }, 3000);
         break;
 
         case "enemyKilled":
             // increase store, decrease enemies on stage
-            score+= 50; // alter to be a more meaningful increment
+            console.log("enemyKilled");
+            score+= 50*scoreMult; // alter to be a more meaningful increment
             enemiesInLevel--;
             if(enemiesInLevel <= 0){
                 // dispatch round over event
@@ -271,6 +320,21 @@ function onGameEvent(e:createjs.Event):void{
 
         case "timePickUp":
             roundTimer.addTime(10);
+        break;
+        
+        case "lifePickUp":
+            playerLives++;
+        break;
+
+        case "scorePickUp":
+            scoreMult = scoreMult*2;
+            scoreMultTimer = window.setInterval(()=> { scoreMult = (scoreMult/2); window.clearInterval(scoreMultTimer);}, 5000);
+        break;
+
+        case "levelLoaded":
+            console.log("level loaded");
+            screenManager.showGame();
+            roundStartTimer.startTimer(3, true);
         break;
     }
 }
@@ -293,22 +357,23 @@ function onReady(e:createjs.Event):void {
     // stage.addChildAt(background, 0);
     
     player = new Player(stage, assetManager, eventPlayerKilled);
-    player.sprite.x = 240;
-    player.sprite.y = 340;
-    player.addMe();
     
     screenManager = new ScreenManager(stage, assetManager, player);
     screenManager.showStart();
 
     uiManager = new UIManager(stage, assetManager);
 
-    playerLives = 3;
+    playerLives = 1;
     score = 0;
+    scoreMult = 1;
     enemiesInLevel = 0;
+    round = 1;
+    roundSeconds = 30;
 
-    roundStartTimer = new Timer(stage, assetManager, eventRoundStart);
+    
+    roundStartTimer = new Timer(stage, assetManager, eventRoundStart, 3);
     roundStartTimer.positionText(215,215, 3);
-    roundTimer = new Timer(stage, assetManager, eventRoundTimerExpired);
+    roundTimer = new Timer(stage, assetManager, eventRoundTimerExpired, 30);
     // roundTimer.positionText(,,1);
   
     for(let i:number = 0; i < 100; i++){
@@ -316,16 +381,15 @@ function onReady(e:createjs.Event):void {
         enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled, EnemyProjectile.TYPE_LASER));
         enemyProjPool.push(new EnemyProjectile(stage, assetManager, player, eventPlayerKilled, EnemyProjectile.TYPE_TURRET));
     }
-
     
-    // contruct enemy object pool
-    for(let i:number = 0; i < 5; i++){
+    // construct enemy object pool
+    for(let i:number = 0; i < 20; i++){
         enemies.push(new Enemy_Sentinel(stage, assetManager, eventPlayerKilled, enemyProjPool));
     }
-    for(let i:number = 0; i < 5; i++){
+    for(let i:number = 0; i < 20; i++){
         enemies.push(new Enemy_Laser(stage, assetManager, eventPlayerKilled, enemyProjPool));
     }
-    for(let i:number = 0; i < 5; i++){
+    for(let i:number = 0; i < 20; i++){
         enemies.push(new Enemy_Turret(stage, assetManager, eventPlayerKilled, enemyProjPool, player));
     }
 
@@ -334,10 +398,16 @@ function onReady(e:createjs.Event):void {
     }
 
     for(let i:number = 0; i < 20; i++){
-        items.push(new Item(stage, assetManager));
+        items.push(new Item_Life(stage, assetManager));
+    }
+    for(let i:number = 0; i < 20; i++){
+        items.push(new Item_ScoreMult(stage, assetManager));
+    }
+    for(let i:number = 0; i < 20; i++){
+        items.push(new Item_Time(stage, assetManager));
     }
 
-    // contructing tiles
+    // constructing tiles
     for(let i:number = 0; i < 56; i++){
         tiles.push(new Tile_Wall(stage, assetManager, player));
     }
@@ -355,9 +425,8 @@ function onReady(e:createjs.Event):void {
     }
     tiles.push(new Tile_PlayerSpawn(stage,assetManager, player));
     console.log("tiles.length = " + tiles.length);
-    // need to move this into game start?
+    
     levelManager = new LevelManager(stage, tiles);
-    //levelManager.loadNewLevel();
 
     // listen for game events
     stage.on("gameOver", onGameEvent);
@@ -370,14 +439,15 @@ function onReady(e:createjs.Event):void {
     stage.on("timerExpired", onGameEvent);
     stage.on("enemyKilled", onGameEvent);
     stage.on("timePickUp", onGameEvent);
+    stage.on("lifePickUp", onGameEvent);
+    stage.on("scorePickUp", onGameEvent);
+    stage.on("levelLoaded", onGameEvent);
 
     // set up keyboard listeners
     document.onkeydown = onKeyDown;
     document.onkeyup = onKeyUp;
     document.onmousedown = onMouseDown;
 
-    // start round start timer
-    // roundStartTimer.startTimer(5); doing this in startGame now
     // startup the ticker
     createjs.Ticker.framerate = FRAME_RATE;
     createjs.Ticker.on("tick", onTick);        
@@ -413,7 +483,7 @@ function onTick(e:createjs.Event):void {
         }
     }
 
-    uiManager.update(score, roundTimer.seconds, playerLives);
+    uiManager.update(score, roundTimer.seconds, playerLives, round);
     
     // update the stage!
     stage.update();

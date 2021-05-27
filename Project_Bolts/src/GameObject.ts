@@ -23,7 +23,7 @@ export default class GameObject{
     // ----------------------------------------------------------------------------- public methods
 
     public addMe():void{
-        //this._sprite.play();
+        this._sprite.play();
         this.stage.addChild(this._sprite);
         this._isActive = true;
     }

@@ -1,4 +1,5 @@
 import AssetManager from "./AssetManager";
+import { } from "./Constants";
 import GameObject from "./GameObject";
 import Player from "./Player";
 
@@ -25,7 +26,7 @@ export default class Tile extends GameObject{
     // -------------------------------------------------------------- public methods
     public addMe():void{
         super.addMe();
-        this.stage.addChildAt(this._sprite, 1);
+        this.stage.addChildAt(this._sprite, 0);
     }
     // -------------------------------------------------------------- private methods
     // -------------------------------------------------------------- accessors

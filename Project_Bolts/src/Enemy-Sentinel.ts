@@ -27,11 +27,13 @@ export default class Enemy_Sentinel extends Enemy{
         this._ammoType = EnemyProjectile.TYPE_BULLET;
 
         this._sprite = assetManager.getSprite("character-sprites","sentinel-outline/idle");
+        this._defaultAnim = "sentinel-outline/idle";
         this._id = Enemy.ID_SENTINEL;
     }
 
     // ---------------------------------------------------------------------------- public methods
     public update(tiles:Tile[], player:Player):void{
+        if(this._state != Enemy.STATE_ALIVE) {return;}
         super.update(tiles, player);
         this.detectCollisions(tiles, player, 90);
         this.lookAtPlayer(player);
@@ -40,18 +42,23 @@ export default class Enemy_Sentinel extends Enemy{
     public removeMe():void{
         super.removeMe();
         window.clearInterval(this.timer);
+        console.log("removing enemy");
     }
 
     public killMe():void{
         if(this._state != Enemy.STATE_ALIVE) {return;}
         super.killMe();
         this._sprite.gotoAndPlay("sentinel/death");
-        this._sprite.on("animationend", ()=> { this.removeMe(); } );
+        this._sprite.on("animationend", ()=> { this._sprite.gotoAndPlay("explosion"); this._sprite.on("animationend", ()=> { this.removeMe(); this.stopMe(); }); });
     }
+
     // ---------------------------------------------------------------------------- private methods
+    protected shoot():void{
+        super.shoot();
+        this._sprite.gotoAndPlay("sentinel-outline/shoot");
+        this._sprite.on("animationend", ()=> { this._sprite.gotoAndPlay("sentinel-outline/idle"); });
+    }
 
     // ---------------------------------------------------------------------------- accessors
-
-
 
 }

@@ -13,16 +13,17 @@ export default class Tile_ItemSpawn extends Tile{
     constructor(stage:createjs.StageGL, assetManager:AssetManager, player:Player, items:Item[]){
         super(stage, assetManager, player);
         this._id = Tile.ID_ITEM_SPAWN;
-        this._sprite = assetManager.getSprite("placeholder-assets", "Item-Spawn");
+        this._sprite = assetManager.getSprite("environment-sprites", "floor");
         this.items = items;
+        this._itemID = randomMe(0,2);
     }
 
     //-------------------------------------------------------------------- public methods
-
     public addMe():void{
         super.addMe();
         this.getItem();
     }
+
     //-------------------------------------------------------------------- private methods
     private getItem():void{
         this._itemID = randomMe(0, 2);

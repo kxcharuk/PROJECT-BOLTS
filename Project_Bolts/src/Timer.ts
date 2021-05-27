@@ -13,15 +13,15 @@ export default class Timer{
     private stage:createjs.StageGL;
     private assetManager:AssetManager;
 
-    constructor(stage:createjs.StageGL, assetManager:AssetManager, event:createjs.Event){
+    constructor(stage:createjs.StageGL, assetManager:AssetManager, event:createjs.Event, digit:number){
         this.stage = stage;
         this.assetManager = assetManager;
         
-        this._seconds = 0;
+        this._seconds = digit;
 
         this.eventTimeExpired = event;
         // construct bitmap text object when adding timer display
-        this.txtSeconds = new createjs.BitmapText("10", assetManager.getSpriteSheet("glyphs"));
+        this.txtSeconds = new createjs.BitmapText("3", assetManager.getSpriteSheet("glyphs"));
         this.txtSeconds.letterSpacing = 1;
         this.txtSeconds.x = 16;
         this.txtSeconds.y = 16;
@@ -29,14 +29,16 @@ export default class Timer{
     }
     
     // ------------------------------------------------------------------------- public methods
-    public startTimer(duration:number):void{
+    public startTimer(duration:number, showTimer:boolean):void{
+        this._showText = showTimer;
         window.clearInterval(this.timer);
-        if(this.showText){
-            this.stage.addChild(this.txtSeconds);
+        if(this._showText){
+            this.stage.addChildAt(this.txtSeconds, this.stage.numChildren);
         }
+        
         // start interval here
         this._seconds = duration;
-
+        this.txtSeconds.text = this._seconds.toString();
         // timer is running this event handler every second -> to update the timer txt
         this.timer = window.setInterval(()=>{
             this._seconds--;

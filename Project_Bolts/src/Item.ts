@@ -25,13 +25,23 @@ export default class Item extends GameObject{
 
     public addMe():void{
         super.addMe();
-        this.stage.addChildAt(this._sprite, 2); 
+        this._sprite.play();
+        this.stage.addChildAt(this._sprite, this.stage.numChildren); 
+    }
+
+    public removeMe():void{
+        super.removeMe();
+        this._sprite.stop();
     }
 
     // -------------------------------------------------------------- private methods
-    protected detectCollisions(player:Player, event:createjs.Event):void{
+    protected detectCollisions(player:Player, event:createjs.Event, anim:string, sound:string):void{
         if(radiusHit(this._sprite, 10, player.sprite, 13)){
-            this.removeMe();
+            if(!this._isActive) {return;}
+            this._isActive = false;
+            this._sprite.gotoAndPlay(anim);
+            createjs.Sound.play(sound);
+            this._sprite.on("animationend", ()=> { this._sprite.stop(); this.removeMe(); });
             this.stage.dispatchEvent(event);
         }
     }

@@ -12,6 +12,7 @@ export default class Enemy_Turret extends Enemy{
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, projectilePool:EnemyProjectile[], player:Player){
         super(stage, assetManager, eventPlayerKilled, projectilePool);
         this._sprite = assetManager.getSprite("character-sprites","turret-outline/alive");
+        this._defaultAnim = "turret-outline/alive";
         this._id = Enemy.ID_TURRET;
 
         this._ammoType = EnemyProjectile.TYPE_TURRET;
@@ -28,7 +29,13 @@ export default class Enemy_Turret extends Enemy{
     public killMe():void{
         super.killMe();
         this._sprite.gotoAndPlay("turret/death");
-        this._sprite.on("animationend", ()=> { this.removeMe(); });
+        this._sprite.on("animationend", ()=> { this._sprite.gotoAndPlay("explosion"); this._sprite.on("animationend", ()=> { this.removeMe(); this.stopMe(); }); });
+    }
+
+    public removeMe():void{
+        super.removeMe();
+        window.clearInterval(this.timer);
+        console.log("removing enemy");
     }
 
     // ----------------------------------------------------------------------------------- private methods
@@ -39,8 +46,9 @@ export default class Enemy_Turret extends Enemy{
     protected shoot():void{
         if(this._state != Enemy.STATE_ALIVE){return;}
         let count:number = 0;
+        this._sprite.gotoAndPlay("turret-outline/shoot");
         for(let projectile of this.enemyProjPool){
-            if(count > 3) { break;}
+            if(count > 3) { this._sprite.gotoAndPlay("turret-outline/alive"); break;}
             if(!projectile.isActive && projectile.type == this._ammoType){
                 if(count == 0){
                     projectile.shoot(this._sprite.x, this._sprite.y, this._sprite.rotation - 45);
@@ -61,7 +69,9 @@ export default class Enemy_Turret extends Enemy{
 
     protected detectCollisions():void{
         if(radiusHit(this._sprite, 15, this.player.sprite, 13)){
-            this.stage.dispatchEvent(this.eventPlayerKilled);
+            console.log("turret collision kill");
+            this.player.killMe();
+            this.killMe();
         }
     }
     // ----------------------------------------------------------------------------------- accessors

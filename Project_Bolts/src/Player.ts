@@ -27,7 +27,7 @@ export default class Player extends GameObject{
     private yDisplacement:number;
 
     // custom events
-    private eventPlayerDied:createjs.Event;
+    private eventPlayerKilled:createjs.Event;
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event){
         super(stage,assetManager);
@@ -37,7 +37,7 @@ export default class Player extends GameObject{
         this._canShoot = false;
         this._shotDelay = PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
-        this.eventPlayerDied = eventPlayerKilled;
+        this.eventPlayerKilled = eventPlayerKilled;
         this._canMoveHorizontal = true;
         this._canMoveVertical = true;
         this._isMoving = false;
@@ -45,7 +45,7 @@ export default class Player extends GameObject{
 
     // -------------------------------------------------------------------- public methods
     public update(tiles:Tile[]):void{
-        if(this._state != Player.STATE_ALIVE) {return;}
+        if(this._state != Player.STATE_ALIVE || !this._isActive) {return;}
         if(!this._canShoot){
             this.checkShootDelay();
         }
@@ -83,12 +83,21 @@ export default class Player extends GameObject{
     }
 
     public killMe():void{
-        if(this._state != Player.STATE_ALIVE) { return; }
-        this._state = Player.STATE_DEAD; // this needs to be changed to STATE_DYING and using animationend to change to STATE_DEAD
+        if(this._state != Player.STATE_ALIVE || !this._isActive) { return; }
+        console.log(" ")
+        this._state = Player.STATE_DEAD; 
         this._isActive = false;
-        this.removeMe();
-        // this._sprite.gotoAndPlay("");
-        //this._sprite.dispatchEvent(this.eventPlayerDied);
+        //this.removeMe();
+        createjs.Sound.play("player_explosion");
+        this._sprite.gotoAndPlay("explosion2");
+        this._sprite.on("animationend", ()=> { this.stopMe(); this.removeMe(); this.stage.dispatchEvent(this.eventPlayerKilled);}, this, true);
+    }
+
+    public addMe():void{
+        //super.addMe();
+        this._isActive = true;
+        this._sprite.gotoAndStop("player-outline");
+        this.stage.addChildAt(this._sprite, this.stage.numChildren);
     }
 
     public startMe():void{
@@ -98,6 +107,7 @@ export default class Player extends GameObject{
 
     public stopMe():void{
         this._state = Player.STATE_IDLE;
+        this._sprite.stop();
     }
 
     // -------------------------------------------------------------------- private methods

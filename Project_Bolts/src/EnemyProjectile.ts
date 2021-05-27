@@ -46,15 +46,17 @@ export default class EnemyProjectile extends Projectile{
 
     public addMe():void{
         super.addMe();
+        this._sprite.play();
         this.stage.addChildAt(this._sprite, this.stage.getChildIndex(this.player.sprite));
     }
     // --------------------------------------------------------------------- private methods
     protected detectCollisions(tiles:Tile[]):void{
         super.detectCollisions(tiles);
         if(radiusHit(this._sprite, 5, this.player.sprite, 13)){
-            if(!this.player.isActive) {return;}
+            if(!this.player.isActive || this.player.state != Player.STATE_ALIVE) {return;}
+            console.log("enemy projectile kill" + " " + this._type);
             this.removeMe();
-            this.stage.dispatchEvent(this.eventPlayerKilled); // think about just moving this to player.killed() and calling the former here
+            this.player.killMe();
         }
     }
 

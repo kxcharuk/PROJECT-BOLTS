@@ -19,7 +19,6 @@ export default class PlayerProjectile extends Projectile{
     }
 
     // ----------------------------------------------------------------------------- public methods
-
     public update(tiles:Tile[]):void{
         super.update(tiles);
         this.detectCollisions(tiles);
@@ -29,8 +28,8 @@ export default class PlayerProjectile extends Projectile{
         super.detectCollisions(tiles);
         for(let enemy of this.enemies){
             if(radiusHit(this._sprite, 16, enemy.sprite, 16)){
-                if(!enemy.isActive) {return;}
-                enemy.killMe(); // to be changed to enemy.killMe();
+                if(!enemy.isActive || enemy.state != Enemy.STATE_ALIVE) {return;}
+                enemy.killMe(); 
                 this.removeMe();
             }
         }

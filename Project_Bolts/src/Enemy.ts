@@ -3,6 +3,7 @@ import { ENEMY_SPEED } from "./Constants";
 import EnemyProjectile from "./EnemyProjectile";
 import GameObject from "./GameObject";
 import Player from "./Player";
+import PlayerProjectile from "./PlayerProjectile";
 import Tile from "./Tile";
 import { boxHit, radiusHit, randomMe, toDegrees, toRadians } from "./Toolkit";
 
@@ -27,6 +28,7 @@ export default class Enemy extends GameObject{
     protected _movementAngle:number; // may need to store the angle at which we are moving so we can easily change it
     protected _id:number;
     protected _ammoType:number;
+    protected _defaultAnim:string;
     
     protected timer:number;
     protected xDisplacement:number;
@@ -43,15 +45,15 @@ export default class Enemy extends GameObject{
         //this._state = Enemy.STATE_ALIVE;
         this._isActive = false;
         this.enemyProjPool = enemyProjPool;
-        this.eventPlayerKilled = eventPlayerKilled;
+        //this.eventPlayerKilled = eventPlayerKilled;
         this.eventEnemyKilled = new createjs.Event("enemyKilled", true, false);
 
-        this._shotDelay = randomMe(750, 2500);
+        this._shotDelay = randomMe(1500, 3000);
     }
 
     // ---------------------------------------------------------------- public methods
     public update(tiles:Tile[], player:Player):void{
-        if(this._state != Enemy.STATE_ALIVE) {return;}
+        if(this._state != Enemy.STATE_ALIVE || !this._isActive) {return;}
         this.move();
     }
 
@@ -59,6 +61,7 @@ export default class Enemy extends GameObject{
         if(this._state != Enemy.STATE_ALIVE) {return;}
         this._state = Enemy.STATE_DEAD; // change to DYING and create onanimationend event listener => handler
         this.stopMe();
+        createjs.Sound.play("enemy_explosion");
         //this.removeMe();
         this.stage.dispatchEvent(this.eventEnemyKilled);
     }
@@ -67,13 +70,21 @@ export default class Enemy extends GameObject{
         this._state = Enemy.STATE_ALIVE;
         this._sprite.play();
         this.timer = window.setInterval(()=>{
+            createjs.Sound.play("enemy_shooting");
             this.shoot();
         }, this._shotDelay);
     }
 
     public stopMe():void{
         this._state = Enemy.STATE_IDLE;
+        this._sprite.gotoAndStop(this._defaultAnim);
         window.clearInterval(this.timer);
+    }
+
+    public addMe():void{
+        super.addMe();
+        this.stage.addChildAt(this._sprite, this.stage.numChildren);
+        console.log("adding enemy");
     }
 
     // ---------------------------------------------------------------- private methods
@@ -107,17 +118,11 @@ export default class Enemy extends GameObject{
             }
         }
         if(radiusHit(this._sprite, 12, player.sprite, 12)){
+            if(!player.isActive || player.state != Player.STATE_ALIVE) { return; }
+            console.log("enemy collision kill");
             this.killMe();
-            this.stage.dispatchEvent(this.eventPlayerKilled);
+            player.killMe();
         }
-        /* we could make detecting collisions more optimal by sectioning the stage coordinates into
-        quadrants and only run collision checks for objects in the same quadrant as you.
-        alternatively we could also create a large radius or box around objects and only detect collisions of
-        things within that radius (is this almost like detecting collisions twice??) ** ponder **
-        even if it is running another check it will extremely limit the amount of checks made per frame'
-        after projectiles of both types are added there will be a lot of collision checks per frame...
-        */
-        // collision with player projectiles?
     }
 
     protected shoot():void{
@@ -141,5 +146,9 @@ export default class Enemy extends GameObject{
     // ---------------------------------------------------------------- accessors
     public get id():number{
         return this._id;
+    }
+
+    public get state():number{
+        return this._state;
     }
 }

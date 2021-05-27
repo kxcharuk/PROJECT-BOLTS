@@ -32,6 +32,12 @@ export default class Projectile extends GameObject{
     public addMe():void{
         this.getDirection();
         super.addMe();
+        this._sprite.play();
+    }
+
+    public removeMe():void{
+        super.removeMe();
+        this._sprite.stop();
     }
 
     public rotate(degrees:number):void{
@@ -62,8 +68,8 @@ export default class Projectile extends GameObject{
             if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
                 if(tile.isActive){
                     if(radiusHit(this._sprite, 12, tile.sprite, 12)){
+                        createjs.Sound.play("hit");
                         this.removeMe();
-                        console.log("removing me");
                     }
                 }
             }
