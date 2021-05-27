@@ -33,7 +33,7 @@ export default class Player extends GameObject{
         super(stage,assetManager);
         this._state = Player.STATE_IDLE;
         this._speed = PLAYER_SPEED;
-        this._sprite = assetManager.getSprite("character-sprites", "player");
+        this._sprite = assetManager.getSprite("character-sprites", "player-outline");
         this._canShoot = false;
         this._shotDelay = PLAYER_SHOT_DELAY;
         this._ticksExpired = 0;
@@ -87,6 +87,7 @@ export default class Player extends GameObject{
         this._state = Player.STATE_DEAD; // this needs to be changed to STATE_DYING and using animationend to change to STATE_DEAD
         this._isActive = false;
         this.removeMe();
+        // this._sprite.gotoAndPlay("");
         //this._sprite.dispatchEvent(this.eventPlayerDied);
     }
 

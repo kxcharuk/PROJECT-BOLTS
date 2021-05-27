@@ -16,6 +16,7 @@ export const ENEMY_SHOT_DELAY = 20;
 
 // manifest for AssetManager
 export const ASSET_MANIFEST = [
+    // placeholder
     {
         type:"json",
         src:"./lib/spritesheets/placeholder-assets.json",
@@ -28,17 +29,30 @@ export const ASSET_MANIFEST = [
         id:"placeholder-assets",
         data:0
     },
-    // projectiles
+    // environment (tiles)
     {
         type:"json",
-        src:"./lib/spritesheets/projectile-sprites.json",
-        id:"projectile-sprites",
+        src:"./lib/spritesheets/environment-sprites.json",
+        id:"environment-sprites",
         data:0
     },
     {
         type:"image",
-        src:"./lib/spritesheets/projectile-sprites.png",
-        id:"projectile-sprites",
+        src:"./lib/spritesheets/environment-sprites.png",
+        id:"environment-sprites",
+        data:0
+    },
+    // projectiles/vfx(explosions)
+    {
+        type:"json",
+        src:"./lib/spritesheets/projectile-vfx-sprites.json",
+        id:"projectile-vfx-sprites",
+        data:0
+    },
+    {
+        type:"image",
+        src:"./lib/spritesheets/projectile-vfx-sprites.png",
+        id:"projectile-vfx-sprites",
         data:0
     },
     // characters
@@ -54,17 +68,30 @@ export const ASSET_MANIFEST = [
         id:"character-sprites",
         data:0
     },
-    // screens
+    // items
     {
         type:"json",
-        src:"./lib/spritesheets/screens-sprites.json",
-        id:"screens",
+        src:"./lib/spritesheets/items-sprites.json",
+        id:"items-sprites",
         data:0
     },
     {
         type:"image",
-        src:"./lib/spritesheets/screens-sprites.png",
-        id:"screens",
+        src:"./lib/spritesheets/items-sprites.png",
+        id:"items-sprites",
+        data:0
+    },
+    // screens/ui
+    {
+        type:"json",
+        src:"./lib/spritesheets/screens-ui-sprites.json",
+        id:"screens-ui-sprites",
+        data:0
+    },
+    {
+        type:"image",
+        src:"./lib/spritesheets/screens-ui-sprites.png",
+        id:"screens-ui-sprites",
         data:0
     },
     // glyphs

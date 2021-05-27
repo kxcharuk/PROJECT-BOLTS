@@ -11,7 +11,7 @@ export default class Enemy_Turret extends Enemy{
 
     constructor(stage:createjs.StageGL, assetManager:AssetManager, eventPlayerKilled:createjs.Event, projectilePool:EnemyProjectile[], player:Player){
         super(stage, assetManager, eventPlayerKilled, projectilePool);
-        this._sprite = assetManager.getSprite("character-sprites","enemy-turret");
+        this._sprite = assetManager.getSprite("character-sprites","turret-outline/alive");
         this._id = Enemy.ID_TURRET;
 
         this._ammoType = EnemyProjectile.TYPE_TURRET;
@@ -23,6 +23,12 @@ export default class Enemy_Turret extends Enemy{
         if(this._state != Enemy.STATE_ALIVE) {return;}
         this.spin();
         this.detectCollisions();
+    }
+
+    public killMe():void{
+        super.killMe();
+        this._sprite.gotoAndPlay("turret/death");
+        this._sprite.on("animationend", ()=> { this.removeMe(); });
     }
 
     // ----------------------------------------------------------------------------------- private methods

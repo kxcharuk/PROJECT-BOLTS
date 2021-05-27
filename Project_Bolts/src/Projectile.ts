@@ -58,7 +58,6 @@ export default class Projectile extends GameObject{
     }
 
     protected detectCollisions(tiles:Tile[]):void{
-        console.log("calling detect coll");
         for(let tile of tiles){
             if(tile.id == Tile.ID_WALL || tile.id == Tile.ID_OBSTACLE){
                 if(tile.isActive){
